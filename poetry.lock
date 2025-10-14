@@ -3431,16 +3431,19 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
-name = "svgwrite"
-version = "1.4.3"
-description = "A Python library to create SVG drawings."
+name = "svg-py"
+version = "1.9.1"
+description = "SVG drawing library"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "svgwrite-1.4.3-py3-none-any.whl", hash = "sha256:bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d"},
-    {file = "svgwrite-1.4.3.zip", hash = "sha256:a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3"},
+    {file = "svg_py-1.9.1-py3-none-any.whl", hash = "sha256:58ae244680bd92c1e26aacaaca73b086b0f4b2ac67ee3d7770f2d7878ca344f4"},
+    {file = "svg_py-1.9.1.tar.gz", hash = "sha256:8702c5b952d58edccff0df9aa28e29bdc521cd8b1c175aaceeb1a3d10817b77c"},
 ]
+
+[package.extras]
+dev = ["isort", "mypy", "pytest"]
 
 [[package]]
 name = "terminado"
@@ -3679,4 +3682,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "2f779a0dc5dec3b59791d48c19064515f91266672f02240059b983f6667d736a"
+content-hash = "08e317499b3f5ef150587083e607320b54426f7f3da556f67458bbdc881f08b7"
