@@ -1,0 +1,5 @@
+# clear output from jupyter notebooks (see README.md)
+*.ipynb filter=clearoutput
+# if you want to use this filter you need to add this to your ~/.gitconfig
+# [filter "clearoutput"]
+#        clean = "jupyter nbconvert --to notebook --ClearOutputPreprocessor.enabled=True --stdin --stdout"

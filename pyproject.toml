@@ -1,0 +1,28 @@
+[project]
+name = "geo_data"
+version = "0.1.0"
+description = "A template for Python projects created by Adrian Kühn."
+authors = [
+    {name = "akuehn",email = "adrian-kuehn@posteo.de"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "jupyter (>=1.1.1,<2.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "geo_data", from = "src"}]
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+isort = "^6.0.1"
+pre-commit = "^4.2.0"
+pytest = "^8.3.5"
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
