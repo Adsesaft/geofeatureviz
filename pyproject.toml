@@ -10,7 +10,8 @@ requires-python = ">=3.11"
 dependencies = [
     "jupyter (>=1.1.1,<2.0.0)",
     "geopandas (>=1.1.1,<2.0.0)",
-    "matplotlib (>=3.10.7,<4.0.0)"
+    "matplotlib (>=3.10.7,<4.0.0)",
+    "svgwrite (>=1.4.3,<2.0.0)"
 ]
 
 [tool.poetry]
