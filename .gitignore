@@ -1,5 +1,7 @@
 # all files in the data directory
 data/
+# all files in the results directory
+results/
 
 # Mac File Management
 .DS_Store
