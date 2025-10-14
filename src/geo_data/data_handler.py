@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import geopandas as gpd
+import numpy as np
+from shapely.geometry.multipolygon import MultiPolygon
+from shapely.geometry.polygon import Polygon
 
 from geo_data import helpers
 
@@ -71,3 +74,21 @@ def _get_file_path(kind: str, source: str, resolution: int) -> Path:
             f"are: {DATA_FILES}"
         )
     return helpers.get_top_directory() / "data" / file_name
+
+
+def polygon_is_all_inf(geometry: Polygon | MultiPolygon) -> bool:
+    """Check whether ALL coordinate values in a Polygon or Multipolygon are infinity.
+
+    Args:
+        geometry: The polygon or multipolygon to check the coordinates.
+
+    Returns:
+        True when all coordinate values are infinity, else False.
+    """
+    if isinstance(geometry, Polygon):
+        coords = np.array(geometry.exterior.coords)
+    elif isinstance(geometry, MultiPolygon):
+        coords = np.array([c for geom in geometry.geoms for c in geom.exterior.coords])
+    else:
+        return False
+    return bool(np.isinf(coords).all())
