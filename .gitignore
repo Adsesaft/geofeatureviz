@@ -1,3 +1,6 @@
+# all files in the data directory
+data/
+
 # Mac File Management
 .DS_Store
 
