@@ -149,55 +149,46 @@ class MapSVG(svg.SVG):
                     return result
         return None
 
-    def add_geometry(
+    def geometry_to_svg(
         self,
-        geom: BaseGeometry,
-        x_lim: tuple,
-        polygon_id: str,
-        group_id: str | None = None,
-        y_lim: tuple | None = None,
+        geometry: BaseGeometry,
+        geometry_id: str,
         **kwargs,
-    ) -> None:
-        """Add a shapely geometry (from a GeoDataFrame) to the SVG file.
+    ) -> svg.Element:
+        """Create an SVG-element from a shapely geometry (from a GeoDataFrame) to the SVG file.
 
         Currently, only Polygon and MultiPolygon geometries are supported. If a polygon
-        is given, it is added as a single polygon. If a multipolygon is given, each
+        is given, it is created as a single polygon. If a multipolygon is given, each
         polygon in the multipolygon is added as a separate polygon, and all polygons
-        are grouped together in a group with the given polygon_id.
+        are grouped together in a group with the given geometry_id.
 
         Args:
-            geom: The geometry to add. Currently, only Polygon and MultiPolygon are
-                supported.
-            x_lim: Limits of the x-axis of all shapes that will be added to the SVG in
-                the domain of the geographical data as (x_min, x_max).
-            polygon_id: Identifier name of the polygon or group of polygons.
-            group_id: Identifier of the group to which the Polygon should be added.
-                Defaults to None.
-            y_lim: Limits of the y-axis of all shapes that will be added to the SVG in
-                the domain of the geographical data as (y_min, y_max). If None is given,
-                the same limits as for the x-axis are taken. Defaults to None.
+            geometry: The geometry to create an SVG-element from. Currently, only
+                Polygon and MultiPolygon are supported.
+            geometry_id: Identifier name of the polygon or group of polygons.
 
         Raises:
             ValueError: If an unsupported geometry type is given.
         """
-        if isinstance(geom, Polygon):
-            points = self._polygon_to_svg_coords(geom, x_lim=x_lim, y_lim=y_lim)
-            polygon = svg.Polygon(
-                points=list(points.flatten()), id=polygon_id, **kwargs
+        if isinstance(geometry, Polygon):
+            points = np.array(geometry.exterior.coords)
+            points = self._transform_to_svg_coords(points)
+            svg_element = svg.Polygon(
+                points=list(points.flatten()), id=geometry_id, **kwargs
             )
-            self.add(polygon, group_id=group_id)
-        elif isinstance(geom, MultiPolygon):
+        elif isinstance(geometry, MultiPolygon):
             group_polygons = []
-            for i, polygon in enumerate(geom.geoms):
-                points = self._polygon_to_svg_coords(polygon, x_lim=x_lim, y_lim=y_lim)
+            for i, polygon in enumerate(geometry.geoms):
+                points = np.array(polygon.exterior.coords)
+                points = self._transform_to_svg_coords(points)
                 polygon = svg.Polygon(
-                    points=list(points.flatten()), id=f"{polygon_id}_{i}"
+                    points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
                 )
                 group_polygons.append(polygon)
-            group = svg.G(id=polygon_id, elements=group_polygons, **kwargs)
-            self.add(group, group_id=group_id)
+            svg_element = svg.G(id=geometry_id, elements=group_polygons, **kwargs)
         else:
-            raise ValueError(f"This geom_type can not be added: {geom.geom_type}")
+            raise ValueError(f"This geom_type can not be added: {geometry.geom_type}")
+        return svg_element
 
     def _polygon_to_svg_coords(
         self, geom: Polygon, x_lim: tuple, y_lim: tuple | None = None
