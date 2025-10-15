@@ -232,11 +232,11 @@ class MapSVG(svg.SVG):
         points = points * np.array([1, -1]) + np.array([0, svg_size[0]])
         return points
 
-    def save(self, file_path: Path) -> None:
+    def save(self, file_path: str | Path) -> None:
         """Save the SVG file to the given path.
 
         Args:
-            filepath: Path to save the SVG file to.
+            file_path: Path to save the SVG file to.
         """
-        with open(file_path, "w") as f:
-            f.write(str(self))
+        path = Path(file_path)
+        path.write_text(str(self), encoding="utf-8")
