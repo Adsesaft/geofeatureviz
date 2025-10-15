@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import svg
 from shapely.geometry.base import BaseGeometry
+from shapely.geometry.linestring import LineString
+from shapely.geometry.multilinestring import MultiLineString
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
@@ -155,17 +157,19 @@ class MapSVG(svg.SVG):
         geometry_id: str,
         **kwargs,
     ) -> svg.Element:
-        """Create an SVG-element from a shapely geometry (from a GeoDataFrame) to the SVG file.
+        """Create an SVG-element from a shapely geometry (from a GeoDataFrame).
 
-        Currently, only Polygon and MultiPolygon geometries are supported. If a polygon
-        is given, it is created as a single polygon. If a multipolygon is given, each
-        polygon in the multipolygon is added as a separate polygon, and all polygons
-        are grouped together in a group with the given geometry_id.
+        Currently, Polygon, MultiPolygon, LineString and MultiLineString geometries are
+        supported. If a single geometry is given, it is created as a single SVG-element.
+        If a multi-geometry is given, each geometry in the multi-geometry is added as a
+        separate geometry, and all those are grouped together in a group with the given
+        geometry_id.
 
         Args:
-            geometry: The geometry to create an SVG-element from. Currently, only
-                Polygon and MultiPolygon are supported.
-            geometry_id: Identifier name of the polygon or group of polygons.
+            geometry: The geometry to create an SVG-element from. Currently, the
+                supported geometries are Polygon, MultiPolygon, LineString,
+                MultiLineString.
+            geometry_id: Identifier name of the geometry or group of geometries.
 
         Raises:
             ValueError: If an unsupported geometry type is given.
@@ -186,8 +190,26 @@ class MapSVG(svg.SVG):
                 )
                 group_polygons.append(polygon)
             svg_element = svg.G(id=geometry_id, elements=group_polygons, **kwargs)
+        elif isinstance(geometry, LineString):
+            points = np.array(geometry.coords)
+            points = self._transform_to_svg_coords(points)
+            svg_element = svg.Polyline(
+                points=list(points.flatten()), id=geometry_id, **kwargs
+            )
+        elif isinstance(geometry, MultiLineString):
+            group_polylines = []
+            for i, line in enumerate(geometry.geoms):
+                points = np.array(line.coords)
+                points = self._transform_to_svg_coords(points)
+                polyline = svg.Polyline(
+                    points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
+                )
+                group_polylines.append(polyline)
+            svg_element = svg.G(id=geometry_id, elements=group_polylines, **kwargs)
         else:
-            raise ValueError(f"This geom_type can not be added: {geometry.geom_type}")
+            raise ValueError(
+                f"This geometry type can not be added: {geometry.geom_type}"
+            )
         return svg_element
 
     def _transform_to_svg_coords(
