@@ -190,37 +190,28 @@ class MapSVG(svg.SVG):
             raise ValueError(f"This geom_type can not be added: {geometry.geom_type}")
         return svg_element
 
-    def _polygon_to_svg_coords(
-        self, geom: Polygon, x_lim: tuple, y_lim: tuple | None = None
+    def _transform_to_svg_coords(
+        self,
+        points: np.ndarray,
     ) -> np.ndarray:
         """Get the coordinates of a GeoPandas geometry in SVG coordinates.
 
         Args:
-            geom: Geometry from a GeoPandas GeoDataFrame.
-            x_lim: Limits on the x-axis of all shapes that will be added to the SVG in
-                the domain of the geographical data as (x_min, x_max).
-            y_lim: Limits on the y-axis of all shapes that will be added to the SVG in
-                the domain of the geographical data as (y_min, y_max).If None is given,
-                the same limits as in x_lim are used. Defaults to None.
+            points: Coordinate points in a domain that should be transformed to this
+                SVG-coordinate system. Array of shape (n, 2).
 
         Returns:
             An array with the points of the geometry in SVG coordinates.
         """
-        if y_lim is None:
-            y_lim = x_lim
+        x_min, y_min, x_max, y_max = self.bounds
+        x_range, y_range = x_max - x_min, y_max - y_min
 
-        x_min, x_max = x_lim
-        y_min, y_max = y_lim
-        x_range = x_max - x_min
-        y_range = y_max - y_min
-
-        points = np.array(geom.exterior.coords)
         svg_size = np.array(self.size)
 
         points = points - np.array([x_min, y_min])
         points = points / np.array([x_range, y_range]) * svg_size
         # upside down
-        points = points * np.array([1, -1]) + np.array([0, svg_size[0]])
+        points = points * np.array([1, -1]) + np.array([0, svg_size[1]])
         return points
 
     def save(self, file_path: str | Path) -> None:
