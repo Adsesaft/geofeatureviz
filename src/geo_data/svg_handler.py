@@ -3,11 +3,10 @@
 from pathlib import Path
 
 import numpy as np
-import svgwrite
+import svg
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
-from svgwrite.container import Group
 
 COLORS = {
     "background": "#f6f6f6",
@@ -18,9 +17,9 @@ COLORS = {
 }
 
 
-class MapSVG:
+class MapSVG(svg.SVG):
 
-    def __init__(self, name: str | Path, size: int | tuple = 1000):
+    def __init__(self, size: int | tuple = 1000, *args, **kwargs):
         """Provide an interface to create SVG files for maps.
 
         Args:
@@ -30,19 +29,18 @@ class MapSVG:
         """
         if not isinstance(size, tuple):
             size = (size, size)
-        if not isinstance(name, Path):
-            name = Path(name)
-        name = name.with_suffix(".svg")
-
         self.size = size
-        self.drawing = svgwrite.Drawing(str(name), size=size)
-        self.drawing.add(
-            self.drawing.rect(
-                insert=(0, 0),
-                size=self.size,
-                fill=COLORS["background"],
-                id="background",
-            )
+
+        background = svg.Rect(
+            x=0,
+            y=0,
+            width=size[0],
+            height=size[1],
+            fill=COLORS["background"],
+            id="background",
+        )
+        super().__init__(
+            width=size[0], height=size[1], elements=[background], *args, **kwargs
         )
 
     def get_kwargs(self, kind: str) -> dict:
@@ -77,45 +75,24 @@ class MapSVG:
         else:
             raise ValueError(f"Unknown kind '{kind}'")
 
-    def add_group(self, group_id: str, parent_id: str | None = None, **kwargs) -> None:
-        """Add a group to the SVG file.
+    def add(self, element: svg.Element, group_id: str | None = None) -> None:
+        """Add an element to the SVG file.
 
         Args:
-            group_id: Identifier of the group to add.
-            parent_id: Identifier of the parent to which the group should be added. If
-                None is given, the group is added on the base layer. Defaults to None.
+            element: Element to add to the group.
+            group_id: The identifier of the group to which the element should be added.
+                If None is given, the element is added to the base layer.
         """
-        group = self.drawing.g(id=group_id, **kwargs)
-        self._add_to_group(parent_id, group)
+        if group_id is None:
+            group = self
+        else:
+            group = self.get_group_by_id(group_id)
+        if group.elements is not None:
+            group.elements.append(element)
+        else:
+            group.elements = [element]
 
-    def save(self) -> None:
-        """Save the SVG file."""
-        self.drawing.save()
-
-    def _find_group_by_id(
-        self, group_id: str, element: svgwrite.base.BaseElement
-    ) -> Group | None:
-        """Find a group in the SVG file by its identifier.
-
-        Args:
-            group_id: Identifier of the group to find.
-            element: Element to start the search from. Typically, this is the base
-                drawing.
-
-        Returns:
-            The group with the identifier. Returns None if the group is not found.
-        """
-        if isinstance(element, Group) and element.get_id() == group_id:
-            return element
-
-        for child in getattr(element, "elements", []):
-            result = self._find_group_by_id(group_id, element=child)
-            if result is not None:
-                return result
-
-        return None
-
-    def get_group_by_id(self, group_id: str) -> Group:
+    def get_group_by_id(self, group_id: str) -> svg.G:
         """Get a group in the SVG file by its identifier.
 
         Args:
@@ -127,81 +104,85 @@ class MapSVG:
         Returns:
             The group with the given identifier.
         """
-        group = self._find_group_by_id(group_id, self.drawing)
+        group = self._find_group_by_id(group_id, self)
         if group is None:
             raise ValueError(f"Group with id '{group_id}' not found in SVG.")
         return group
 
-    def _add_to_group(
-        self, group_id: str | None, element: svgwrite.base.BaseElement
-    ) -> None:
-        """Add an element to a group in the SVG file.
+    def _find_group_by_id(self, group_id: str, element: svg.Element) -> svg.G | None:
+        """Find a group in the SVG file by its identifier.
 
         Args:
-            group_id: The identifier of the group to which the element should be added.
-            If
-                None is given, the element is added to the base layer.
-            element: Element to add to the group.
+            group_id: Identifier of the group to find.
+            element: Element to start the search from. Typically, this is the base
+                drawing.
+
+        Returns:
+            The group with the identifier. Returns None if the group is not found.
         """
-        if group_id is None:
-            group = self.drawing
-        else:
-            group = self.get_group_by_id(group_id)
-        group.add(element)
+        if isinstance(element, svg.G) and element.id == group_id:
+            return element
 
-    def _add_polygon(
-        self, points: np.ndarray, element_id: str, group_id: str | None = None
-    ) -> None:
-        """Add a polygon to the SVG file based on an array of points.
+        children = element.elements
+        if children is not None:
+            for child in children:
+                result = self._find_group_by_id(group_id, element=child)
+                if result is not None:
+                    return result
+        return None
 
-        Args:
-            points: Points of the polygon as an array of shape (N, 2).
-            element_id: Identifier of the polygon element in the SVG.
-            group_id: Identifier of the group to which the polygon should be added. If
-                None is given, it is added to the base layer. Defaults to None.
-        """
-        polygon = self.drawing.polygon(
-            points,
-            id=element_id,
-        )
-        self._add_to_group(group_id, polygon)
-
-    def add_polygon(
+    def add_geometry(
         self,
         geom: BaseGeometry,
         x_lim: tuple,
         polygon_id: str,
         group_id: str | None = None,
         y_lim: tuple | None = None,
+        **kwargs,
     ) -> None:
-        if isinstance(geom, Polygon):
-            points = self._polygon_to_svg_coords(geom, x_lim=x_lim, y_lim=y_lim)
-            self._add_polygon(points, polygon_id, group_id=group_id)
-        elif isinstance(geom, MultiPolygon):
-            self.add_group(polygon_id, group_id)
-            for i, polygon in enumerate(geom.geoms):
-                points = self._polygon_to_svg_coords(polygon, x_lim=x_lim, y_lim=y_lim)
-                self._add_polygon(points, f"{polygon_id}_{i}", group_id=polygon_id)
-        else:
-            raise ValueError(f"This geom_type can not be drawn: {geom.geom_type}")
+        """Add a shapely geometry (from a GeoDataFrame) to the SVG file.
 
-    def add_circle(self, circle_id: str, group_id: str | None = None, **kwargs) -> None:
-        """Add a circle to the SVG file.
+        Currently, only Polygon and MultiPolygon geometries are supported. If a polygon
+        is given, it is added as a single polygon. If a multipolygon is given, each
+        polygon in the multipolygon is added as a separate polygon, and all polygons
+        are grouped together in a group with the given polygon_id.
 
         Args:
-            circle_id: Identifier of the circle element in the SVG.
-            group_id: Identifier of the group to which the circle should be added. If
-                None is given, it is added to the base layer. Defaults to None.
-            **kwargs: Additional keyword arguments for svgwrite's circle method.
+            geom: The geometry to add. Currently, only Polygon and MultiPolygon are
+                supported.
+            x_lim: Limits of the x-axis of all shapes that will be added to the SVG in
+                the domain of the geographical data as (x_min, x_max).
+            polygon_id: Identifier name of the polygon or group of polygons.
+            group_id: Identifier of the group to which the Polygon should be added.
+                Defaults to None.
+            y_lim: Limits of the y-axis of all shapes that will be added to the SVG in
+                the domain of the geographical data as (y_min, y_max). If None is given,
+                the same limits as for the x-axis are taken. Defaults to None.
+
+        Raises:
+            ValueError: If an unsupported geometry type is given.
         """
-        circle = self.drawing.circle(
-            id=circle_id,
-            **kwargs,
-        )
-        self._add_to_group(group_id, circle)
+        if isinstance(geom, Polygon):
+            points = self._polygon_to_svg_coords(geom, x_lim=x_lim, y_lim=y_lim)
+            polygon = svg.Polygon(
+                points=list(points.flatten()), id=polygon_id, **kwargs
+            )
+            self.add(polygon, group_id=group_id)
+        elif isinstance(geom, MultiPolygon):
+            group_polygons = []
+            for i, polygon in enumerate(geom.geoms):
+                points = self._polygon_to_svg_coords(polygon, x_lim=x_lim, y_lim=y_lim)
+                polygon = svg.Polygon(
+                    points=list(points.flatten()), id=f"{polygon_id}_{i}"
+                )
+                group_polygons.append(polygon)
+            group = svg.G(id=polygon_id, elements=group_polygons, **kwargs)
+            self.add(group, group_id=group_id)
+        else:
+            raise ValueError(f"This geom_type can not be added: {geom.geom_type}")
 
     def _polygon_to_svg_coords(
-        self, geom: Polygon, x_lim: tuple, y_lim=None
+        self, geom: Polygon, x_lim: tuple, y_lim: tuple | None = None
     ) -> np.ndarray:
         """Get the coordinates of a GeoPandas geometry in SVG coordinates.
 
@@ -213,9 +194,8 @@ class MapSVG:
                 the domain of the geographical data as (y_min, y_max).If None is given,
                 the same limits as in x_lim are used. Defaults to None.
 
-
         Returns:
-            _description_
+            An array with the points of the geometry in SVG coordinates.
         """
         if y_lim is None:
             y_lim = x_lim
@@ -233,3 +213,12 @@ class MapSVG:
         # upside down
         points = points * np.array([1, -1]) + np.array([0, svg_size[0]])
         return points
+
+    def save(self, file_path: Path) -> None:
+        """Save the SVG file to the given path.
+
+        Args:
+            filepath: Path to save the SVG file to.
+        """
+        with open(file_path, "w") as f:
+            f.write(str(self))
