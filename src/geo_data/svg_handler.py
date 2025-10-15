@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import svg
+from geopandas import GeoDataFrame
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.linestring import LineString
 from shapely.geometry.multilinestring import MultiLineString
@@ -235,6 +236,31 @@ class MapSVG(svg.SVG):
         # upside down
         points = points * np.array([1, -1]) + np.array([0, svg_size[1]])
         return points
+
+    def add_gdf(
+        self, gdf: GeoDataFrame, gdf_id: str, group_id: str | None = None, **kwargs
+    ):
+        """Add all geometries in a GeoDataFrame to the canvas.
+
+        Args:
+            gdf: GeoDataFrame with at least two columns:
+                - geometry: shapely geometries with geometrical information.
+                - id: identifier of the geometries (e.g. country names)
+            gdf_id: For each row, an SVG-element will be created. All these elements
+                will be grouped. This parameter determines the SVG group identifier.
+            group_id: Identifier of the group to which the created group should be added
+                Defaults to None.
+        """
+        elements = []
+        for _, row in gdf.iterrows():
+            name = row["id"]
+            geom = row.geometry
+            svg_element = self.geometry_to_svg(
+                geometry=geom,
+                geometry_id=name,
+            )
+            elements.append(svg_element)
+        self.add(svg.G(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
 
     def save(self, file_path: str | Path) -> None:
         """Save the SVG file to the given path.
