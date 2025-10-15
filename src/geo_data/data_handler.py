@@ -16,15 +16,27 @@ DATA_FILES = {
 }
 
 
-def load(kind: str, source="ne", resolution: int = 10) -> gpd.GeoDataFrame:
-    """Load geographical data from a file as GeoPandas DataFrame.
+def load(
+    kind: str, source="ne", resolution: int = 10, identifier: str = "name"
+) -> gpd.GeoDataFrame:
+    """Load geographical data from a file as GeoPandas GeoDataFrame.
 
-    All available data sets can be found in the DATA_FILES dictionary.
+    All available data sets can be found in the DATA_FILES dictionary. A column with a
+    unique identifier "id" is added to the DataFrame.
 
     Args:
         kind: Kind of geographical information, e.g. "country" or "river".
         source: Data source, e.g. "ne" for NaturalEarth. Defaults to "ne".
         resolution: Resolution of the geographical data. Defaults to 10.
+        identifier: There should be a unique identifier for each row in the
+            GeoDataFrame. The identifier should be based on an existing column in the
+            GeoDataFrame, e.g. the country name. The identifier-parameter determines
+            the existing column that is used to base the added "id" column on,
+            duplicates are automatically renamed. Defaults to "name".
+
+    Raises:
+        ValueError: If the identifier does not exist in the loaded GeoDataFrame.
+        AssertionError: If the function is not able to create a unique identifier.
 
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
@@ -32,6 +44,22 @@ def load(kind: str, source="ne", resolution: int = 10) -> gpd.GeoDataFrame:
     file_path = _get_file_path(kind=kind, source=source, resolution=resolution)
     gdf = gpd.read_file(file_path)
     gdf = clean_gdf(gdf)
+
+    # make id unique by adding a suffix (_0, _1, ...) if necessary
+    if identifier not in gdf.columns:
+        raise ValueError(
+            f"The given identifier '{identifier}' does not exist in the GeoDataFrame."
+        )
+    gdf["id"] = gdf[identifier].fillna("Unnamed").astype(str)
+    gdf["id"] = (
+        gdf.groupby("id")
+        .cumcount()
+        .astype(str)
+        .radd("_")
+        .mask(gdf.duplicated("id", keep=False) == False, "")
+        .radd(gdf["id"])
+    )
+    assert gdf["id"].is_unique, "Error: 'id' column contains duplicate values!"
     return gdf
 
 
