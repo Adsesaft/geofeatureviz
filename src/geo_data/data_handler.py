@@ -120,3 +120,26 @@ def polygon_is_all_inf(geometry: Polygon | MultiPolygon) -> bool:
     else:
         return False
     return bool(np.isinf(coords).all())
+
+
+def get_polygon_bounds(
+    geometry: Polygon | MultiPolygon,
+) -> tuple[float, float, float, float]:
+    """Get the bounds of a Polygon or Multipolygon.
+
+    Args:
+        geometry: The polygon or multipolygon to get the bounds.
+
+    Returns:
+        A tuple with the bounds (min_x, min_y, max_x, max_y)
+    """
+    if isinstance(geometry, Polygon):
+        return geometry.bounds
+    elif isinstance(geometry, MultiPolygon):
+        min_x = min(geom.bounds[0] for geom in geometry.geoms)
+        min_y = min(geom.bounds[1] for geom in geometry.geoms)
+        max_x = max(geom.bounds[2] for geom in geometry.geoms)
+        max_y = max(geom.bounds[3] for geom in geometry.geoms)
+        return (min_x, min_y, max_x, max_y)
+    else:
+        raise ValueError("The geometry must be a Polygon or MultiPolygon.")
