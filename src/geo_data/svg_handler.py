@@ -19,15 +19,13 @@ COLORS = {
     "lake": "#c6ecff",
 }
 
-_BOUNDS_TYPE = tuple[float, float] | tuple[float, float, float, float]
-
 
 class MapSVG(svg.SVG):
 
     def __init__(
         self,
-        size: int | tuple = 1000,
-        bounds: _BOUNDS_TYPE = (-90, -180, 90, 180),
+        size: int | tuple,
+        bounds: tuple[float, float] | tuple[float, float, float, float],
         *args,
         **kwargs,
     ):
