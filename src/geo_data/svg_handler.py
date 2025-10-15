@@ -1,6 +1,7 @@
 """Create scalable vector graphics from geometrical data."""
 
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import svg
@@ -268,3 +269,43 @@ class MapSVG(svg.SVG):
         """
         path = Path(file_path)
         path.write_text(str(self), encoding="utf-8")
+
+
+def get_radial_shadow_grad(identifier: str) -> svg.RadialGradient:
+    """Get a radial gradient starting light in the center and getting darker.
+
+    The gradient has to be added to the definitions of the canvas, e.g. with:
+    ```python
+    grad = svg_handler.get_radial_shadow_grad(identifier)
+    defs = svg.Defs(elements=[grad])
+    ```
+
+    Then, it can be applied on an element (e.g. a circle) with its identifier:
+    ```python
+    svg.Circle(fill=f"url(#{identifier})")
+    ```
+
+    Args:
+        identifier: Name of the radial gradient. This name has to be used to apply the
+            gradient to an element.
+
+    Returns:
+        A radial gradient, with pre-defined values. In the future, it might be a good
+        idea to be able to define these values, but for now this is sufficient.
+    """
+    grad = svg.RadialGradient(
+        id=identifier,
+        cx=0.5,
+        cy=0.5,
+        r=0.5,
+        fx=0.5,
+        fy=0.5,
+        elements=cast(
+            list[svg.Element],
+            [
+                svg.Stop(offset=0, stop_opacity=0, stop_color="black"),
+                svg.Stop(offset=1, stop_opacity=0.25, stop_color="black"),
+            ],
+        ),
+    )
+    return grad
