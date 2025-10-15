@@ -16,20 +16,38 @@ COLORS = {
     "lake": "#c6ecff",
 }
 
+_BOUNDS_TYPE = tuple[float, float] | tuple[float, float, float, float]
+
 
 class MapSVG(svg.SVG):
 
-    def __init__(self, size: int | tuple = 1000, *args, **kwargs):
+    def __init__(
+        self,
+        size: int | tuple = 1000,
+        bounds: _BOUNDS_TYPE = (-90, -180, 90, 180),
+        *args,
+        **kwargs,
+    ):
         """Provide an interface to create SVG files for maps.
 
         Args:
             name: Name of the SVG file to create (with or without extension).
             size: Size in pixels. When an integer is given, the SVG will be a square.
                 Defaults to 1000.
+            bounds: Bounds of the geometry as (x_min, y_min, x_max, y_max) in the domain
+                of the geographical data. If only (x_min, x_max) are given, the same
+                limits are used for y as well.
         """
         if not isinstance(size, tuple):
             size = (size, size)
         self.size = size
+        # TODO: can I remove size and only use the bounds and a scaling?
+
+        if len(bounds) == 2:
+            x_min, x_max = bounds
+            y_min, y_max = bounds
+            bounds = (x_min, y_min, x_max, y_max)
+        self.bounds = bounds
 
         background = svg.Rect(
             x=0,
