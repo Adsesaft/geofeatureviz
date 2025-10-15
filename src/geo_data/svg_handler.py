@@ -63,7 +63,7 @@ class MapSVG(svg.SVG):
                 "stroke_width": 1,
             }
         elif kind == "river":
-            return {"stroke": COLORS["river"], "stroke_width": 1}
+            return {"style": "fill:none", "stroke": COLORS["river"], "stroke_width": 1}
         elif kind == "lake":
             return {
                 "fill": COLORS["lake"],
