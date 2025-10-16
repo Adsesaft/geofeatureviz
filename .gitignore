@@ -1,5 +1,5 @@
-# all files in the data directory
-data/
+# zip-files in the data directory
+data/*.zip
 # all files in the results directory
 results/
 
