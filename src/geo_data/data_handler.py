@@ -6,6 +6,7 @@ from typing import Generator
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import yaml
 from anki.collection import Collection
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
@@ -19,6 +20,7 @@ DATA_FILES = {
     ("river", "ne", 10): "ne_10m_rivers_lake_centerlines.zip",
     ("river_europe", "ne", 10): "ne_10m_rivers_europe.zip",
 }
+REGIONAL_GROUP_PATH = helpers.get_top_directory() / "data" / "regional_groups.yaml"
 
 ANKI_COLLECTION_PATH = Path.home() / ".local" / "share" / "Anki2" / "Adrian"
 ANKI_COLLECTION_PATH_COPY = helpers.get_top_directory() / "data"
@@ -244,3 +246,18 @@ def anki_to_df(deck_name: str) -> pd.DataFrame:
             result["NoteType"] = note_type_name
             notes_with_type.append(result)
     return pd.DataFrame(notes_with_type)
+
+
+def get_regional_groups() -> dict[str, dict[str, list]]:
+    """Add function to read in regional groups.
+
+    Returns:
+        A dictionary with the regional group names as key. The values are dictionaries
+        with the keys:
+        - "core": List of the core countries of the region.
+        - "optional": List of optional countries of the region.
+        - "continent": List of continents on which the region is located.
+    """
+    with open(REGIONAL_GROUP_PATH, "r", encoding="utf-8") as f:
+        regions = yaml.safe_load(f)
+    return regions
