@@ -1,144 +1,364 @@
 Maghreb-Staaten:
-  core: [Marokko, Algerien, Tunesien]
-  optional: [Libyen, Mauretanien]
-  continent: [Afrika]
-
+  core:
+  - Algerien
+  - Marokko
+  - Tunesien
+  optional:
+  - Libyen
+  - Mauretanien
+  continent:
+  - Afrika
 Sahel-Staaten:
-  core: [Mali, Niger, Tschad, Burkina Faso, Mauretanien]
+  core:
+  - Burkina Faso
+  - Mali
+  - Mauretanien
+  - Niger
+  - Tschad
   optional: []
-  continent: [Afrika]
-
+  continent:
+  - Afrika
 Horn von Afrika:
-  core: [Somalia, Äthiopien, Eritrea, Dschibuti]
+  core:
+  - Dschibuti
+  - Eritrea
+  - Somalia
+  - Äthiopien
   optional: []
-  continent: [Afrika]
-
+  continent:
+  - Afrika
 SADC-Staaten:
-  core: [Angola, Botswana, Demokratische Republik Kongo, Eswatini, Komoren, Lesotho, Madagaskar, Malawi, Mauritius, Mosambik, Namibia, Seychellen, Südafrika, Tansania, Sambia, Simbabwe]
+  core:
+  - Angola
+  - Botswana
+  - Demokratische Republik Kongo
+  - Eswatini
+  - Komoren
+  - Lesotho
+  - Madagaskar
+  - Malawi
+  - Mauritius
+  - Mosambik
+  - Namibia
+  - Sambia
+  - Seychellen
+  - Simbabwe
+  - Südafrika
+  - Tansania
   optional: []
-  continent: [Afrika]
-
+  continent:
+  - Afrika
 ECOWAS-Staaten:
-  core: [Benin, Elfenbeinküste, Gambia, Ghana, Guinea, Guinea-Bissau, Kap Verde, Liberia, Nigeria, Senegal, Sierra Leone, Togo]
+  core:
+  - Benin
+  - Elfenbeinküste
+  - Gambia
+  - Ghana
+  - Guinea
+  - Guinea-Bissau
+  - Kap Verde
+  - Liberia
+  - Nigeria
+  - Senegal
+  - Sierra Leone
+  - Togo
   optional: []
-  continent: [Afrika]
-
+  continent:
+  - Afrika
 Zentralafrikanische Staaten:
-  core: [Angola, Äquatorialguinea, Gabun, Kamerun, Demokratische Republik Kongo, Republik Kongo, São Tomé und Príncipe, Tschad, Zentralafrikanische Republik]
-  optional: [Burundi, Ruanda]
-  continent: [Afrika]
-
+  core:
+  - Angola
+  - Demokratische Republik Kongo
+  - Gabun
+  - Kamerun
+  - Republik Kongo
+  - São Tomé und Príncipe
+  - Tschad
+  - Zentralafrikanische Republik
+  - Äquatorialguinea
+  optional:
+  - Burundi
+  - Ruanda
+  continent:
+  - Afrika
 Golf-Staaten:
-  core: [Bahrain, Katar, Kuwait, Oman, Saudi-Arabien, Vereinigte Arabische Emirate]
-  optional: [Irak, Iran]
-  continent: [Asien]
-
+  core:
+  - Bahrain
+  - Katar
+  - Kuwait
+  - Oman
+  - Saudi-Arabien
+  - Vereinigte Arabische Emirate
+  optional:
+  - Irak
+  - Iran
+  continent:
+  - Asien
 Levantestaaten:
-  core: [Israel, Jordanien, Libanon, Palästina, Syrien]
+  core:
+  - Israel
+  - Jordanien
+  - Libanon
+  - Palästina
+  - Syrien
   optional: []
-  continent: [Asien]
-
+  continent:
+  - Asien
 Arabische Halbinsel:
-  core: [Saudi-Arabien, Jemen, Oman, Vereinigte Arabische Emirate, Katar, Kuwait, Bahrain]
+  core:
+  - Bahrain
+  - Jemen
+  - Katar
+  - Kuwait
+  - Oman
+  - Saudi-Arabien
+  - Vereinigte Arabische Emirate
   optional: []
-  continent: [Asien]
-
+  continent:
+  - Asien
 MENA-Region:
-  core: [Marokko, Algerien, Tunesien, Libyen, Ägypten, Saudi-Arabien, Vereinigte Arabische Emirate, Katar, Kuwait, Bahrain, Oman, Jemen, Jordanien, Syrien, Libanon, Israel, Palästina, Irak, Iran]
-  optional: [Mauretanien, Sudan]
-  continent: [Afrika, Asien]
-
+  core:
+  - Algerien
+  - Bahrain
+  - Irak
+  - Iran
+  - Israel
+  - Jemen
+  - Jordanien
+  - Katar
+  - Kuwait
+  - Libanon
+  - Libyen
+  - Marokko
+  - Oman
+  - Palästina
+  - Saudi-Arabien
+  - Syrien
+  - Tunesien
+  - Vereinigte Arabische Emirate
+  - Ägypten
+  optional:
+  - Mauretanien
+  - Sudan
+  continent:
+  - Afrika
+  - Asien
 Zentralasien:
-  core: [Kasachstan, Usbekistan, Turkmenistan, Kirgisistan, Tadschikistan]
+  core:
+  - Kasachstan
+  - Kirgisistan
+  - Tadschikistan
+  - Turkmenistan
+  - Usbekistan
   optional: []
-  continent: [Asien]
-
+  continent:
+  - Asien
 Südostasien / ASEAN-Staaten:
-  core: [Indonesien, Malaysia, Philippinen, Singapur, Thailand, Vietnam, Brunei, Kambodscha, Laos, Myanmar]
-  optional: [Osttimor]
-  continent: [Asien]
-
+  core:
+  - Brunei
+  - Indonesien
+  - Kambodscha
+  - Laos
+  - Malaysia
+  - Myanmar
+  - Philippinen
+  - Singapur
+  - Thailand
+  - Vietnam
+  optional:
+  - Osttimor
+  continent:
+  - Asien
 Südasien / SAARC-Staaten:
-  core: [Indien, Pakistan, Bangladesch, Nepal, Sri Lanka, Bhutan, Malediven]
-  optional: [Afghanistan]
-  continent: [Asien]
-
+  core:
+  - Bangladesch
+  - Bhutan
+  - Indien
+  - Malediven
+  - Nepal
+  - Pakistan
+  - Sri Lanka
+  optional:
+  - Afghanistan
+  continent:
+  - Asien
 Ostasien:
-  core: [Volksrepublik China, Japan, Südkorea, Nordkorea, Taiwan, Mongolei]
+  core:
+  - Japan
+  - Mongolei
+  - Nordkorea
+  - Südkorea
+  - Taiwan
+  - Volksrepublik China
   optional: []
-  continent: [Asien]
-
+  continent:
+  - Asien
 Kaukasus-Staaten:
-  core: [Georgien, Armenien, Aserbaidschan]
+  core:
+  - Armenien
+  - Aserbaidschan
+  - Georgien
   optional: []
-  continent: [Asien, Europa]
-
+  continent:
+  - Asien
+  - Europa
 Benelux-Staaten:
-  core: [Belgien, Niederlande, Luxemburg]
+  core:
+  - Belgien
+  - Luxemburg
+  - Niederlande
   optional: []
-  continent: [Europa]
-
+  continent:
+  - Europa
 Balkan-Staaten:
-  core: [Serbien, Kroatien, Bosnien und Herzegowina, Bulgarien, Albanien, Nordmazedonien, Griechenland, Montenegro]
-  optional: [Rumänien, Slowenien, Türkei]
-  continent: [Europa]
-
+  core:
+  - Albanien
+  - Bosnien und Herzegowina
+  - Bulgarien
+  - Griechenland
+  - Kroatien
+  - Montenegro
+  - Nordmazedonien
+  - Serbien
+  optional:
+  - Rumänien
+  - Slowenien
+  - Türkei
+  continent:
+  - Europa
 Baltische Staaten:
-  core: [Estland, Lettland, Litauen]
+  core:
+  - Estland
+  - Lettland
+  - Litauen
   optional: []
-  continent: [Europa]
-
+  continent:
+  - Europa
 Skandinavische Länder:
-  core: [Norwegen, Schweden, Dänemark]
-  optional: [Finnland, Island]
-  continent: [Europa]
-
+  core:
+  - Dänemark
+  - Norwegen
+  - Schweden
+  optional:
+  - Finnland
+  - Island
+  continent:
+  - Europa
 Visegrád-Staaten:
-  core: [Polen, Tschechien, Slowakei, Ungarn]
+  core:
+  - Polen
+  - Slowakei
+  - Tschechien
+  - Ungarn
   optional: []
-  continent: [Europa]
-
+  continent:
+  - Europa
 Iberische Halbinsel:
-  core: [Spanien, Portugal]
-  optional: [Andorra, Gibraltar]
-  continent: [Europa]
-
+  core:
+  - Portugal
+  - Spanien
+  optional:
+  - Andorra
+  - Gibraltar
+  continent:
+  - Europa
 DACH-Region:
-  core: [Deutschland, Österreich, Schweiz]
-  optional: [Liechtenstein]
-  continent: [Europa]
-
+  core:
+  - Deutschland
+  - Schweiz
+  - Österreich
+  optional:
+  - Liechtenstein
+  continent:
+  - Europa
 Andenstaaten:
-  core: [Kolumbien, Ecuador, Peru, Bolivien, Chile]
-  optional: [Argentinien, Venezuela]
-  continent: [Südamerika]
-
+  core:
+  - Bolivien
+  - Chile
+  - Ecuador
+  - Kolumbien
+  - Peru
+  optional:
+  - Argentinien
+  - Venezuela
+  continent:
+  - Südamerika
 Mercosur-Staaten:
-  core: [Brasilien, Argentinien, Paraguay, Uruguay]
-  optional: [Bolivien, Chile, Peru]
-  continent: [Südamerika]
-
+  core:
+  - Argentinien
+  - Brasilien
+  - Paraguay
+  - Uruguay
+  optional:
+  - Bolivien
+  - Chile
+  - Peru
+  continent:
+  - Südamerika
 Karibikstaaten:
-  core: [Kuba, Dominikanische Republik, Jamaika, Haiti, Trinidad und Tobago, Barbados, Bahamas, Grenada, St. Lucia, Antigua und Barbuda]
+  core:
+  - Antigua und Barbuda
+  - Bahamas
+  - Barbados
+  - Dominikanische Republik
+  - Grenada
+  - Haiti
+  - Jamaika
+  - Kuba
+  - St. Lucia
+  - Trinidad und Tobago
   optional: []
-  continent: [Nordamerika]
-
+  continent:
+  - Nordamerika
 Zentralamerika:
-  core: [Guatemala, Honduras, El Salvador, Nicaragua, Costa Rica, Panama]
-  optional: [Belize]
-  continent: [Nordamerika]
-
+  core:
+  - Costa Rica
+  - El Salvador
+  - Guatemala
+  - Honduras
+  - Nicaragua
+  - Panama
+  optional:
+  - Belize
+  continent:
+  - Nordamerika
 NAFTA / USMCA-Staaten:
-  core: [Vereinigte Staaten von Amerika, Kanada, Mexiko]
+  core:
+  - Kanada
+  - Mexiko
+  - Vereinigte Staaten von Amerika
   optional: []
-  continent: [Nordamerika]
-
+  continent:
+  - Nordamerika
 BRICS-Staaten:
-  core: [Brasilien, Russland, Indien, Volksrepublik China, Südafrika]
-  optional: [Ägypten, Iran, Saudi-Arabien, Vereinigte Arabische Emirate, Äthiopien]
-  continent: [Asien, Afrika, Europa, Südamerika]
-
+  core:
+  - Brasilien
+  - Indien
+  - Russland
+  - Südafrika
+  - Volksrepublik China
+  optional:
+  - Iran
+  - Saudi-Arabien
+  - Vereinigte Arabische Emirate
+  - Ägypten
+  - Äthiopien
+  continent:
+  - Afrika
+  - Asien
+  - Europa
+  - Südamerika
 G7-Staaten:
-  core: [Vereinigte Staaten von Amerika, Kanada, Vereinigtes Königreich, Deutschland, Frankreich, Italien, Japan]
+  core:
+  - Deutschland
+  - Frankreich
+  - Italien
+  - Japan
+  - Kanada
+  - Vereinigte Staaten von Amerika
+  - Vereinigtes Königreich
   optional: []
-  continent: [Nordamerika, Europa, Asien]
+  continent:
+  - Asien
+  - Europa
+  - Nordamerika
