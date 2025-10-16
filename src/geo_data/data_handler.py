@@ -17,7 +17,11 @@ DATA_FILES = {
 
 
 def load(
-    kind: str, source="ne", resolution: int = 10, identifier: str = "name"
+    kind: str,
+    source="ne",
+    resolution: int = 10,
+    identifier: str = "name",
+    projection: int = 4326,
 ) -> gpd.GeoDataFrame:
     """Load geographical data from a file as GeoPandas GeoDataFrame.
 
@@ -33,6 +37,10 @@ def load(
             GeoDataFrame, e.g. the country name. The identifier-parameter determines
             the existing column that is used to base the added "id" column on,
             duplicates are automatically renamed. Defaults to "name".
+        projection: The projection of the geographical data. Defaults to 4326, which
+            represents projection to longitude and latitude. Options are:
+            - 4326: 2D latitude and longitude
+            - 3857: 2D in meters
 
     Raises:
         ValueError: If the identifier does not exist in the loaded GeoDataFrame.
@@ -44,6 +52,7 @@ def load(
     file_path = _get_file_path(kind=kind, source=source, resolution=resolution)
     gdf = gpd.read_file(file_path)
     gdf = clean_gdf(gdf)
+    gdf = gdf.to_crs(epsg=projection)
 
     # make id unique by adding a suffix (_0, _1, ...) if necessary
     if identifier not in gdf.columns:
