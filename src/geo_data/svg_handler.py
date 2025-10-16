@@ -25,8 +25,9 @@ class MapSVG(svg.SVG):
 
     def __init__(
         self,
-        size: int | tuple,
         bounds: tuple[float, float] | tuple[float, float, float, float],
+        height: int | None = None,
+        width: int | None = None,
         *args,
         **kwargs,
     ):
@@ -40,27 +41,36 @@ class MapSVG(svg.SVG):
                 of the geographical data. If only (x_min, x_max) are given, the same
                 limits are used for y as well.
         """
-        if not isinstance(size, tuple):
-            size = (size, size)
-        self.size = size
-        # TODO: can I remove size and only use the bounds and a scaling?
-
         if len(bounds) == 2:
             x_min, x_max = bounds
             y_min, y_max = bounds
             bounds = (x_min, y_min, x_max, y_max)
         self.bounds = bounds
 
+        x_min, y_min, x_max, y_max = self.bounds
+        x_range, y_range = x_max - x_min, y_max - y_min
+        self.range = np.array([x_range, y_range])
+
+        # compute the width and height depending on what is given
+        if height is None and width is None:
+            raise ValueError("You have to either define the width or height.")
+        elif height is None and width is not None:
+            height = round((y_range / x_range) * width)
+        elif width is None and height is not None:
+            width = round((x_range / y_range) * height)
+        assert width is not None and height is not None
+        self.size = np.array([width, height])
+
         background = svg.Rect(
             x=0,
             y=0,
-            width=size[0],
-            height=size[1],
+            width=width,
+            height=height,
             fill=COLORS["background"],
             id="background",
         )
         super().__init__(
-            width=size[0], height=size[1], elements=[background], *args, **kwargs
+            width=width, height=height, elements=[background], *args, **kwargs
         )
 
     def get_kwargs(self, kind: str) -> dict:
@@ -225,15 +235,11 @@ class MapSVG(svg.SVG):
         Returns:
             An array with the points of the geometry in SVG coordinates.
         """
-        x_min, y_min, x_max, y_max = self.bounds
-        x_range, y_range = x_max - x_min, y_max - y_min
-
-        svg_size = np.array(self.size)
-
+        x_min, y_min, _, _ = self.bounds
         points = points - np.array([x_min, y_min])
-        points = points / np.array([x_range, y_range]) * svg_size
+        points = points / self.range * self.size
         # upside down
-        points = points * np.array([1, -1]) + np.array([0, svg_size[1]])
+        points = points * np.array([1, -1]) + np.array([0, self.height])
         return points
 
     def add_gdf(
