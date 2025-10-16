@@ -1,5 +1,6 @@
 # zip-files in the data directory
 data/*.zip
+data/*.anki2*
 # all files in the results directory
 results/
 
