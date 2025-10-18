@@ -343,6 +343,68 @@ class MapSVG(svg.SVG):
         path.write_text(str(self), encoding="utf-8")
 
 
+class OrthoMapSVG(MapSVG):
+    def __init__(
+        self,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        center: tuple[float, float] = (0, 0),
+        *args,
+        **kwargs,
+    ):
+        """Provide an interface to create SVG with an orthographically projected map.
+
+        Args:
+            width: Width of the SVG-file in pixels. If None is given, the width is
+                equal to the height. Either width or height have to be given. If the
+                width is given, the height parameter is irrelevant.
+            height: Height of the SVG-file in pixels. If None is given, the height is
+                equal to the width. Either width or height have to be given.
+            center: Center of the orthographic projection as (longitude, latitude).
+                Defaults to (0, 0).
+        """
+        if width is not None:
+            height = width
+        elif height is not None:
+            width = height
+        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={center[0]}"
+        transformer = Transformer.from_crs("EPSG:4326", ortho_proj_str, always_xy=True)
+        super().__init__(
+            bounds=(-180, -90, 180, 90),
+            height=height,
+            width=width,
+            projection=transformer.transform,
+            *args,
+            **kwargs,
+        )
+        # define the bounds manually; due to orthographic projection, the bounds are
+        # infinite and defined for a round globe; however, we need them for a linear
+        # scaling of the rectangular svg
+        assert transformer.target_crs is not None
+        assert transformer.target_crs.ellipsoid is not None
+        world_radius = transformer.target_crs.ellipsoid.semi_major_metre
+        self.bounds_proj = (-world_radius, -world_radius, world_radius, world_radius)
+        self.range_proj = np.array([2 * world_radius, 2 * world_radius])
+
+        self.grad_id = "globeShadowGrad"
+        grad = get_radial_shadow_grad(self.grad_id)
+        defs = svg.Defs(elements=[grad])
+        self.add(defs)
+
+    def add_shadow(self):
+        """Add a radial shadow to the canvas."""
+        radius = self.width / 2  # type: ignore
+        self.add(
+            svg.Circle(
+                cx=radius,
+                cy=radius,
+                r=radius,
+                id="globeShadow",
+                fill=f"url(#{self.grad_id})",
+            )
+        )
+
+
 def get_radial_shadow_grad(identifier: str) -> svg.RadialGradient:
     """Get a radial gradient starting light in the center and getting darker.
 
