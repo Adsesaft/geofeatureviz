@@ -97,6 +97,34 @@ class MapSVG(svg.SVG):
             width=width, height=height, elements=[background], *args, **kwargs
         )
 
+    def as_str(self) -> str:
+        """Get a string SVG representation of the canvas.
+
+        This is a little bit cheeky and a workaround for the svg.SVG.as_string. This
+        method creates an SVG-string (xml) from ALL instance attributes - including the
+        ones that I set in this __init__, e.g. self.projection. This leads to breaking
+        the SVG-files. Therefore, I remove all instance attributes of this class (but
+        not the parent class), then use the as_str-method of the parent class, and then
+        add the attributes again. This is a little weird, but it works.
+
+        Returns:
+            A string representation of the canvas, representing an SVG-xml-file.
+        """
+        # remove all attributes that this instance has set
+        self_attrs = set(vars(self).keys())
+        parent_attrs = set(vars(svg.SVG()).keys())
+        self_attrs = self_attrs - parent_attrs
+        attr_values = {}
+        for attr in self_attrs:
+            attr_values[attr] = getattr(self, attr)
+            delattr(self, attr)
+        # get the string representation of the parent class
+        str_repr = super().as_str()
+        # add all the attributes again
+        for key, value in attr_values.items():
+            setattr(self, key, value)
+        return str_repr
+
     def get_kwargs(self, kind: str) -> dict:
         """Get keyword arguments for svgwrite elements from geographical feature type.
 
