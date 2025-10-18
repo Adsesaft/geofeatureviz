@@ -1,11 +1,13 @@
 """Create scalable vector graphics from geometrical data."""
 
 from pathlib import Path
-from typing import cast
+from typing import Callable, Optional, cast
 
 import numpy as np
 import svg
 from geopandas import GeoDataFrame
+from numpy.typing import ArrayLike, NDArray
+from pyproj import Transformer
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.linestring import LineString
 from shapely.geometry.multilinestring import MultiLineString
@@ -19,44 +21,66 @@ COLORS = {
     "river": "#0978ab",
     "lake": "#c6ecff",
 }
+ProjectionCallable = Callable[[ArrayLike, ArrayLike], tuple[ArrayLike, ArrayLike]]
 
 
 class MapSVG(svg.SVG):
-
+    # TODO: class docstring with Attributes:
     def __init__(
         self,
         bounds: tuple[float, float] | tuple[float, float, float, float],
-        height: int | None = None,
-        width: int | None = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+        projection: Optional[ProjectionCallable] = None,
         *args,
         **kwargs,
     ):
+        # TODO: set default bounds to (-180, -90, 180, 90)
         """Provide an interface to create SVG files for maps.
 
         Args:
-            name: Name of the SVG file to create (with or without extension).
-            size: Size in pixels. When an integer is given, the SVG will be a square.
-                Defaults to 1000.
-            bounds: Bounds of the geometry as (x_min, y_min, x_max, y_max) in the domain
-                of the geographical data. If only (x_min, x_max) are given, the same
-                limits are used for y as well.
+            bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in
+                the domain of the geographical data (longitude and latitude). If only
+                (lon_min, lon_max) are given, the same limits are used for lat as well.
+            height: Height of the SVG-file in pixels. If None is given, the height is
+                automatically determined from the width and the bounds.
+            width: Width of the SVG-file in pixels. If None is given, the width is
+                automatically determined from the height and the bounds.
+            projection: Callable function that projects coordinates from geographical
+                coordinates (longitude and latitude). Defaults to mercator projection.
+            *args: Arguments passed to svg.SVG.
+            **kwargs: Keyword arguments passed to svg.SVG.
         """
-        if len(bounds) == 2:
-            x_min, x_max = bounds
-            y_min, y_max = bounds
-            bounds = (x_min, y_min, x_max, y_max)
-        self.bounds = bounds
+        if projection is None:
 
-        x_min, y_min, x_max, y_max = self.bounds
+            projection = Transformer.from_crs(
+                "EPSG:4326", "EPSG:3857", always_xy=True
+            ).transform
+        self.projection = projection
+
+        if len(bounds) == 2:
+            lon_min, lon_max = bounds
+            lat_min, lat_max = lon_min, lon_max
+        else:
+            lon_min, lat_min, lon_max, lat_max = bounds
+        self.bounds = lon_min, lat_min, lon_max, lat_max
+
+        # pre compute bounds and range in projection
+        # bounds
+        bounds_proj = projection([lon_min, lon_max], [lat_min, lat_max])
+        (x_min, x_max), (y_min, y_max) = np.array(bounds_proj)
+        self.bounds_proj = (x_min, y_min, x_max, y_max)
+
+        # range
         x_range, y_range = x_max - x_min, y_max - y_min
-        self.range = np.array([x_range, y_range])
+        self.range_proj = np.array([x_range, y_range])
 
         # compute the width and height depending on what is given
         if height is None and width is None:
             raise ValueError("You have to either define the width or height.")
-        elif height is None and width is not None:
+        elif height is None:
             height = round((y_range / x_range) * width)
-        elif width is None and height is not None:
+        elif width is None:
             width = round((x_range / y_range) * height)
         assert width is not None and height is not None
         self.size = np.array([width, height])
@@ -161,7 +185,7 @@ class MapSVG(svg.SVG):
                     return result
         return None
 
-    def geometry_to_svg(
+    def add_geometry(
         self,
         geometry: BaseGeometry,
         geometry_id: str,
@@ -184,9 +208,10 @@ class MapSVG(svg.SVG):
         Raises:
             ValueError: If an unsupported geometry type is given.
         """
+        # TODO: use this somehow: BaseMultipartGeometry
         if isinstance(geometry, Polygon):
             points = np.array(geometry.exterior.coords)
-            points = self._transform_to_svg_coords(points)
+            points = self._transformation(points)
             svg_element = svg.Polygon(
                 points=list(points.flatten()), id=geometry_id, **kwargs
             )
@@ -194,7 +219,7 @@ class MapSVG(svg.SVG):
             group_polygons = []
             for i, polygon in enumerate(geometry.geoms):
                 points = np.array(polygon.exterior.coords)
-                points = self._transform_to_svg_coords(points)
+                points = self._transformation(points)
                 polygon = svg.Polygon(
                     points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
                 )
@@ -202,7 +227,7 @@ class MapSVG(svg.SVG):
             svg_element = svg.G(id=geometry_id, elements=group_polygons, **kwargs)
         elif isinstance(geometry, LineString):
             points = np.array(geometry.coords)
-            points = self._transform_to_svg_coords(points)
+            points = self._transformation(points)
             svg_element = svg.Polyline(
                 points=list(points.flatten()), id=geometry_id, **kwargs
             )
@@ -210,7 +235,7 @@ class MapSVG(svg.SVG):
             group_polylines = []
             for i, line in enumerate(geometry.geoms):
                 points = np.array(line.coords)
-                points = self._transform_to_svg_coords(points)
+                points = self._transformation(points)
                 polyline = svg.Polyline(
                     points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
                 )
@@ -222,25 +247,38 @@ class MapSVG(svg.SVG):
             )
         return svg_element
 
-    def _transform_to_svg_coords(
+    def _transformation(
         self,
-        points: np.ndarray,
-    ) -> np.ndarray:
-        """Get the coordinates of a GeoPandas geometry in SVG coordinates.
+        coords: NDArray,
+    ) -> NDArray:
+        """Transform geographical coordinates to SVG coordinates.
+
+        The coordinates should be in geographical representation (longitude and
+        latitude). They first get projected, and this projection is then linearly
+        transformed to the SVG coordinates.
 
         Args:
-            points: Coordinate points in a domain that should be transformed to this
-                SVG-coordinate system. Array of shape (n, 2).
+            coords: Coordinate points in geographical representation (longitude and
+                latitude) that should be transformed to the SVG-coordinate system.
+                Array of shape (n, 2).
 
         Returns:
-            An array with the points of the geometry in SVG coordinates.
+            An array with the points of the geometry in SVG coordinates of shape (n, 2).
         """
-        x_min, y_min, _, _ = self.bounds
-        points = points - np.array([x_min, y_min])
-        points = points / self.range * self.size
-        # upside down
-        points = points * np.array([1, -1]) + np.array([0, self.height])
-        return points
+        # use geographical projection
+        xx, yy = self.projection(*coords.T)  # self.projection wants two lists xx and yy
+        xx, yy = np.array(xx), np.array(yy)
+        # shift to zero
+        x_min, y_min, _, _ = self.bounds_proj
+        xx, yy = xx - x_min, yy - y_min
+        # scale to one
+        x_range, y_range = self.range_proj
+        xx, yy = xx / x_range, yy / y_range
+        # scale to svg size
+        xx, yy = xx * self.width, yy * self.height
+        # turn upside down
+        yy = -yy + self.height
+        return np.array([xx, yy]).T
 
     def add_gdf(
         self, gdf: GeoDataFrame, gdf_id: str, group_id: str | None = None, **kwargs
@@ -260,7 +298,7 @@ class MapSVG(svg.SVG):
         for _, row in gdf.iterrows():
             name = row["id"]
             geom = row.geometry
-            svg_element = self.geometry_to_svg(
+            svg_element = self.add_geometry(
                 geometry=geom,
                 geometry_id=name,
             )
