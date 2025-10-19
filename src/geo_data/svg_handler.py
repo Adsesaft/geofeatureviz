@@ -213,7 +213,7 @@ class MapSVG(svg.SVG):
                     return result
         return None
 
-    def add_geometry(
+    def geom_to_svg(
         self,
         geometry: BaseGeometry,
         geometry_id: str,
@@ -326,7 +326,7 @@ class MapSVG(svg.SVG):
         for _, row in gdf.iterrows():
             name = row["id"]
             geom = row.geometry
-            svg_element = self.add_geometry(
+            svg_element = self.geom_to_svg(
                 geometry=geom,
                 geometry_id=name,
             )
