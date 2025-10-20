@@ -8,7 +8,7 @@ import svg
 from geopandas import GeoDataFrame
 from numpy.typing import ArrayLike, NDArray
 from pyproj import Transformer
-from shapely.geometry.base import BaseGeometry
+from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.geometry.linestring import LineString
 from shapely.geometry.multilinestring import MultiLineString
 from shapely.geometry.multipolygon import MultiPolygon
@@ -236,43 +236,39 @@ class MapSVG(svg.SVG):
         Raises:
             ValueError: If an unsupported geometry type is given.
         """
-        # TODO: use this somehow: BaseMultipartGeometry
-        if isinstance(geometry, Polygon):
-            points = np.array(geometry.exterior.coords)
-            points = self._transformation(points)
-            svg_element = svg.Polygon(
-                points=list(points.flatten()), id=geometry_id, **kwargs
-            )
-        elif isinstance(geometry, MultiPolygon):
-            group_polygons = []
-            for i, polygon in enumerate(geometry.geoms):
-                points = np.array(polygon.exterior.coords)
-                points = self._transformation(points)
-                polygon = svg.Polygon(
-                    points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
-                )
-                group_polygons.append(polygon)
-            svg_element = svg.G(id=geometry_id, elements=group_polygons, **kwargs)
-        elif isinstance(geometry, LineString):
-            points = np.array(geometry.coords)
-            points = self._transformation(points)
-            svg_element = svg.Polyline(
-                points=list(points.flatten()), id=geometry_id, **kwargs
-            )
-        elif isinstance(geometry, MultiLineString):
-            group_polylines = []
-            for i, line in enumerate(geometry.geoms):
-                points = np.array(line.coords)
-                points = self._transformation(points)
-                polyline = svg.Polyline(
-                    points=list(points.flatten()), id=f"{geometry_id}_part_{i}"
-                )
-                group_polylines.append(polyline)
-            svg_element = svg.G(id=geometry_id, elements=group_polylines, **kwargs)
+        if isinstance(geometry, BaseMultipartGeometry):
+            first_geom = geometry.geoms[0]
         else:
-            raise ValueError(
-                f"This geometry type can not be added: {geometry.geom_type}"
-            )
+            first_geom = geometry
+
+        # get the svg elements class
+        if isinstance(first_geom, Polygon):
+            svg_cls = svg.Polygon
+            get_coords = lambda g: g.exterior.coords
+        elif isinstance(first_geom, LineString):
+            svg_cls = svg.Polyline
+            get_coords = lambda g: g.coords
+        else:
+            raise ValueError(f"Unsupported geometry type: '{geometry.geom_type}'")
+
+        def _create_svg_element(
+            geom: BaseGeometry, geom_id: str, **kwargs
+        ) -> svg.Element:
+            """Use determined class and get_coords function to create SVG-element."""
+            points = self._transformation(np.array(get_coords(geom)))
+            return svg_cls(points=list(points.flatten()), id=geom_id, **kwargs)
+
+        # create a group for multipart geometry
+        if isinstance(geometry, BaseMultipartGeometry):
+            svg_elements = [
+                _create_svg_element(geom_part, f"{geometry_id}_part_{i}")
+                for i, geom_part in enumerate(geometry.geoms)
+            ]
+            svg_element = svg.G(id=geometry_id, elements=svg_elements, **kwargs)
+        # create a single element for single geometry
+        else:
+            svg_element = _create_svg_element(geometry, geometry_id, **kwargs)
+
         return svg_element
 
     def _transformation(
