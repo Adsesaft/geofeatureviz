@@ -319,9 +319,12 @@ class MapSVG(svg.SVG):
                 - geometry: shapely geometries with geometrical information.
                 - id: identifier of the geometries (e.g. country names)
             gdf_id: For each row, an SVG-element will be created. All these elements
-                will be grouped. This parameter determines the SVG group identifier.
-            group_id: Identifier of the group to which the created group should be added
-                Defaults to None.
+                can be grouped. This parameter determines the SVG group identifier. If
+                None is given, all elements are added to the group given by 'group_id'.
+                Note that the kwargs are only relevant if a gdf_id is given.
+            group_id: Identifier of the group to which the created group should be
+                added. If None is given, it is added to the canvas directly.
+                Defaults toNone.
         """
         elements = []
         for _, row in gdf.iterrows():
@@ -332,7 +335,11 @@ class MapSVG(svg.SVG):
                 geometry_id=name,
             )
             elements.append(svg_element)
-        self.add(svg.G(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
+        if gdf_id is None:
+            for elem in elements:
+                self.add(elem, group_id=group_id)
+        else:
+            self.add(svg.G(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
 
     def save(self, file_path: str | Path) -> None:
         """Save the SVG file to the given path.
