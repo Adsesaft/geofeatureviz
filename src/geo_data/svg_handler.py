@@ -8,11 +8,15 @@ import svg
 from geopandas import GeoDataFrame
 from numpy.typing import ArrayLike, NDArray
 from pyproj import Transformer
+from shapely import (
+    GeometryCollection,
+    LineString,
+    MultiPolygon,
+    Polygon,
+    make_valid,
+    unary_union,
+)
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
-from shapely.geometry.linestring import LineString
-from shapely.geometry.multilinestring import MultiLineString
-from shapely.geometry.multipolygon import MultiPolygon
-from shapely.geometry.polygon import Polygon
 
 COLORS = {
     "background": "#f6f6f6",
@@ -363,8 +367,10 @@ class OrthoMapSVG(MapSVG):
             height = width
         elif height is not None:
             width = height
+        self.center = center
         ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={center[0]}"
         transformer = Transformer.from_crs("EPSG:4326", ortho_proj_str, always_xy=True)
+
         super().__init__(
             bounds=(-180, -90, 180, 90),
             height=height,
@@ -379,22 +385,114 @@ class OrthoMapSVG(MapSVG):
         assert transformer.target_crs is not None
         assert transformer.target_crs.ellipsoid is not None
         world_radius = transformer.target_crs.ellipsoid.semi_major_metre
+        self.world_radius = world_radius
+        self.clipped_scaling = 0.99
         self.bounds_proj = (-world_radius, -world_radius, world_radius, world_radius)
         self.range_proj = np.array([2 * world_radius, 2 * world_radius])
+        self.visible_lon_lat = self._get_visible_lon_lat(center)
 
         self.grad_id = "globeShadowGrad"
         grad = get_radial_shadow_grad(self.grad_id)
         defs = svg.Defs(elements=[grad])
         self.add(defs)
 
+    def geom_to_svg(
+        self,
+        geometry: BaseGeometry,
+        geometry_id: str,
+        **kwargs,
+    ) -> svg.Element:
+        visible_geom = geometry.intersection(self.visible_lon_lat)
+        return super().geom_to_svg(visible_geom, geometry_id, **kwargs)
+
+    def _get_visible_lon_lat(self, center: tuple[float, float]) -> BaseGeometry:
+        """Get a geometry that determines the visible part in longitude/latitude.
+
+        This shape is not completely straightforward. This function creates a circle in
+        the size of the world and projects it from an orthographic space into
+        longitude/latitude space. Some additional checks are done to create the final
+        approximated shape.
+
+        Args:
+            center: Center of the orthographic projection.
+
+        Returns:
+            A geometry that shows the part in longitude/latitude that will be visible
+            if the orthographic projection with the given center would be applied.
+        """
+        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={center[0]}"
+        inv_transformer = Transformer.from_crs(
+            ortho_proj_str, "EPSG:4326", always_xy=True
+        )
+        # we scale the radius slightly for some error margin
+        world_radius = self.world_radius * self.clipped_scaling
+        # define points on circle
+        t = np.linspace(0, 2 * np.pi, 360)
+        x = world_radius * np.cos(t)
+        y = world_radius * np.sin(t)
+        lon, lat = inv_transformer.transform(x, y)
+
+        # the inverse transformation does not transform points to the boundaries
+        # therefore, we have to set the boundaries manually
+        # If latitude is larger then 0, the visible part goes to the top (+90°)
+        if center[1] > 0:
+            boundary = 90  # in deg
+        # If latitude is lower then 0, the visible part goes to the top (-90°)
+        elif center[1] < 0:
+            boundary = -90  # in deg
+        else:
+            boundary = None
+        # change the LATitude value to boundary where lowest and largest LONGitude
+        if boundary is not None:
+            i_min, i_max = [np.argmin(lon), np.argmax(lon)]
+            lat[i_min] = lat[i_max] = boundary
+            idx = np.r_[0 : i_min + 1, i_max : len(lat)]
+            lon, lat = lon[idx], lat[idx]
+
+        # if the longitude center is between -90 and 90, the shape is a polygon
+        if -90 <= center[0] <= 90:
+            visible = Polygon(zip(lon, lat))
+        # if not, the shape is a multipolygon "clipping over the edge" of the map
+        # therefore, we have to create 2 polygons instead of one
+        else:
+            lon, lat = np.array(lon), np.array(lat)
+            mask = lon > 0
+            p1 = Polygon(zip(lon[mask], lat[mask]))
+            p2 = Polygon(zip(lon[~mask], lat[~mask]))
+            visible = MultiPolygon([p1, p2])
+
+        # final check if the geometry is valid; if not, make a single valid geometry
+        if not visible.is_valid:
+            visible = make_valid(visible)
+            if isinstance(visible, GeometryCollection):
+                # Keep only polygons
+                polygons = [
+                    g for g in visible.geoms if isinstance(g, (Polygon, MultiPolygon))
+                ]
+                visible = unary_union(polygons)
+        return visible
+
+    def add_sea(self):
+        """Add a blue circle as background for the sea."""
+        radius = self.size[0] / 2
+        self.add(
+            svg.Circle(
+                id="sea",
+                cx=radius,
+                cy=radius,
+                r=radius * self.clipped_scaling,
+                **self.get_kwargs("sea"),
+            )
+        )
+
     def add_shadow(self):
         """Add a radial shadow to the canvas."""
-        radius = self.width / 2  # type: ignore
+        radius = self.size[0] / 2
         self.add(
             svg.Circle(
                 cx=radius,
                 cy=radius,
-                r=radius,
+                r=radius * self.clipped_scaling,
                 id="globeShadow",
                 fill=f"url(#{self.grad_id})",
             )
