@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Callable, Optional, cast
+from xml.dom.minidom import parseString
 
 import numpy as np
 import svg
@@ -59,7 +60,6 @@ class MapSVG(svg.SVG):
             **kwargs: Keyword arguments passed to svg.SVG.
         """
         if projection is None:
-
             projection = Transformer.from_crs(
                 "EPSG:4326", "EPSG:3857", always_xy=True
             ).transform
@@ -131,6 +131,17 @@ class MapSVG(svg.SVG):
         for key, value in attr_values.items():
             setattr(self, key, value)
         return str_repr
+
+    def as_pretty_str(self):
+        """Get a pretty string representation of the canvas with indentations etc.
+
+        Returns:
+            A pretty string representation of the canvas.
+        """
+        self_str = self.as_str()
+        dom = parseString(self_str)
+        pretty_str = dom.toprettyxml(indent="  ")
+        return pretty_str
 
     def get_kwargs(self, kind: str) -> dict:
         """Get keyword arguments for svgwrite elements from geographical feature type.
@@ -363,14 +374,20 @@ class MapSVG(svg.SVG):
         else:
             self.add(svg.G(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
 
-    def save(self, file_path: str | Path) -> None:
+    def save(self, file_path: str | Path, pretty: bool = True) -> None:
         """Save the SVG file to the given path.
 
         Args:
             file_path: Path to save the SVG file to.
+            pretty: Whether the output file should be pretty (with indentations etc.) or
+                not. Default is True.
         """
+        if pretty:
+            self_str = self.as_pretty_str()
+        else:
+            self_str = self.as_str()
         path = Path(file_path)
-        path.write_text(str(self), encoding="utf-8")
+        path.write_text(self_str, encoding="utf-8")
 
 
 class OrthoMapSVG(MapSVG):
