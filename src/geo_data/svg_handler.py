@@ -428,56 +428,182 @@ class OrthoMapSVG(MapSVG):
             A geometry that shows the part in longitude/latitude that will be visible
             if the orthographic projection with the given center would be applied.
         """
-        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={center[0]}"
+        # we pretend that the center is at lon=0
+        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={0}"
         inv_transformer = Transformer.from_crs(
             ortho_proj_str, "EPSG:4326", always_xy=True
         )
         # we scale the radius slightly for some error margin
         world_radius = self.world_radius * self.clipped_scaling
         # define points on circle
-        t = np.linspace(0, 2 * np.pi, 360)
+        n_values = 720
+        t = np.linspace(0, 2 * np.pi, n_values)
         x = world_radius * np.cos(t)
         y = world_radius * np.sin(t)
         lon, lat = inv_transformer.transform(x, y)
+        lon, lat = np.array(lon), np.array(lat)
 
-        # the inverse transformation does not transform points to the boundaries
-        # therefore, we have to set the boundaries manually
+        # If the center lat is > 0, lon-values are ascending, and else descending. We
+        # want them to be ascending and therefore reverse if necessary.
+        if center[1] < 0:
+            lon, lat = lon[::-1], lat[::-1]
+
+        # adjust for longitude
+        lon += center[0]
+        clip_over_mask = lon > 180
+        clip_under_mask = lon < -180
+        if np.any(clip_over_mask | clip_under_mask):
+            # if something "clipped over" to the right
+            if np.any(clip_over_mask):
+                lon_left, lat_left = lon[clip_over_mask], lat[clip_over_mask]
+                lon_right, lat_right = lon[~clip_over_mask], lat[~clip_over_mask]
+                lon_left -= 360
+            # if something "clipped under" to the left
+            else:
+                lon_left, lat_left = lon[~clip_under_mask], lat[~clip_under_mask]
+                lon_right, lat_right = lon[clip_under_mask], lat[clip_under_mask]
+                lon_right += 360
+
+            # check if the clipped parts should really be disjoint
+            if (lon_right.min() - lon_left.max()) < 3.6:  # they should not be disjoint
+                left_idx = np.argsort(lon_left)
+                right_idx = np.argsort(lon_right)
+                lon = [np.concatenate((lon_left[left_idx], lon_right[right_idx]))]
+                lat = [np.concatenate((lat_left[left_idx], lat_right[right_idx]))]
+            else:
+                lon = [lon_left, lon_right]
+                lat = [lat_left, lat_right]
+        else:
+            lon, lat = [lon], [lat]
+
+        # The inverse transformation does not transform points to the boundaries.
+        # Therefore, we have to set the boundaries manually.
         # If latitude is larger then 0, the visible part goes to the top (+90°)
-        if center[1] > 0:
+        if center[1] >= 0:
             boundary = 90  # in deg
         # If latitude is lower then 0, the visible part goes to the top (-90°)
         elif center[1] < 0:
             boundary = -90  # in deg
         else:
             boundary = None
+
         # change the LATitude value to boundary where lowest and largest LONGitude
         if boundary is not None:
-            i_min, i_max = [np.argmin(lon), np.argmax(lon)]
-            lat[i_min] = lat[i_max] = boundary
-            idx = np.r_[0 : i_min + 1, i_max : len(lat)]
-            lon, lat = lon[idx], lat[idx]
+            new_lon, new_lat = [], []
+            for lon_i, lat_i in zip(lon, lat):
+                i_min, i_max = np.argmin(lon_i), np.argmax(lon_i)
 
-        # if the longitude center is between -90 and 90, the shape is a polygon
-        if -90 <= center[0] <= 90:
-            visible = Polygon(zip(lon, lat))
-        # if not, the shape is a multipolygon "clipping over the edge" of the map
-        # therefore, we have to create 2 polygons instead of one
+                # set the lon to -180 or 180 if it is in a margin
+                lon_margin = 3.6
+                if lon_i[i_min] < (-180 + lon_margin):
+                    lon_i[i_min] = -180
+                if lon_i[i_max] > (180 - lon_margin):
+                    lon_i[i_max] = 180
+
+                # insert two values
+                # lat: the latitude boundaries (-90 or 90)
+                # lon: the values that the min longitude and max longitude have (will
+                #      often be -180 or 180, but not necessarily)
+                # Because of how np.insert works, we have to take care regarding the
+                # insertion order: if i_min is smaller, it has to be inserted first; if
+                # it is larger, it has to be inserted second.
+                if i_min < i_max:
+                    lat_i = np.insert(lat_i, [i_min, i_max + 1], boundary)
+                    lon_i = np.insert(lon_i, [i_min, i_max + 1], lon_i[[i_min, i_max]])
+                    i_max += 2
+                else:
+                    lat_i = np.insert(lat_i, [i_max + 1, i_min], boundary)
+                    lon_i = np.insert(lon_i, [i_max + 1, i_min], lon_i[[i_max, i_min]])
+                    i_min += 2
+
+                # if there are points between i_min and i_max, they have to be removed
+                # there are points between, if they are not 0 and len(lat_i); we have
+                # to do i_max + 3 since we added two elements to the array
+                # if (i_min != 0) or (i_max + 1 != len(lat_i)):
+                #     if i_min < i_max:
+                #         # idx = np.r_[0 : i_min + 1, i_max : len(lat_i)]
+                #         idx = np.arange(len(lon_i))
+                #         idx = idx < i_min | idx >= i_max
+                #     else:
+                #         idx = np.arange(i_max, i_min)
+                #     lon_i, lat_i = lon_i[idx], lat_i[idx]
+
+                if center[1] < 0:
+                    i_remove = lat_i < 0
+                elif center[1] > 0:
+                    i_remove = lat_i > 0
+                else:
+                    i_remove = None
+
+                # if i_remove is not None:
+                #     i_remove = i_remove & (lon_i > lon_i.min()) & (lon_i < lon_i.max())
+                #     lon_i, lat_i = lon_i[~i_remove], lat_i[~i_remove]
+
+                new_lon.append(lon_i)
+                new_lat.append(lat_i)
+            lon, lat = new_lon, new_lat
+        polygons = []
+        for lon_i, lat_i in zip(lon, lat):
+            if len(lon_i) > 4:
+                polygon = Polygon(zip(lon_i, lat_i))
+
+                # The inverse transformation does not transform points to the boundaries.
+                # Therefore, we have to set the boundaries manually.
+                i_min, i_max = np.argmin(lon_i), np.argmax(lon_i)
+
+                lon_margin = 3.6
+                if lon_i[i_min] < (-180 + lon_margin):
+                    lon_i[i_min] = -180
+                if lon_i[i_max] > (180 - lon_margin):
+                    lon_i[i_max] = 180
+
+                # If latitude is larger then 0, the visible part goes to the top (+90°)
+                if center[1] > 0:
+                    points = [
+                        (lon_i[i_min], np.floor(lat_i[i_min])),
+                        (lon_i[i_max], np.floor(lat_i[i_max])),
+                        (lon_i[i_max], 90),
+                        (lon_i[i_min], 90),
+                    ]
+                # If latitude is lower then 0, the visible part goes to the top (-90°)
+                elif center[1] < 0:
+                    points = [
+                        (lon_i[i_min], np.ceil(lat_i[i_min])),
+                        (lon_i[i_max], np.ceil(lat_i[i_max])),
+                        (lon_i[i_max], -90),
+                        (lon_i[i_min], -90),
+                    ]
+                else:
+                    points = [
+                        (lon_i[i_min], 90),
+                        (lon_i[i_max], 90),
+                        (lon_i[i_max], -90),
+                        (lon_i[i_min], -90),
+                    ]
+                boundary_rect = Polygon(points)
+                final_polygon = polygon.union(boundary_rect)
+                polygons.append(final_polygon)
+
+        polygons = [
+            Polygon(zip(lon_i, lat_i))
+            for lon_i, lat_i in zip(lon, lat)
+            if len(lon_i) > 4
+        ]
+        if len(polygons) > 1:
+            visible = MultiPolygon(polygons)
         else:
-            lon, lat = np.array(lon), np.array(lat)
-            mask = lon > 0
-            p1 = Polygon(zip(lon[mask], lat[mask]))
-            p2 = Polygon(zip(lon[~mask], lat[~mask]))
-            visible = MultiPolygon([p1, p2])
+            visible = polygons[0]
 
         # final check if the geometry is valid; if not, make a single valid geometry
-        if not visible.is_valid:
-            visible = make_valid(visible)
-            if isinstance(visible, GeometryCollection):
-                # Keep only polygons
-                polygons = [
-                    g for g in visible.geoms if isinstance(g, (Polygon, MultiPolygon))
-                ]
-                visible = unary_union(polygons)
+        # if not visible.is_valid:
+        #     visible = make_valid(visible)
+        #     if isinstance(visible, GeometryCollection):
+        #         # Keep only polygons
+        #         polygons = [
+        #             g for g in visible.geoms if isinstance(g, (Polygon, MultiPolygon))
+        #         ]
+        #         visible = unary_union(polygons)
+
         return visible
 
     def add_sea(self):
