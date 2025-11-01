@@ -423,9 +423,6 @@ class OrthoMapSVG(MapSVG):
         longitude/latitude space. Some additional checks are done to create the final
         approximated shape.
 
-        Args:
-            center: Center of the orthographic projection.
-
         Returns:
             A geometry that shows the part in longitude/latitude that will be visible
             if the orthographic projection with the given center would be applied.
@@ -438,7 +435,7 @@ class OrthoMapSVG(MapSVG):
         x = world_radius * np.cos(t)
         y = world_radius * np.sin(t)
         # project from orthographic to lon/lat, pretend that the center is at lon=0
-        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={0}"
+        ortho_proj_str = f"+proj=ortho +lat_0={self.center[1]} +lon_0={0}"
         inv_transformer = Transformer.from_crs(
             ortho_proj_str, "EPSG:4326", always_xy=True
         )
@@ -448,9 +445,6 @@ class OrthoMapSVG(MapSVG):
 
         idx_lon_min, idx_lon_max = lon.argmin(), lon.argmax()
 
-        # The inverse transformation does not transform points to the boundaries.
-        # Therefore, we have to set the boundaries manually.
-
         # due to projection, values are not projected to left/right border
         lon_margin = 3.6
         if lon.min() < (-180 + lon_margin):
@@ -458,8 +452,31 @@ class OrthoMapSVG(MapSVG):
         if lon.max() > (180 - lon_margin):
             lon[idx_lon_max] = 180
 
+        # The inverse transformation does not transform points to the boundaries.
+        # Therefore, we have to set the boundaries manually using a created rectangle.
+        boundary_rect = self._get_boundary_rect(lon, lat)
+        polygon = Polygon(zip(lon, lat)).union(boundary_rect)
+        assert isinstance(polygon, Polygon)
+
+        if self.center[0] != 0:
+            polygon = self._shift_polygon(polygon, shift=self.center[0])
+
+        return polygon
+
+    def _get_boundary_rect(self, lon: NDArray, lat: NDArray) -> Polygon:
+        """Get a rectangle that goes to the boundaries of the map fitting lon and lat.
+
+        Args:
+            lon: Longitudes of a shape that should go to the boundaries.
+            lat: Latitudes of a shape that should go to the boundaries.
+
+        Returns:
+            A polygon, which is a rectangle that goes from the largest lon, to the
+            smallest lon to the border.
+        """
+        idx_lon_min, idx_lon_max = lon.argmin(), lon.argmax()
         # If latitude is larger then 0, the visible part goes to the top (+90°)
-        if center[1] > 0:
+        if self.center[1] > 0:
             boundary_points = [
                 (lon[idx_lon_min], np.floor(lat[idx_lon_min])),
                 (lon[idx_lon_max], np.floor(lat[idx_lon_max])),
@@ -467,7 +484,7 @@ class OrthoMapSVG(MapSVG):
                 (lon[idx_lon_min], 90),
             ]
         # If latitude is lower then 0, the visible part goes to the top (-90°)
-        elif center[1] < 0:
+        elif self.center[1] < 0:
             boundary_points = [
                 (lon[idx_lon_min], np.ceil(lat[idx_lon_min])),
                 (lon[idx_lon_max], np.ceil(lat[idx_lon_max])),
@@ -482,40 +499,56 @@ class OrthoMapSVG(MapSVG):
                 (lon[idx_lon_max], -90),
                 (lon[idx_lon_min], -90),
             ]
-        polygon = Polygon(zip(lon, lat)).union(Polygon(boundary_points))
+        return Polygon(boundary_points)
 
-        if center[0] > 0:
-            dateline = LineString([(180, -91), (180, 91)])
-            offset = -360
-            check_wrap = lambda coords: np.max(coords) > 180
-        elif center[0] < 0:
-            dateline = LineString([(-180, -91), (-180, 91)])
-            offset = 360
-            check_wrap = lambda coords: np.min(coords) < -180
-        else:  # longitude center is 0 -> no shift, just return
+    def _shift_polygon(
+        self, polygon: Polygon, shift: float, limit: float = 180
+    ) -> BaseGeometry:
+        """Shift a polygon on the x-axis while wrapping to a min and max of (-)180°.
+
+        Args:
+            polygon: The polygon that should be shifted.
+
+        Returns:
+            Either a single polygon or a multipolygon.
+            Single polygon:
+            - if the shifted polygon does not does not exceed the limits
+            - if the shifted polygon "touches" itself after wrapping
+            Multipolygon:
+            - if the shifted polygon has to be wrapped and does not "touch" itself
+        """
+        if shift > 0:
+            direction = 1
+            check_wrap = lambda coords: np.max(coords) > limit
+        elif shift < 0:
+            direction = -1
+            check_wrap = lambda coords: np.min(coords) < limit
+        else:
             return polygon
+        limit = direction * limit
+        offset = -2 * limit
 
         # shift by longitude center
-        shifted = translate(polygon, xoff=center[0])
-        # create a multipolygon to ensure that all parts are polygons
+        shifted = translate(polygon, xoff=shift)
+
+        # split; create a multipolygon to ensure that all parts are polygons
+        dateline = LineString([(limit, -91), (limit, 91)])
         split_parts = MultiPolygon(split(shifted, dateline))
         if len(split_parts.geoms) > 1:
             # determine which polygon has to be wrapped
-            if check_wrap(split_parts.geoms[0].exterior.coords):
+            if check_wrap(np.array(split_parts.geoms[0].exterior.coords).T[0]):
                 idx_orig, idx_wrapped = 1, 0
             else:
                 idx_orig, idx_wrapped = 0, 1
-            orig = split_parts.geoms[idx_orig]
-            wrapped = translate(split_parts.geoms[idx_wrapped], xoff=offset)
+            orig, wrapped = split_parts.geoms[idx_orig], split_parts.geoms[idx_wrapped]
+            # move wrapped to the other side
+            wrapped = translate(wrapped, xoff=offset)
             # merge if they touch
             if wrapped.touches(orig):
-                visible = wrapped.union(orig)
+                shifted = wrapped.union(orig)
             else:
-                visible = MultiPolygon([orig, wrapped])
-        else:
-            visible = shifted
-
-        return visible
+                shifted = MultiPolygon([orig, wrapped])
+        return shifted
 
     def add_sea(self):
         """Add a blue circle as background for the sea."""
