@@ -26,7 +26,7 @@ COLORS = {
     "land": "#fefee9",
     "river": "#0978ab",
     "lake": "#c6ecff",
-    "highlight": "#c12737ff",
+    "highlight": "#c12737",
 }
 ProjectionCallable = Callable[[ArrayLike, ArrayLike], tuple[ArrayLike, ArrayLike]]
 
