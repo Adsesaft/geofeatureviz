@@ -399,7 +399,7 @@ class OrthoMapSVG(MapSVG):
         self.clipped_scaling = 0.99
         self.bounds_proj = (-world_radius, -world_radius, world_radius, world_radius)
         self.range_proj = np.array([2 * world_radius, 2 * world_radius])
-        self.visible_lon_lat = self._get_visible_lon_lat(center)
+        self.visible_lon_lat = self._create_visible_lon_lat()
 
         self.grad_id = "globeShadowGrad"
         grad = get_radial_shadow_grad(self.grad_id)
@@ -415,7 +415,7 @@ class OrthoMapSVG(MapSVG):
         visible_geom = geometry.intersection(self.visible_lon_lat)
         return super().geom_to_svg(visible_geom, geometry_id, **kwargs)
 
-    def _get_visible_lon_lat(self, center: tuple[float, float]) -> BaseGeometry:
+    def _create_visible_lon_lat(self) -> BaseGeometry:
         """Get a geometry that determines the visible part in longitude/latitude.
 
         This shape is not completely straightforward. This function creates a circle in
