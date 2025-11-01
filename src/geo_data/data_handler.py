@@ -21,6 +21,9 @@ DATA_FILES = {
     ("river_europe", "ne", 10): "ne_10m_rivers_europe.zip",
 }
 REGIONAL_GROUP_PATH = helpers.get_top_directory() / "data" / "regional_groups.yaml"
+COUNTRY_TRANSLATION_PATH = (
+    helpers.get_top_directory() / "data" / "country_translations.csv"
+)
 
 ANKI_COLLECTION_PATH = Path.home() / ".local" / "share" / "Anki2" / "Adrian"
 ANKI_COLLECTION_PATH_COPY = helpers.get_top_directory() / "data"
@@ -261,3 +264,17 @@ def get_regional_groups() -> dict[str, dict[str, list]]:
     with open(REGIONAL_GROUP_PATH, "r", encoding="utf-8") as f:
         regions = yaml.safe_load(f)
     return regions
+
+
+def get_country_translations() -> pd.DataFrame:
+    """Get a dataframe containing translations of countries.
+
+    Returns:
+        A DataFrame currently containing 3 columns:
+        - code: The ISO 3166 alpha 3 country code (3 letter unique country id)
+        - german: The German name of the country (consistent with Anki Ultimate
+                  Geography, which is consistent with German Wikipedia.)
+        - english: The English name of the country (I didn't investigate further).
+    """
+    df = pd.read_csv(COUNTRY_TRANSLATION_PATH)
+    return df
