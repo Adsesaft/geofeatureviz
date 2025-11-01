@@ -439,9 +439,7 @@ class OrthoMapSVG(MapSVG):
         self.visible_lon_lat = self._create_visible_lon_lat()
 
         self.grad_id = "globeShadowGrad"
-        grad = get_radial_shadow_grad(self.grad_id)
-        defs = svg.Defs(elements=[grad])
-        self.add(defs)
+        self.add_def(RadialShadowGrad(id=self.grad_id))
 
     def geom_to_svg(
         self,
@@ -614,41 +612,18 @@ class OrthoMapSVG(MapSVG):
         )
 
 
-def get_radial_shadow_grad(identifier: str) -> svg.RadialGradient:
-    """Get a radial gradient starting light in the center and getting darker.
-
-    The gradient has to be added to the definitions of the canvas, e.g. with:
-    ```python
-    grad = svg_handler.get_radial_shadow_grad(identifier)
-    defs = svg.Defs(elements=[grad])
-    ```
-
-    Then, it can be applied on an element (e.g. a circle) with its identifier:
-    ```python
-    svg.Circle(fill=f"url(#{identifier})")
-    ```
-
-    Args:
-        identifier: Name of the radial gradient. This name has to be used to apply the
-            gradient to an element.
-
-    Returns:
-        A radial gradient, with pre-defined values. In the future, it might be a good
-        idea to be able to define these values, but for now this is sufficient.
-    """
-    grad = svg.RadialGradient(
-        id=identifier,
-        cx=0.5,
-        cy=0.5,
-        r=0.5,
-        fx=0.5,
-        fy=0.5,
-        elements=cast(
-            list[svg.Element],
-            [
+class RadialShadowGrad(svg.RadialGradient):
+    def __init__(self, **kwargs):
+        default_kwargs = {
+            "cx": 0.5,
+            "cy": 0.5,
+            "r": 0.5,
+            "fx": 0.5,
+            "fy": 0.5,
+            "elements": [
                 svg.Stop(offset=0, stop_opacity=0, stop_color="black"),
                 svg.Stop(offset=1, stop_opacity=0.25, stop_color="black"),
             ],
-        ),
-    )
-    return grad
+        }
+        default_kwargs.update(kwargs)
+        super().__init__(**default_kwargs)
