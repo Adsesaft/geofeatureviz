@@ -614,6 +614,7 @@ class OrthoMapSVG(MapSVG):
 
 class RadialShadowGrad(svg.RadialGradient):
     def __init__(self, **kwargs):
+        """Initialize a radial gradient for a globe shadow."""
         default_kwargs = {
             "cx": 0.5,
             "cy": 0.5,
@@ -631,6 +632,12 @@ class RadialShadowGrad(svg.RadialGradient):
 
 class DiagonalStripedPattern(svg.Pattern):
     def __init__(self, color: tuple[str, str] = ("black", "white"), **kwargs):
+        """Initialize a diagonally striped pattern.
+
+        Args:
+            color: The two colors that alternate in the striped pattern. Defaults to
+                black and white.
+        """
         default_kwargs = {
             "width": 8,
             "height": 8,
