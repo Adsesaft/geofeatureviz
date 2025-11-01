@@ -627,3 +627,19 @@ class RadialShadowGrad(svg.RadialGradient):
         }
         default_kwargs.update(kwargs)
         super().__init__(**default_kwargs)
+
+
+class DiagonalStripedPattern(svg.Pattern):
+    def __init__(self, color: tuple[str, str] = ("black", "white"), **kwargs):
+        default_kwargs = {
+            "width": 8,
+            "height": 8,
+            "patternTransform": "rotate(45)",
+            "patternUnits": "userSpaceOnUse",
+            "elements": [
+                svg.Rect(width=8, height=8, fill=color[1]),  # background
+                svg.Rect(width=4, height=8, fill=color[0]),
+            ],
+        }
+        default_kwargs.update(kwargs)
+        super().__init__(**default_kwargs)
