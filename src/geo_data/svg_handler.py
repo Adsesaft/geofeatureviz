@@ -181,6 +181,26 @@ class MapSVG(svg.SVG):
         else:
             group.elements = [element]
 
+    def add_def(self, definition: svg.Element) -> None:
+        """Add a definition to the canvas Defs.
+
+        Args:
+            definition: The definition to add, e.g. a pattern or a gradient.
+        """
+        if self.elements is None:
+            self.elements = []
+
+        # get the first element that is an svg.Defs, else None
+        defs = next((e for e in self.elements if isinstance(e, svg.Defs)), None)
+
+        if defs is None:
+            self.elements.append(svg.Defs(elements=[definition]))
+        else:
+            if defs.elements is None:
+                defs.elements = [definition]
+            else:
+                defs.elements.append(svg.Defs(elements=[definition]))
+
     def get_group_by_id(self, group_id: str) -> svg.G:
         """Get a group in the SVG file by its identifier.
 
