@@ -33,7 +33,17 @@ ProjectionCallable = Callable[[ArrayLike, ArrayLike], tuple[ArrayLike, ArrayLike
 
 
 class MapSVG(svg.SVG):
-    # TODO: class docstring with Attributes:
+    """Provide an interface to create SVG files for maps.
+
+    Attributes:
+        bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in the
+            domain of the geographical data (longitude and latitude).
+        projection: Callable function that projects coordinates from geographical
+            coordinates (longitude and latitude). Defaults to mercator projection.
+        bounds_proj: The bounds projected into the space given by the projection.
+        range_proj: The range of x- and y-values in the space given by the projection.
+    """
+
     def __init__(
         self,
         bounds: tuple[float, float] | tuple[float, float, float, float],
@@ -43,8 +53,7 @@ class MapSVG(svg.SVG):
         *args,
         **kwargs,
     ):
-        # TODO: set default bounds to (-180, -90, 180, 90)
-        """Provide an interface to create SVG files for maps.
+        """Initialize an interface to create SVG files for maps.
 
         Args:
             bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in
