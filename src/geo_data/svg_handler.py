@@ -67,7 +67,7 @@ class MapSVG(svg.SVG):
             projection = Transformer.from_crs(
                 "EPSG:4326", "EPSG:3857", always_xy=True
             ).transform
-        self.projection = projection
+        self.projection: ProjectionCallable = projection
 
         if bounds is None:
             bounds = (-180, -90, 180, 90)
@@ -76,17 +76,27 @@ class MapSVG(svg.SVG):
             lat_min, lat_max = lon_min, lon_max
         else:
             lon_min, lat_min, lon_max, lat_max = bounds
-        self.bounds = lon_min, lat_min, lon_max, lat_max
+        self.bounds: tuple[float, float, float, float] = (
+            lon_min,
+            lat_min,
+            lon_max,
+            lat_max,
+        )
 
         # pre compute bounds and range in projection
         # bounds
         bounds_proj = projection([lon_min, lon_max], [lat_min, lat_max])
         (x_min, x_max), (y_min, y_max) = np.array(bounds_proj)
-        self.bounds_proj = (x_min, y_min, x_max, y_max)
+        self.bounds_proj: tuple[float, float, float, float] = (
+            x_min,
+            y_min,
+            x_max,
+            y_max,
+        )
 
         # range
         x_range, y_range = x_max - x_min, y_max - y_min
-        self.range_proj = np.array([x_range, y_range])
+        self.range_proj: NDArray = np.array([x_range, y_range])
 
         # compute the width and height depending on what is given
         if height is None and width is None:
