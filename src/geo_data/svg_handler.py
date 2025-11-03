@@ -39,7 +39,9 @@ class MapSVG(svg.SVG):
 
     def __init__(
         self,
-        bounds: tuple[float, float] | tuple[float, float, float, float],
+        bounds: Optional[
+            tuple[float, float] | tuple[float, float, float, float]
+        ] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
         projection: Optional[ProjectionCallable] = None,
@@ -67,6 +69,8 @@ class MapSVG(svg.SVG):
             ).transform
         self.projection = projection
 
+        if bounds is None:
+            bounds = (-180, -90, 180, 90)
         if len(bounds) == 2:
             lon_min, lon_max = bounds
             lat_min, lat_max = lon_min, lon_max
