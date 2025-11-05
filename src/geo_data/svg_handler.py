@@ -198,6 +198,21 @@ class MapSVG(svg.SVG):
         else:
             group.elements = [element]
 
+    def add_background(self):
+        """Add a background (as first element in the list of elements) to the canvas."""
+        width, height = self.size
+        background = svg.Rect(
+            x=0,
+            y=0,
+            width=width,
+            height=height,
+            fill=COLORS["background"],
+            id="background",
+        )
+        if self.elements is None:
+            self.elements = []
+        self.elements = [background] + self.elements
+
     def add_def(self, definition: svg.Element) -> None:
         """Add a definition to the canvas Defs.
 
