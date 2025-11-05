@@ -198,15 +198,21 @@ class MapSVG(svg.SVG):
         else:
             group.elements = [element]
 
-    def add_background(self):
-        """Add a background (as first element in the list of elements) to the canvas."""
+    def add_background(self, color: Optional[str] = None):
+        """Add a background (as first element in the list of elements) to the canvas.
+
+        Args:
+            color: Background color. Defaults to the background color defined in COLORS.
+        """
+        if color is None:
+            color = COLORS["background"]
         width, height = self.size
         background = svg.Rect(
             x=0,
             y=0,
             width=width,
             height=height,
-            fill=COLORS["background"],
+            fill=color,
             id="background",
         )
         if self.elements is None:
