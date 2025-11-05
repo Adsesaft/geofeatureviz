@@ -108,17 +108,7 @@ class MapSVG(svg.SVG):
         assert width is not None and height is not None
         self.size = np.array([width, height])
 
-        background = svg.Rect(
-            x=0,
-            y=0,
-            width=width,
-            height=height,
-            fill=COLORS["background"],
-            id="background",
-        )
-        super().__init__(
-            width=width, height=height, elements=[background], *args, **kwargs
-        )
+        super().__init__(width=width, height=height, elements=[], *args, **kwargs)
 
     def as_str(self) -> str:
         """Get a string SVG representation of the canvas.
