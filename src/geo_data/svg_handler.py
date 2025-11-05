@@ -445,23 +445,20 @@ class OrthoMapSVG(MapSVG):
         elif height is not None:
             width = height
         self.center = center
-        ortho_proj_str = f"+proj=ortho +lat_0={center[1]} +lon_0={center[0]}"
-        transformer = Transformer.from_crs("EPSG:4326", ortho_proj_str, always_xy=True)
+        projection = Orthographic(center=center)
 
         super().__init__(
             bounds=(-180, -90, 180, 90),
             height=height,
             width=width,
-            projection=transformer.transform,
+            projection=projection,
             *args,
             **kwargs,
         )
         # define the bounds manually; due to orthographic projection, the bounds are
         # infinite and defined for a round globe; however, we need them for a linear
         # scaling of the rectangular svg
-        assert transformer.target_crs is not None
-        assert transformer.target_crs.ellipsoid is not None
-        world_radius = transformer.target_crs.ellipsoid.semi_major_metre
+        world_radius = projection.world_radius
         self.world_radius = world_radius
         self.clipped_scaling = 0.99
         self.bounds_proj = (-world_radius, -world_radius, world_radius, world_radius)
