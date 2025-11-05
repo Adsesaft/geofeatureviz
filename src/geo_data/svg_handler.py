@@ -24,7 +24,18 @@ COLORS = {
     "lake": "#c6ecff",
     "highlight": "#c12737",
 }
-ProjectionCallable = Callable[[ArrayLike, ArrayLike], tuple[ArrayLike, ArrayLike]]
+LAND_KWARGS = {
+    "fill": COLORS["land"],
+    "stroke": COLORS["border"],
+    "stroke_width": 1,
+}
+RIVER_KWARGS = {"style": "fill:none", "stroke": COLORS["river"], "stroke_width": 1}
+LAKE_KWARGS = {
+    "fill": COLORS["lake"],
+    "stroke": COLORS["river"],
+    "stroke_width": 1,
+}
+SEA_KWARGS = {"fill": COLORS["lake"]}
 
 
 class MapSVG(svg.SVG):
@@ -166,21 +177,13 @@ class MapSVG(svg.SVG):
             A dictionary with keyword arguments for svgwrite elements.
         """
         if kind == "land":
-            return {
-                "fill": COLORS["land"],
-                "stroke": COLORS["border"],
-                "stroke_width": 1,
-            }
+            return LAND_KWARGS
         elif kind == "river":
-            return {"style": "fill:none", "stroke": COLORS["river"], "stroke_width": 1}
+            return RIVER_KWARGS
         elif kind == "lake":
-            return {
-                "fill": COLORS["lake"],
-                "stroke": COLORS["river"],
-                "stroke_width": 1,
-            }
+            return LAKE_KWARGS
         elif kind == "sea":
-            return {"fill": COLORS["lake"]}
+            return SEA_KWARGS
         else:
             raise ValueError(f"Unknown kind '{kind}'")
 
