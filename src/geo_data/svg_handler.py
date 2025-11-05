@@ -32,7 +32,7 @@ class MapSVG(svg.SVG):
         bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in the
             domain of the geographical data (longitude and latitude).
         projection: Callable function that projects coordinates from geographical
-            coordinates (longitude and latitude). Defaults to mercator projection.
+            coordinates (longitude and latitude).
         bounds_proj: The bounds projected into the space given by the projection.
         range_proj: The range of x- and y-values in the space given by the projection.
     """
@@ -59,13 +59,14 @@ class MapSVG(svg.SVG):
             width: Width of the SVG-file in pixels. If None is given, the width is
                 automatically determined from the height and the bounds.
             projection: Callable function that projects coordinates from geographical
-                coordinates (longitude and latitude). Defaults to mercator projection.
+                coordinates (longitude and latitude). Defaults to equirectangular
+                projection (EPSG 32662).
             *args: Arguments passed to svg.SVG.
             **kwargs: Keyword arguments passed to svg.SVG.
         """
         if projection is None:
             projection = Transformer.from_crs(
-                "EPSG:4326", "EPSG:3857", always_xy=True
+                "EPSG:4326", "EPSG:32662", always_xy=True
             ).transform
         self.projection: ProjectionCallable = projection
 
