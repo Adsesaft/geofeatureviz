@@ -14,6 +14,8 @@ from shapely.affinity import translate
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 
+from geo_data.projections import Equirectangular, Orthographic, Projection
+
 COLORS = {
     "background": "#f6f6f6",
     "border": "#646464",
@@ -44,7 +46,7 @@ class MapSVG(svg.SVG):
         ] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-        projection: Optional[ProjectionCallable] = None,
+        projection: Optional[Projection] = None,
         *args,
         **kwargs,
     ):
@@ -58,17 +60,15 @@ class MapSVG(svg.SVG):
                 automatically determined from the width and the bounds.
             width: Width of the SVG-file in pixels. If None is given, the width is
                 automatically determined from the height and the bounds.
-            projection: Callable function that projects coordinates from geographical
+            projection: A callable class that projects coordinates from geographical
                 coordinates (longitude and latitude). Defaults to equirectangular
                 projection (EPSG 32662).
             *args: Arguments passed to svg.SVG.
             **kwargs: Keyword arguments passed to svg.SVG.
         """
         if projection is None:
-            projection = Transformer.from_crs(
-                "EPSG:4326", "EPSG:32662", always_xy=True
-            ).transform
-        self.projection: ProjectionCallable = projection
+            projection = Equirectangular()
+        self.projection: Projection = projection
 
         if bounds is None:
             bounds = (-180, -90, 180, 90)
@@ -86,7 +86,9 @@ class MapSVG(svg.SVG):
 
         # pre compute bounds and range in projection
         # bounds
-        bounds_proj = projection([lon_min, lon_max], [lat_min, lat_max])
+        bounds_proj = projection(
+            np.array([lon_min, lon_max]), np.array([lat_min, lat_max])
+        )
         (x_min, x_max), (y_min, y_max) = np.array(bounds_proj)
         self.bounds_proj: tuple[float, float, float, float] = (
             x_min,
