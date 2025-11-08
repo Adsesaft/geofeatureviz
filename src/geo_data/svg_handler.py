@@ -661,21 +661,28 @@ class RadialShadowGrad(svg.RadialGradient):
 
 
 class DiagonalStripedPattern(svg.Pattern):
-    def __init__(self, color: tuple[str, str] = ("black", "white"), **kwargs):
+    def __init__(
+        self,
+        color: tuple[str, str] = ("black", "white"),
+        width: tuple[int, int] = (1, 1),
+        **kwargs,
+    ):
         """Initialize a diagonally striped pattern.
 
         Args:
             color: The two colors that alternate in the striped pattern. Defaults to
                 black and white.
+            width: The width of the alternating stripes. Defaults to (1, 1).
         """
+        max_width = sum(width)
         default_kwargs = {
-            "width": 8,
+            "width": max_width,
             "height": 8,
             "patternTransform": "rotate(45)",
             "patternUnits": "userSpaceOnUse",
             "elements": [
-                svg.Rect(width=8, height=8, fill=color[1]),  # background
-                svg.Rect(width=4, height=8, fill=color[0]),
+                svg.Rect(width=max_width, height=8, fill=color[1]),  # background
+                svg.Rect(width=width[0], height=8, fill=color[0]),
             ],
         }
         default_kwargs.update(kwargs)
