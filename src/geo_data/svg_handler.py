@@ -14,28 +14,8 @@ from shapely.affinity import translate
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 
+from geo_data import map_style
 from geo_data.projections import Equirectangular, Orthographic, Projection
-
-COLORS = {
-    "background": "#f6f6f6",
-    "border": "#646464",
-    "land": "#fefee9",
-    "river": "#0978ab",
-    "lake": "#c6ecff",
-    "highlight": "#c12737",
-}
-LAND_KWARGS = {
-    "fill": COLORS["land"],
-    "stroke": COLORS["border"],
-    "stroke_width": 1,
-}
-RIVER_KWARGS = {"style": "fill:none", "stroke": COLORS["river"], "stroke_width": 1}
-LAKE_KWARGS = {
-    "fill": COLORS["lake"],
-    "stroke": COLORS["river"],
-    "stroke_width": 1,
-}
-SEA_KWARGS = {"fill": COLORS["lake"]}
 
 
 class MapSVG(svg.SVG):
@@ -163,30 +143,6 @@ class MapSVG(svg.SVG):
         pretty_str = dom.toprettyxml(indent="  ")
         return pretty_str
 
-    def get_kwargs(self, kind: str) -> dict:
-        """Get keyword arguments for svgwrite elements from geographical feature type.
-
-        Args:
-            kind: Type of the geographical feature. Possibilities are: "land", "river",
-                "lake", "sea".
-
-        Raises:
-            ValueError: When an unknown kind is given.
-
-        Returns:
-            A dictionary with keyword arguments for svgwrite elements.
-        """
-        if kind == "land":
-            return LAND_KWARGS
-        elif kind == "river":
-            return RIVER_KWARGS
-        elif kind == "lake":
-            return LAKE_KWARGS
-        elif kind == "sea":
-            return SEA_KWARGS
-        else:
-            raise ValueError(f"Unknown kind '{kind}'")
-
     def add(self, element: svg.Element, group_id: str | None = None) -> None:
         """Add an element to the SVG file.
 
@@ -211,7 +167,7 @@ class MapSVG(svg.SVG):
             color: Background color. Defaults to the background color defined in COLORS.
         """
         if color is None:
-            color = COLORS["background"]
+            color = str(map_style.COLORS["background"])
         width, height = self.size
         background = svg.Rect(
             x=0,
@@ -624,7 +580,7 @@ class OrthoMapSVG(MapSVG):
                 cx=radius,
                 cy=radius,
                 r=radius * self.clipped_scaling,
-                **self.get_kwargs("sea"),
+                **map_style.STYLES["sea"],
             )
         )
 
