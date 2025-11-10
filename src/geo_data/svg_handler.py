@@ -1,13 +1,13 @@
 """Create scalable vector graphics from geometrical data."""
 
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 from xml.dom.minidom import parseString
 
 import numpy as np
 import svg
 from geopandas import GeoDataFrame
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import NDArray
 from pyproj import Transformer
 from shapely import LineString, MultiPolygon, Polygon
 from shapely.affinity import translate
