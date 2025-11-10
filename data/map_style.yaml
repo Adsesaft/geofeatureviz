@@ -1,0 +1,32 @@
+colors:
+  background: "#f6f6f6"
+  border:     "#646464"
+  highlight:  "#c12737"
+  lake:       "#c6ecff"
+  land:       "#fefee9"
+  other:      "#e0e0e0"
+  river:      "#0978ab"
+
+styles:
+  land:
+    fill: land
+    stroke: border
+    stroke_width: 1
+
+  other:
+    fill: other
+    stroke: border
+    stroke_width: 1
+
+  river:
+    style: "fill:none"
+    stroke: river
+    stroke_width: 1
+
+  lake:
+    fill: lake
+    stroke: river
+    stroke_width: 1
+
+  sea:
+    fill: lake
