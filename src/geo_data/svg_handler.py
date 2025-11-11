@@ -4,11 +4,9 @@ from pathlib import Path
 from typing import Optional
 from xml.dom.minidom import parseString
 
-import matplotlib.colors as mcolors
 import numpy as np
 import svg
 from geopandas import GeoDataFrame
-from matplotlib.typing import ColorType
 from numpy.typing import NDArray
 from pyproj import Transformer
 from shapely import LineString, MultiPolygon, Polygon
@@ -587,15 +585,14 @@ class OrthoMapSVG(MapSVG):
             )
         )
 
-    def add_shadow(
-        self, identifier: str = "", color: ColorType = "white", n_colors: int = 10
-    ):
-        """Add a radial shadow to the canvas."""
-        if not identifier:
-            identifier = f"globeShadow{color}"
-        grad_id = f"{identifier}Grad"
+    def add_shadow(self, identifier: str):
+        """Add a radial shadow to the canvas.
 
-        self.add_def(RadialShadowGrad(color=color, n_colors=n_colors, id=grad_id))
+        Args:
+            identifier: ID of the SVG-element that is added to the canvas.
+        """
+        grad_id = f"{identifier}Grad"
+        self.add_def(RadialShadowGrad(id=grad_id))
 
         radius = self.size[0] / 2
         self.add(
@@ -605,18 +602,26 @@ class OrthoMapSVG(MapSVG):
                 r=radius * self.clipped_scaling,
                 id=identifier,
                 fill=f"url(#{grad_id})",
-                opacity=0.15,
+                opacity=0.3,
             )
         )
 
 
 class RadialShadowGrad(svg.RadialGradient):
-    def __init__(self, color: ColorType = "white", n_colors: int = 10, **kwargs):
-        """Initialize a radial gradient for a globe shadow."""
-        offsets = np.round(np.linspace(0, 1, n_colors), 3)
-        colors = self._get_globe_gradient_colors(base_color=color, offsets=offsets)
+    def __init__(self, **kwargs):
+        """Initialize a radial gradient for a globe shadow.
 
-        stops = [svg.Stop(offset=s, stop_color=c) for s, c in zip(offsets, colors)]
+        This is a black opaque radial gradient, with the opacity becoming higher towards
+        the edges following a Lambertian reflectance.
+        """
+        n_colors = 10
+        offsets = np.round(np.linspace(0, 1, n_colors), 3)
+        lambertian = 1 - np.sqrt(1 - offsets**2)
+
+        stops = [
+            svg.Stop(offset=off, stop_opacity=op, stop_color="black")
+            for off, op in zip(offsets, lambertian)
+        ]
 
         default_kwargs = {
             "cx": 0.5,
@@ -628,30 +633,6 @@ class RadialShadowGrad(svg.RadialGradient):
         }
         default_kwargs.update(kwargs)
         super().__init__(**default_kwargs)
-
-    def _get_globe_gradient_colors(
-        self, base_color: ColorType, offsets: NDArray
-    ) -> list[str]:
-        """Get the colors for a radial shadow becoming darker towards the edge.
-
-        Args:
-            base_color: The base color in the center of the radial shadow. This can also be
-                a key for a color defined in the COLORS-dictionary of this module.
-            offsets: The offsets at which the colors should be computed. This should be an
-                array containing values between 0 and 1, where 0 will be the base color and
-                1 will be black. Often, you probably want to use `np.linspace(0, 1, N)`
-                here.
-
-        Returns:
-            Colors in hex at the given offsets.
-        """
-        base_rgb = np.array(mcolors.to_rgb(base_color))
-        lambertian = np.sqrt(1 - offsets**2)
-        rgb_colors = base_rgb * lambertian[:, None]
-
-        hex_colors = [mcolors.to_hex(c) for c in rgb_colors]
-
-        return hex_colors
 
 
 class DiagonalStripedPattern(svg.Pattern):
