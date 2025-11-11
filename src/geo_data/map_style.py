@@ -2,7 +2,7 @@
 
 The most important variables defined in this module are the COLORS and STYLES dicts.
 They are loaded from a config file and define colors and styles for geographical
-elements like, land, sea, etc.
+elements like land, sea, etc.
 """
 
 import matplotlib.colors as mcolors
