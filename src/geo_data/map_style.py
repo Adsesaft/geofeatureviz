@@ -5,11 +5,8 @@ They are loaded from a config file and define colors and styles for geographical
 elements like land, sea, etc.
 """
 
-import matplotlib.colors as mcolors
-import numpy as np
 import yaml
 from matplotlib.typing import ColorType
-from numpy.typing import NDArray
 
 from geo_data import helpers
 
