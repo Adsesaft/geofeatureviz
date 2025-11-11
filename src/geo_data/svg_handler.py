@@ -332,7 +332,11 @@ class MapSVG(svg.SVG):
         return np.array([xx, yy]).T
 
     def add_gdf(
-        self, gdf: GeoDataFrame, gdf_id: str, group_id: str | None = None, **kwargs
+        self,
+        gdf: GeoDataFrame,
+        gdf_id: str,
+        group_id: str | None = None,
+        **kwargs,
     ):
         """Add all geometries in a GeoDataFrame to the canvas.
 
@@ -346,7 +350,7 @@ class MapSVG(svg.SVG):
                 Note that the kwargs are only relevant if a gdf_id is given.
             group_id: Identifier of the group to which the created group should be
                 added. If None is given, it is added to the canvas directly.
-                Defaults toNone.
+                Defaults to None.
         """
         elements = []
         for _, row in gdf.iterrows():
