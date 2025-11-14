@@ -12,6 +12,7 @@ styles:
     fill: land
     stroke: border
     stroke_width: 1
+    stroke_linejoin: "round"
 
   other:
     fill: other
@@ -22,6 +23,7 @@ styles:
     style: "fill:none"
     stroke: river
     stroke_width: 1
+    stroke_linejoin: "round"
 
   lake:
     fill: lake
