@@ -1,7 +1,7 @@
 """Create scalable vector graphics from geometrical data."""
 
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 from xml.dom.minidom import parseString
 
 import numpy as np
@@ -365,7 +365,7 @@ class MapSVG(svg.SVG):
             for elem in elements:
                 self.add(elem, group_id=group_id)
         else:
-            self.add(svg.G(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
+            self.add(Group(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
 
     def save(self, file_path: str | Path, pretty: bool = True) -> None:
         """Save the SVG file to the given path.
@@ -662,3 +662,39 @@ class DiagonalStripedPattern(svg.Pattern):
         }
         default_kwargs.update(kwargs)
         super().__init__(**default_kwargs)
+
+
+class Group(svg.G):
+    """Provide an SVG-element for groups with additional arguments.
+
+    In the implementation of pysvg, groups can not take arguments that are specific for
+    a special type (e.g. for lines only). However, it is actually possible in SVG to
+    define these arguments in groups. Therefore, I created this class, with the only
+    purpose to add additional arguments.
+
+    Attributes:
+        stroke_linejoin: How points of a line are joined.
+        stroke_linecap: How lines are ended.
+    """
+
+    def __init__(
+        self,
+        *args,
+        stroke_linejoin: Literal["butt", "round", "square", "inherit"] | None = None,
+        stroke_linecap: Literal["butt", "round", "square", "inherit"] | None = None,
+        **kwargs,
+    ):
+        """Initialize an SVG-group with some additional arguments.
+
+        Args:
+            stroke_linejoin: How points of a line are joined. Defaults to None.
+            stroke_linecap: How lines are ended. Defaults to None.
+        """
+        # initialize the parent class with all args/kwargs
+        super().__init__(*args, **kwargs)
+
+        # assign the new attribute
+        if stroke_linejoin is not None:
+            self.stroke_linejoin = stroke_linejoin
+        if stroke_linecap is not None:
+            self.stroke_linecap = stroke_linecap
