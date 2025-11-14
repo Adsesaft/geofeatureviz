@@ -19,6 +19,7 @@ DATA_FILES = {
     ("state", "ne", 10): "ne_10m_admin_1_states_provinces.zip",
     ("river", "ne", 10): "ne_10m_rivers_lake_centerlines.zip",
     ("river_europe", "ne", 10): "ne_10m_rivers_europe.zip",
+    ("river_germany", "osm", 10): "osm_10m_rivers_germany.geojson",
 }
 REGIONAL_GROUP_PATH = helpers.get_top_directory() / "data" / "regional_groups.yaml"
 COUNTRY_TRANSLATION_PATH = (
@@ -72,6 +73,7 @@ def load(
     if identifier not in gdf.columns:
         raise ValueError(
             f"The given identifier '{identifier}' does not exist in the GeoDataFrame."
+            f"Possibilities are: {gdf.columns}."
         )
     gdf["id"] = gdf[identifier].fillna("Unnamed").astype(str)
     gdf["id"] = (
