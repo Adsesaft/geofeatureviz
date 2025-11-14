@@ -1,6 +1,7 @@
 # zip-files in the data directory
-data/*.zip
-data/*.anki2*
+data/**/*.zip
+data/**/*.anki2*
+data/**/*.geojson
 # all files in the results directory
 results/
 
