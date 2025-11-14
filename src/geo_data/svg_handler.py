@@ -1,5 +1,6 @@
 """Create scalable vector graphics from geometrical data."""
 
+import subprocess
 from pathlib import Path
 from typing import Literal, Optional
 from xml.dom.minidom import parseString
@@ -367,13 +368,17 @@ class MapSVG(svg.SVG):
         else:
             self.add(Group(id=gdf_id, elements=elements, **kwargs), group_id=group_id)
 
-    def save(self, file_path: str | Path, pretty: bool = True) -> None:
+    def save(
+        self, file_path: str | Path, pretty: bool = True, optimize: bool = False
+    ) -> None:
         """Save the SVG file to the given path.
 
         Args:
             file_path: Path to save the SVG file to.
             pretty: Whether the output file should be pretty (with indentations etc.) or
                 not. Default is True.
+            optimize: Whether the output file should be optimized using svgo. Default is
+                False.
         """
         if pretty:
             self_str = self.as_pretty_str()
@@ -381,6 +386,16 @@ class MapSVG(svg.SVG):
             self_str = self.as_str()
         path = Path(file_path)
         path.write_text(self_str, encoding="utf-8")
+        if optimize:
+            # optimize saved svg
+            subprocess.run(
+                [
+                    "svgo",
+                    str(path),
+                    "-o",
+                    str(path),
+                ]
+            )
 
 
 class OrthoMapSVG(MapSVG):
