@@ -9,6 +9,10 @@
         "equirectangular",
         "flds",
         "Geografie",
+        "lambertian",
+        "linecap",
+        "linejoin",
+        "pysvg",
         "xoff"
     ]
 }
