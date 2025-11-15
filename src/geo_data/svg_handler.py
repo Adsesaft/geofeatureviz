@@ -168,7 +168,7 @@ class MapSVG(svg.SVG):
             color: Background color. Defaults to the background color defined in COLORS.
         """
         if color is None:
-            color = str(map_style.COLORS["background"])
+            color = map_style.COLORS["background"]
         width, height = self.size
         background = svg.Rect(
             x=0,
