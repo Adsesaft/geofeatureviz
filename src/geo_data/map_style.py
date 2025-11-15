@@ -6,6 +6,7 @@ elements like land, sea, etc.
 """
 
 from types import MappingProxyType
+from typing import Any
 
 import yaml
 
@@ -24,9 +25,8 @@ COLORS: MappingProxyType[str, str] = MappingProxyType(config["colors"])
 _styles = config["styles"]
 for style_name, kwargs in _styles.items():
     for key, value in kwargs.items():
-        if value in COLORS.keys():
-            kwargs[key] = COLORS[value]
+        kwargs[key] = COLORS.get(value, value)
     _styles[style_name] = MappingProxyType(kwargs)
 
 # immutable dict
-STYLES: MappingProxyType[str, MappingProxyType[str, str]] = MappingProxyType(_styles)
+STYLES: MappingProxyType[str, MappingProxyType[str, Any]] = MappingProxyType(_styles)
