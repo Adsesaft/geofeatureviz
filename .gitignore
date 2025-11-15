@@ -1,7 +1,10 @@
-# zip-files in the data directory
+# big data files
 data/**/*.zip
 data/**/*.anki2*
 data/**/*.geojson
+# unused data
+data/unused
+
 # all files in the results directory
 results/
 
