@@ -30,3 +30,18 @@ for style_name, kwargs in _styles.items():
 
 # immutable dict
 STYLES: MappingProxyType[str, MappingProxyType[str, Any]] = MappingProxyType(_styles)
+
+
+def get_topo_colors() -> dict[int, str]:
+    """Get all colors for topographical data.
+
+    Returns:
+        A dictionary mapping elevation levels to colors. This is especially necessary
+        to mark which color is used as neutral.
+    """
+    topo_colors = {}
+    for color_name, color in COLORS.items():
+        if "topo" in color_name:
+            topo_int = int(color_name.split(":")[-1])
+            topo_colors[topo_int] = color
+    return topo_colors
