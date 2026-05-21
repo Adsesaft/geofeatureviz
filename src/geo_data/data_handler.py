@@ -81,7 +81,7 @@ def load(
         .cumcount()
         .astype(str)
         .radd("_")
-        .mask(gdf.duplicated("id", keep=False) == False, "")
+        .mask(~gdf.duplicated("id", keep=False), "")
         .radd(gdf["id"])
     )
     assert gdf["id"].is_unique, "Error: 'id' column contains duplicate values!"
