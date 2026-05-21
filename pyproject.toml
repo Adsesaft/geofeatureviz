@@ -6,28 +6,27 @@ authors = [
     {name = "akuehn",email = "adrian-kuehn@posteo.de"}
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = [
-    "jupyter (>=1.1.1,<2.0.0)",
-    "geopandas (>=1.1.1,<2.0.0)",
-    "matplotlib (>=3.10.7,<4.0.0)",
-    "svg-py (>=1.9.1,<2.0.0)",
-    "anki (>=25.9.2,<26.0.0)",
-    "pyyaml (>=6.0.3,<7.0.0)",
+    "anki>=25.9.4",
+    "geopandas>=1.1.3",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.9",
+    "pyyaml>=6.0.3",
+    "svg-py>=1.10.0",
 ]
 
-[tool.poetry]
-packages = [{include = "geo_data", from = "src"}]
-
-[tool.poetry.group.dev.dependencies]
-black = "^25.1.0"
-isort = "^6.0.1"
-pre-commit = "^4.2.0"
-pytest = "^8.3.5"
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "isort>=8.0.1",
+    "pre-commit>=4.6.0",
+    "pytest>=9.0.3",
+]
 
 [tool.isort]
 profile = "black"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
