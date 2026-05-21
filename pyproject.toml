@@ -23,9 +23,9 @@ dev = [
     "pytest>=9.0.3",
 ]
 
-[tool.isort]
-profile = "black"
-
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff.lint]
+extend-select = ["I"]
