@@ -18,8 +18,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=26.5.1",
-    "isort>=8.0.1",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
 ]
