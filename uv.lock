@@ -443,7 +443,6 @@ dependencies = [
     { name = "jupyter" },
     { name = "matplotlib" },
     { name = "pyyaml" },
-    { name = "ruff" },
     { name = "svg-py" },
 ]
 
@@ -451,6 +450,7 @@ dependencies = [
 dev = [
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -460,7 +460,6 @@ requires-dist = [
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "pyyaml", specifier = ">=6.0.3" },
-    { name = "ruff", specifier = ">=0.15.14" },
     { name = "svg-py", specifier = ">=1.10.0" },
 ]
 
@@ -468,6 +467,7 @@ requires-dist = [
 dev = [
     { name = "pre-commit", specifier = ">=4.6.0" },
     { name = "pytest", specifier = ">=9.0.3" },
+    { name = "ruff", specifier = ">=0.15.14" },
 ]
 
 [[package]]

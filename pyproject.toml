@@ -13,7 +13,6 @@ dependencies = [
     "jupyter>=1.1.1",
     "matplotlib>=3.10.9",
     "pyyaml>=6.0.3",
-    "ruff>=0.15.14",
     "svg-py>=1.10.0",
 ]
 
@@ -21,6 +20,7 @@ dependencies = [
 dev = [
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "ruff>=0.15.14",
 ]
 
 [build-system]
