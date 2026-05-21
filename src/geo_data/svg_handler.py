@@ -272,10 +272,16 @@ class MapSVG(svg.SVG):
         # get the svg elements class
         if isinstance(first_geom, Polygon):
             svg_cls = svg.Polygon
-            get_coords = lambda g: g.exterior.coords
+
+            def get_coords(g):
+                return g.exterior.coords
+
         elif isinstance(first_geom, LineString):
             svg_cls = svg.Polyline
-            get_coords = lambda g: g.coords
+
+            def get_coords(g):
+                return g.coords
+
         else:
             raise ValueError(f"Unsupported geometry type: '{geometry.geom_type}'")
 
@@ -556,10 +562,16 @@ class OrthoMapSVG(MapSVG):
         """
         if shift > 0:
             direction = 1
-            check_wrap = lambda coords: np.max(coords) > limit
+
+            def check_wrap(coords):
+                return np.max(coords) > limit
+
         elif shift < 0:
             direction = -1
-            check_wrap = lambda coords: np.min(coords) < limit
+
+            def check_wrap(coords):
+                return np.min(coords) < limit
+
         else:
             return polygon
         limit = direction * limit
