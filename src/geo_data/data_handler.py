@@ -33,7 +33,7 @@ ANKI_COLLECTION_FILE_NAME = "collection.anki2"
 
 def load(
     kind: str,
-    source="ne",
+    source: str = "ne",
     resolution: int = 10,
     identifier: str = "name",
     projection: int = 4326,
