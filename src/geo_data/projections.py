@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 
+import numpy as np
 from numpy.typing import NDArray
 from pyproj import Transformer
 
@@ -17,7 +18,9 @@ class Projection(ABC):
     """
 
     @abstractmethod
-    def __call__(self, lon: NDArray, lat: NDArray) -> tuple[NDArray, NDArray]:
+    def __call__(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Project longitude and latitude values (EPSG 4326) into another space.
 
         Args:
@@ -33,7 +36,9 @@ class Projection(ABC):
 class Identity(Projection):
     """Project coordinates onto themselves."""
 
-    def __call__(self, lon: NDArray, lat: NDArray) -> tuple[NDArray, NDArray]:
+    def __call__(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         return lon, lat
 
 
@@ -44,12 +49,14 @@ class Mercator(Projection):
         transformer: The pyproj transformer used for the projection.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.transformer: Transformer = Transformer.from_crs(
             "EPSG:4326", "EPSG:3857", always_xy=True
         )
 
-    def __call__(self, lon: NDArray, lat: NDArray) -> tuple[NDArray, NDArray]:
+    def __call__(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         return self.transformer.transform(lon, lat)
 
 
@@ -75,7 +82,9 @@ class Equirectangular(Projection):
             "EPSG:4326", "EPSG:32662", always_xy=True
         )
 
-    def __call__(self, lon: NDArray, lat: NDArray) -> tuple[NDArray, NDArray]:
+    def __call__(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         x, y = self.transformer.transform(lon, lat)
         return x, y * self.y_scale
 
@@ -106,5 +115,7 @@ class Orthographic(Projection):
         world_radius = transformer.target_crs.ellipsoid.semi_major_metre
         self.world_radius = world_radius
 
-    def __call__(self, lon: NDArray, lat: NDArray) -> tuple[NDArray, NDArray]:
+    def __call__(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         return self.transformer.transform(lon, lat)
