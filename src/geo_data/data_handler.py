@@ -1,7 +1,7 @@
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
+from typing import Generator, TypedDict, cast
 
 import geopandas as gpd
 import numpy as np
@@ -29,6 +29,15 @@ COUNTRY_TRANSLATION_PATH = (
 ANKI_COLLECTION_PATH = Path.home() / ".local" / "share" / "Anki2" / "Adrian"
 ANKI_COLLECTION_PATH_COPY = helpers.get_top_directory() / "data"
 ANKI_COLLECTION_FILE_NAME = "collection.anki2"
+
+
+class Region(TypedDict):
+    """Provides the structure for regional groups read from the yaml file."""
+
+    core: list[str]
+    optional: list[str]
+    continent: list[str]
+    projection: str
 
 
 def load(
@@ -253,7 +262,7 @@ def anki_to_df(deck_name: str) -> pd.DataFrame:
     return pd.DataFrame(notes_with_type)
 
 
-def get_regional_groups() -> dict[str, dict[str, list]]:
+def get_regional_groups() -> dict[str, Region]:
     """Add function to read in regional groups.
 
     Returns:
@@ -265,7 +274,7 @@ def get_regional_groups() -> dict[str, dict[str, list]]:
     """
     with open(REGIONAL_GROUP_PATH, "r", encoding="utf-8") as f:
         regions = yaml.safe_load(f)
-    return regions
+    return cast(dict[str, Region], regions)
 
 
 def get_country_translations() -> pd.DataFrame:
