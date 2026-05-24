@@ -672,8 +672,15 @@ class DiagonalStripedPattern(svg.Pattern):
         self,
         color: tuple[str, str] = ("black", "white"),
         width: tuple[int, int] = (1, 1),
-        **kwargs,
-    ):
+        height: int = 8,
+        # TODO: hier muss ich die Typen noch richtig machen
+        patternTransform: Optional[list[svg.Transform]] = None,
+        patternUnits: Optional[
+            Literal["userSpaceOnUse", "objectBoundingBox"]
+        ] = "userSpaceOnUse",
+        elements: Optional[list[svg.Element]] = None,
+        **kwargs: Any,
+    ) -> None:
         """Initialize a diagonally striped pattern.
 
         Args:
@@ -681,19 +688,22 @@ class DiagonalStripedPattern(svg.Pattern):
                 black and white.
             width: The width of the alternating stripes. Defaults to (1, 1).
         """
+        if patternTransform is None:
+            patternTransform = [svg.Rotate(45)]
         max_width = sum(width)
-        default_kwargs = {
-            "width": max_width,
-            "height": 8,
-            "patternTransform": "rotate(45)",
-            "patternUnits": "userSpaceOnUse",
-            "elements": [
+        if elements is None:
+            elements = [
                 svg.Rect(width=max_width, height=8, fill=color[1]),  # background
                 svg.Rect(width=width[0], height=8, fill=color[0]),
-            ],
-        }
-        default_kwargs.update(kwargs)
-        super().__init__(**default_kwargs)
+            ]
+        super().__init__(
+            width=max_width,
+            height=height,
+            patternTransform=patternTransform,
+            patternUnits=patternUnits,
+            elements=elements,
+            **kwargs,
+        )
 
 
 class Group(svg.G):
