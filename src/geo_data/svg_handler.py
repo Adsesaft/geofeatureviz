@@ -2,7 +2,7 @@
 
 import subprocess
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, cast
 from xml.dom.minidom import parseString
 
 import numpy as np
@@ -275,25 +275,26 @@ class MapSVG(svg.SVG):
 
         # get the svg elements class
         if isinstance(first_geom, Polygon):
-            svg_cls = svg.Polygon
+            svg_cls: type[svg.Polygon] | type[svg.Polyline] = svg.Polygon
 
-            def get_coords(g):
-                return g.exterior.coords
+            def _get_coords(g: BaseGeometry) -> list[tuple[float, ...]]:
+                g = cast(Polygon, g)
+                return list(g.exterior.coords)
 
         elif isinstance(first_geom, LineString):
             svg_cls = svg.Polyline
 
-            def get_coords(g):
-                return g.coords
+            def _get_coords(g: BaseGeometry) -> list[tuple[float, ...]]:
+                return list(g.coords)
 
         else:
             raise ValueError(f"Unsupported geometry type: '{geometry.geom_type}'")
 
         def _create_svg_element(
-            geom: BaseGeometry, geom_id: str, **kwargs
+            geom: BaseGeometry, geom_id: str, **kwargs: Any
         ) -> svg.Element:
             """Use determined class and get_coords function to create SVG-element."""
-            points = self._transformation(np.array(get_coords(geom)))
+            points = self._transformation(np.array(_get_coords(geom)))
             return svg_cls(points=list(points.flatten()), id=geom_id, **kwargs)
 
         # create a group for multipart geometry
@@ -302,12 +303,10 @@ class MapSVG(svg.SVG):
                 _create_svg_element(geom_part, f"{geometry_id}_part_{i}")
                 for i, geom_part in enumerate(geometry.geoms)
             ]
-            svg_element = svg.G(id=geometry_id, elements=svg_elements, **kwargs)
+            return svg.G(id=geometry_id, elements=svg_elements, **kwargs)
         # create a single element for single geometry
         else:
-            svg_element = _create_svg_element(geometry, geometry_id, **kwargs)
-
-        return svg_element
+            return _create_svg_element(geometry, geometry_id, **kwargs)
 
     def _transformation(
         self,
