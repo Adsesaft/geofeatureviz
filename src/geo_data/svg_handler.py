@@ -639,31 +639,32 @@ class OrthoMapSVG(MapSVG):
 
 
 class RadialShadowGrad(svg.RadialGradient):
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        n_colors: int = 10,
+        cx: float = 0.5,
+        cy: float = 0.5,
+        r: float = 0.5,
+        fx: float = 0.5,
+        fy: float = 0.5,
+        elements: Optional[list[svg.Element]] = None,
+        **kwargs: Any,
+    ) -> None:
         """Initialize a radial gradient for a globe shadow.
 
         This is a black opaque radial gradient, with the opacity becoming higher towards
         the edges following a Lambertian reflectance.
         """
-        n_colors = 10
-        offsets = np.round(np.linspace(0, 1, n_colors), 3)
-        lambertian = 1 - np.sqrt(1 - offsets**2)
+        if elements is None:
+            offsets = np.round(np.linspace(0, 1, n_colors), 3)
+            lambertian = 1 - np.sqrt(1 - offsets**2)
 
-        stops = [
-            svg.Stop(offset=off, stop_opacity=op, stop_color="black")
-            for off, op in zip(offsets, lambertian)
-        ]
+            elements = [
+                svg.Stop(offset=off, stop_opacity=op, stop_color="black")
+                for off, op in zip(offsets, lambertian)
+            ]
 
-        default_kwargs = {
-            "cx": 0.5,
-            "cy": 0.5,
-            "r": 0.5,
-            "fx": 0.5,
-            "fy": 0.5,
-            "elements": stops,
-        }
-        default_kwargs.update(kwargs)
-        super().__init__(**default_kwargs)
+        super().__init__(cx=cx, cy=cy, r=r, fx=fx, fy=fy, elements=elements, **kwargs)
 
 
 class DiagonalStripedPattern(svg.Pattern):
