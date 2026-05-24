@@ -2,7 +2,7 @@
 
 import subprocess
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 from xml.dom.minidom import parseString
 
 import numpy as np
@@ -39,9 +39,8 @@ class MapSVG(svg.SVG):
         height: Optional[int] = None,
         width: Optional[int] = None,
         projection: Optional[Projection] = None,
-        *args,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Initialize an interface to create SVG files for maps.
 
         Args:
@@ -55,7 +54,6 @@ class MapSVG(svg.SVG):
             projection: A callable class that projects coordinates from geographical
                 coordinates (longitude and latitude). Defaults to equirectangular
                 projection (EPSG 32662).
-            *args: Arguments passed to svg.SVG.
             **kwargs: Keyword arguments passed to svg.SVG.
         """
         if projection is None:
@@ -103,7 +101,11 @@ class MapSVG(svg.SVG):
         assert width is not None and height is not None
         self.size = np.array([width, height])
 
-        super().__init__(width=width, height=height, elements=[], *args, **kwargs)
+        init_kwargs = dict(kwargs)
+        init_kwargs["width"] = width
+        init_kwargs["height"] = height
+        init_kwargs["elements"] = []
+        super().__init__(**init_kwargs)
 
     def as_str(self) -> str:
         """Get a string SVG representation of the canvas.
