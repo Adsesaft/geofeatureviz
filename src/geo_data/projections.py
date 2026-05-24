@@ -57,8 +57,8 @@ class Mercator(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-        xx, yy = self.transformer.transform(lon, lat)
-        return xx, yy
+        x, y = self.transformer.transform(lon, lat)
+        return x, y
 
 
 class Equirectangular(Projection):
@@ -119,5 +119,5 @@ class Orthographic(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-        xx, yy = self.transformer.transform(lon, lat)
-        return xx, yy
+        x, y = self.transformer.transform(lon, lat)
+        return x, y
