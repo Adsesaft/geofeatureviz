@@ -168,7 +168,8 @@ def get_polygon_bounds(
         A tuple with the bounds (min_x, min_y, max_x, max_y)
     """
     if isinstance(geometry, Polygon):
-        return geometry.bounds
+        min_x, min_y, max_x, max_y = geometry.bounds
+        return min_x, min_y, max_x, max_y
     elif isinstance(geometry, MultiPolygon):
         min_x = min(geom.bounds[0] for geom in geometry.geoms)
         min_y = min(geom.bounds[1] for geom in geometry.geoms)
