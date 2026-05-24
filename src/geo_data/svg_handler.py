@@ -673,7 +673,6 @@ class DiagonalStripedPattern(svg.Pattern):
         color: tuple[str, str] = ("black", "white"),
         width: tuple[int, int] = (1, 1),
         height: int = 8,
-        # TODO: hier muss ich die Typen noch richtig machen
         patternTransform: Optional[list[svg.Transform]] = None,
         patternUnits: Optional[
             Literal["userSpaceOnUse", "objectBoundingBox"]
