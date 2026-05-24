@@ -89,7 +89,7 @@ class MapSVG(svg.SVG):
 
         # range
         x_range, y_range = x_max - x_min, y_max - y_min
-        self.range_proj: NDArray = np.array([x_range, y_range])
+        self.range_proj: NDArray[np.float64] = np.array([x_range, y_range])
 
         # compute the width and height depending on what is given
         if height is None and width is None:
@@ -135,7 +135,7 @@ class MapSVG(svg.SVG):
             setattr(self, key, value)
         return str_repr
 
-    def as_pretty_str(self):
+    def as_pretty_str(self) -> str:
         """Get a pretty string representation of the canvas with indentations etc.
 
         Returns:
@@ -155,7 +155,7 @@ class MapSVG(svg.SVG):
                 If None is given, the element is added to the base layer.
         """
         if group_id is None:
-            group = self
+            group: svg.Element = self
         else:
             group = self.get_group_by_id(group_id)
         if group.elements is not None:
@@ -163,7 +163,7 @@ class MapSVG(svg.SVG):
         else:
             group.elements = [element]
 
-    def add_background(self, color: Optional[str] = None):
+    def add_background(self, color: Optional[str] = None) -> None:
         """Add a background (as first element in the list of elements) to the canvas.
 
         Args:
@@ -247,7 +247,7 @@ class MapSVG(svg.SVG):
         self,
         geometry: BaseGeometry,
         geometry_id: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> svg.Element:
         """Create an SVG-element from a shapely geometry (from a GeoDataFrame).
 
@@ -262,6 +262,8 @@ class MapSVG(svg.SVG):
                 supported geometries are Polygon, MultiPolygon, LineString,
                 MultiLineString.
             geometry_id: Identifier name of the geometry or group of geometries.
+            **kwargs: Additional keyword arguments that are passed to the SVG-element(s)
+                that are created.
 
         Raises:
             ValueError: If an unsupported geometry type is given.
@@ -309,8 +311,8 @@ class MapSVG(svg.SVG):
 
     def _transformation(
         self,
-        coords: NDArray,
-    ) -> NDArray:
+        coords: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
         """Transform geographical coordinates to SVG coordinates.
 
         The coordinates should be in geographical representation (longitude and
@@ -345,8 +347,8 @@ class MapSVG(svg.SVG):
         gdf: GeoDataFrame,
         gdf_id: str,
         group_id: str | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Add all geometries in a GeoDataFrame to the canvas.
 
         Args:
@@ -360,6 +362,7 @@ class MapSVG(svg.SVG):
             group_id: Identifier of the group to which the created group should be
                 added. If None is given, it is added to the canvas directly.
                 Defaults to None.
+            **kwargs: Additional keyword arguments that are passed to the Group-element.
         """
         elements = []
         for _, row in gdf.iterrows():
@@ -412,8 +415,7 @@ class OrthoMapSVG(MapSVG):
         width: Optional[int] = None,
         height: Optional[int] = None,
         center: tuple[float, float] = (0, 0),
-        *args,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Provide an interface to create SVG with an orthographically projected map.
 
@@ -425,6 +427,7 @@ class OrthoMapSVG(MapSVG):
                 equal to the width. Either width or height have to be given.
             center: Center of the orthographic projection as (longitude, latitude).
                 Defaults to (0, 0).
+            **kwargs: Keyword arguments passed to the creation of MapSVG.
         """
         if width is not None:
             height = width
@@ -433,14 +436,12 @@ class OrthoMapSVG(MapSVG):
         self.center = center
         projection = Orthographic(center=center)
 
-        super().__init__(
-            bounds=(-180, -90, 180, 90),
-            height=height,
-            width=width,
-            projection=projection,
-            *args,
-            **kwargs,
-        )
+        init_kwargs = dict(kwargs)
+        init_kwargs["bounds"] = (-180, -90, 180, 90)
+        init_kwargs["width"] = width
+        init_kwargs["height"] = height
+        init_kwargs["projection"] = projection
+        super().__init__(**init_kwargs)
         # define the bounds manually; due to orthographic projection, the bounds are
         # infinite and defined for a round globe; however, we need them for a linear
         # scaling of the rectangular svg
@@ -455,7 +456,7 @@ class OrthoMapSVG(MapSVG):
         self,
         geometry: BaseGeometry,
         geometry_id: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> svg.Element:
         visible_geom = geometry.intersection(self.visible_lon_lat)
         return super().geom_to_svg(visible_geom, geometry_id, **kwargs)
@@ -486,7 +487,7 @@ class OrthoMapSVG(MapSVG):
         )
         lon, lat = inv_transformer.transform(x, y)
         lon, lat = np.array(lon), np.array(lat)
-        polygon = Polygon(zip(lon, lat))
+        polygon: BaseGeometry = Polygon(zip(lon, lat))
 
         idx_lon_min, idx_lon_max = lon.argmin(), lon.argmax()
 
@@ -508,7 +509,9 @@ class OrthoMapSVG(MapSVG):
 
         return polygon
 
-    def _get_boundary_rect(self, lon: NDArray, lat: NDArray) -> Polygon:
+    def _get_boundary_rect(
+        self, lon: NDArray[np.float64], lat: NDArray[np.float64]
+    ) -> Polygon:
         """Get a rectangle that goes to the boundaries of the map fitting lon and lat.
 
         Args:
@@ -565,13 +568,13 @@ class OrthoMapSVG(MapSVG):
         if shift > 0:
             direction = 1
 
-            def check_wrap(coords):
+            def check_wrap(coords: NDArray[np.float64]) -> np.bool_:
                 return np.max(coords) > limit
 
         elif shift < 0:
             direction = -1
 
-            def check_wrap(coords):
+            def check_wrap(coords: NDArray[np.float64]) -> np.bool_:
                 return np.min(coords) < limit
 
         else:
@@ -580,7 +583,7 @@ class OrthoMapSVG(MapSVG):
         offset = -2 * limit
 
         # shift by longitude center
-        shifted = translate(polygon, xoff=shift)
+        shifted: BaseGeometry = translate(polygon, xoff=shift)
 
         # split; create a multipolygon to ensure that all parts are polygons
         dateline = LineString([(limit, -91), (limit, 91)])
@@ -601,7 +604,7 @@ class OrthoMapSVG(MapSVG):
                 shifted = MultiPolygon([orig, wrapped])
         return shifted
 
-    def add_sea(self):
+    def add_sea(self) -> None:
         """Add a blue circle as background for the sea."""
         radius = self.size[0] / 2
         self.add(
@@ -614,7 +617,7 @@ class OrthoMapSVG(MapSVG):
             )
         )
 
-    def add_shadow(self, identifier: str):
+    def add_shadow(self, identifier: str) -> None:
         """Add a radial shadow to the canvas.
 
         Args:
@@ -708,11 +711,10 @@ class Group(svg.G):
 
     def __init__(
         self,
-        *args,
         stroke_linejoin: Literal["butt", "round", "square", "inherit"] | None = None,
         stroke_linecap: Literal["butt", "round", "square", "inherit"] | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Initialize an SVG-group with some additional arguments.
 
         Args:
@@ -720,7 +722,7 @@ class Group(svg.G):
             stroke_linecap: How lines are ended. Defaults to None.
         """
         # initialize the parent class with all args/kwargs
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         # assign the new attribute
         if stroke_linejoin is not None:
