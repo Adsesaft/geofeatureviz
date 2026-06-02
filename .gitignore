@@ -1,9 +1,9 @@
-# big data files
-data/**/*.zip
-data/**/*.anki2*
-data/**/*.geojson
-# unused data
-data/unused
+# data
+data/**
+# except yaml and csv files
+!data/**/
+!data/**/*.yaml
+!data/**/*.csv
 
 # all files in the results directory
 results/
