@@ -39,6 +39,7 @@ class Identity(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        """Return input coordinates unchanged."""
         return lon, lat
 
 
@@ -50,6 +51,7 @@ class Mercator(Projection):
     """
 
     def __init__(self) -> None:
+        """Initialize a Mercator transformer."""
         self.transformer: Transformer = Transformer.from_crs(
             "EPSG:4326", "EPSG:3857", always_xy=True
         )
@@ -57,6 +59,7 @@ class Mercator(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        """Transform coordinates using the Mercator projection."""
         x, y = self.transformer.transform(lon, lat)
         return x, y
 
@@ -86,6 +89,7 @@ class Equirectangular(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        """Transform coordinates using the equirectangular projection."""
         x, y = self.transformer.transform(lon, lat)
         return x, y * self.y_scale
 
@@ -119,5 +123,6 @@ class Orthographic(Projection):
     def __call__(
         self, lon: NDArray[np.float64], lat: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        """Transform coordinates using an orthographic projection."""
         x, y = self.transformer.transform(lon, lat)
         return x, y
