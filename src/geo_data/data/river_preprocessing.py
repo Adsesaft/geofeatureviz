@@ -1,3 +1,5 @@
+"""Preprocess river data."""
+
 import warnings
 from typing import cast
 
@@ -42,6 +44,9 @@ class RiverCleanConfig:
     list of either integers or slices, containing information about which nodes in the
     geometry of the member with the OSM-ID should be deleted in preprocessing. See the
     config file at `self.CONFIG_PATH` for more details.
+
+    Attributes:
+        CONFIG_PATH: File path to the config file for cleaning the river data.
     """
 
     CONFIG_PATH = (
@@ -49,6 +54,7 @@ class RiverCleanConfig:
     )
 
     def __init__(self) -> None:
+        """Initialize the config by loading the config file."""
         self.config_dict = self._parse_config_dict()
 
     def _parse_config_dict(self) -> dict[str, dict[int, list[slice | int]]]:
