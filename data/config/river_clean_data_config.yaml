@@ -1,0 +1,65 @@
+# This file contains the configuration for cleaning river data. It is used
+# for preprocessing OSM river data, where certain members of river relations
+# are modified by deleting specific nodes from their geometries.
+# The keys in the config correspond to the names of the river relations,
+# and the values are dictionaries mapping OSM-IDs of members to their
+# respective modifications.
+# The modifications are defined in the config as a list of either integers
+# lists (which will be converted to python slices), specifying the indices
+# of the nodes to be deleted for each member with a given OSM-ID. A slice
+# is defined by a list of two integers, representing the start and stop
+# indices. If the start index is null, it is interpreted as 0. If the stop
+# index is null, it is interpreted as the length of the array. That means,
+# a slice of [null, null] would delete all nodes of the member.
+Aller:
+  927227331:  [[null, null]]
+  927227332:  [[null, null]]
+  976963432:  [[null, null]]
+  108340517:  [0]
+Altmühl:
+  166454757:  [[null, null]]
+  1245843108: [[null, null]]
+Ems:
+  677870924:  [[null, null]]
+  677816449:  [[null, null]]
+  894431639:  [[null, null]]
+Kocher:
+  1460089552:  [[null, null]]
+La Moselle:
+  1447943659: [[null, null]]
+  731149181:  [[null, null]]
+  1132952212: [[null, null]]
+  1132952214: [[null, null]]
+  1132952215: [[null, null]]
+Neckar:
+  1076451865: [[null, null]]
+  790733831:  [[null, null]]
+  167044107:  [[null, null]]
+  1076451869: [[null, null]]
+  790733832:  [[null, null]]
+  45357730:   [[null, null]]
+  70422430:   [[null, null]]
+  202192634:  [[null, null]]
+  70422334:   [0]
+Rhein:
+  # Members of river "IJssel"
+  197667813:  [[null, null]]
+  409757326:  [[null, null]]
+  430414056:  [[null, null]]
+  430414057:  [[null, null]]
+  651229767:  [[null, null]]
+  651229768:  [[null, null]]
+  651229780:  [[null, null]]
+  786906804:  [[null, null]]
+  110918211:  [[null, null]]
+Spree:
+  1083721448: [[null, null]]
+  59683398:   [[null, null]]
+  719950796:  [[null, null]]
+  179381363:  [0]  # Node 6762620591
+Werra:
+  1231050687: [[null, null]]
+  1231050688: [[null, null]]
+  1231050689: [[null, null]]
+  1231050690: [[null, null]]
+  1231050686: [[null, null]]
