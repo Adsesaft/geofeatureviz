@@ -38,4 +38,7 @@ strict = true
 mypy_path = "src"
 
 [tool.ruff.lint]
-extend-select = ["I"]
+extend-select = ["I", "D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
