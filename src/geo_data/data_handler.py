@@ -1,3 +1,5 @@
+"""Load geographical data and make it ready for later usage."""
+
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
