@@ -409,6 +409,19 @@ class MapSVG(svg.SVG):
 
 
 class OrthoMapSVG(MapSVG):
+    """Provide an SVG canvas for maps with an orthographic projection.
+
+    Attributes:
+        center: Center of the orthographic projection as (longitude, latitude).
+        world_radius: Radius of the world (in meters).
+        clipped_scaling: During the orthographic projection, we scale the coordinates so
+            that they are slightly smaller than the maximum value, so that we do not run
+            into infinity projections. This is slightly hacky, but it works fine. Should
+            be set to a value close to but smaller than one. Default is 0.99.
+        visible_lon_lat: A geometry that determines the visible part of the map in
+            longitude/latitude.
+    """
+
     def __init__(
         self,
         width: Optional[int] = None,
@@ -457,6 +470,7 @@ class OrthoMapSVG(MapSVG):
         geometry_id: str,
         **kwargs: Any,
     ) -> svg.Element:
+        """Create an SVG-element from a shapely geometry (from a GeoDataFrame)."""
         visible_geom = geometry.intersection(self.visible_lon_lat)
         return super().geom_to_svg(visible_geom, geometry_id, **kwargs)
 
@@ -555,6 +569,8 @@ class OrthoMapSVG(MapSVG):
 
         Args:
             polygon: The polygon that should be shifted.
+            shift: How far the polygon should be shifted.
+            limit: The limit where the polygon has to be wrapped.
 
         Returns:
             Either a single polygon or a multipolygon.
@@ -639,6 +655,12 @@ class OrthoMapSVG(MapSVG):
 
 
 class RadialShadowGrad(svg.RadialGradient):
+    """Provide a radial shadow gradient for SVG.
+
+    This is mainly a wrapper for svg.RadialGradient that sets some default attributes
+    of the parent class.
+    """
+
     def __init__(
         self,
         n_colors: int = 10,
@@ -668,6 +690,12 @@ class RadialShadowGrad(svg.RadialGradient):
 
 
 class DiagonalStripedPattern(svg.Pattern):
+    """Provide a diagonal striped pattern for SVG elements.
+
+    This is mainly a wrapper for svg.Pattern that sets some default attributes
+    of the parent class.
+    """
+
     def __init__(
         self,
         color: tuple[str, str] = ("black", "white"),
@@ -686,6 +714,12 @@ class DiagonalStripedPattern(svg.Pattern):
             color: The two colors that alternate in the striped pattern. Defaults to
                 black and white.
             width: The width of the alternating stripes. Defaults to (1, 1).
+            height: The width of the alternating stripes. Defaults to 8.
+            patternTransform: Transformation of the pattern. Defaults to a 45° rotation.
+            patternUnits: Units of the pattern. Defaults to "userSpaceOnUse".
+            elements: Elements of the pattern. Defaults to two rectangles with the
+                given colors.
+            **kwargs: Keyword arguments passed to the constructor of the parent class.
         """
         if patternTransform is None:
             patternTransform = [svg.Rotate(45)]
@@ -729,6 +763,8 @@ class Group(svg.G):
         Args:
             stroke_linejoin: How points of a line are joined. Defaults to None.
             stroke_linecap: How lines are ended. Defaults to None.
+            **kwargs: Keyword arguments passed to the constructor of the parent class.
+
         """
         # initialize the parent class with all args/kwargs
         super().__init__(**kwargs)
