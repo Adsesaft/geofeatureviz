@@ -8,7 +8,7 @@ Maghreb-Staaten:
   - Mauretanien
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 Sahel-Staaten:
   core:
   - Burkina Faso
@@ -19,7 +19,7 @@ Sahel-Staaten:
   optional: []
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 Horn von Afrika:
   core:
   - Dschibuti
@@ -29,7 +29,7 @@ Horn von Afrika:
   optional: []
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 SADC-Staaten:
   core:
   - Angola
@@ -51,7 +51,7 @@ SADC-Staaten:
   optional: []
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 ECOWAS-Staaten:
   core:
   - Benin
@@ -69,7 +69,7 @@ ECOWAS-Staaten:
   optional: []
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 Zentralafrikanische Staaten:
   core:
   - Angola
@@ -86,7 +86,7 @@ Zentralafrikanische Staaten:
   - Ruanda
   continent:
   - Afrika
-  projection: "ortho"
+  projection: ortho
 Golf-Staaten:
   core:
   - Bahrain
@@ -100,7 +100,7 @@ Golf-Staaten:
   - Iran
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Levantestaaten:
   core:
   - Israel
@@ -111,7 +111,7 @@ Levantestaaten:
   optional: []
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Arabische Halbinsel:
   core:
   - Bahrain
@@ -124,7 +124,7 @@ Arabische Halbinsel:
   optional: []
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 MENA-Region:
   core:
   - Algerien
@@ -152,7 +152,7 @@ MENA-Region:
   continent:
   - Afrika
   - Asien
-  projection: "ortho"
+  projection: ortho
 Zentralasien:
   core:
   - Kasachstan
@@ -163,7 +163,7 @@ Zentralasien:
   optional: []
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Südostasien / ASEAN-Staaten:
   core:
   - Brunei
@@ -180,7 +180,7 @@ Südostasien / ASEAN-Staaten:
   - Osttimor
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Südasien / SAARC-Staaten:
   core:
   - Bangladesch
@@ -194,7 +194,7 @@ Südasien / SAARC-Staaten:
   - Afghanistan
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Ostasien:
   core:
   - Japan
@@ -206,7 +206,7 @@ Ostasien:
   optional: []
   continent:
   - Asien
-  projection: "ortho"
+  projection: ortho
 Kaukasus-Staaten:
   core:
   - Armenien
@@ -216,7 +216,7 @@ Kaukasus-Staaten:
   continent:
   - Asien
   - Europa
-  projection: "ortho"
+  projection: ortho
 Benelux-Staaten:
   core:
   - Belgien
@@ -225,7 +225,7 @@ Benelux-Staaten:
   optional: []
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Balkan-Staaten:
   core:
   - Albanien
@@ -243,7 +243,7 @@ Balkan-Staaten:
   - Türkei
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Baltische Staaten:
   core:
   - Estland
@@ -252,7 +252,7 @@ Baltische Staaten:
   optional: []
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Skandinavische Länder:
   core:
   - Dänemark
@@ -263,7 +263,7 @@ Skandinavische Länder:
   - Island
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Visegrád-Staaten:
   core:
   - Polen
@@ -273,7 +273,7 @@ Visegrád-Staaten:
   optional: []
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Iberische Halbinsel:
   core:
   - Portugal
@@ -283,7 +283,7 @@ Iberische Halbinsel:
   - Gibraltar
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 DACH-Region:
   core:
   - Deutschland
@@ -293,7 +293,7 @@ DACH-Region:
   - Liechtenstein
   continent:
   - Europa
-  projection: "ortho"
+  projection: ortho
 Andenstaaten:
   core:
   - Bolivien
@@ -306,7 +306,7 @@ Andenstaaten:
   - Venezuela
   continent:
   - Südamerika
-  projection: "ortho"
+  projection: ortho
 Mercosur-Staaten:
   core:
   - Argentinien
@@ -319,7 +319,7 @@ Mercosur-Staaten:
   - Peru
   continent:
   - Südamerika
-  projection: "ortho"
+  projection: ortho
 Karibikstaaten:
   core:
   - Antigua und Barbuda
@@ -335,7 +335,7 @@ Karibikstaaten:
   optional: []
   continent:
   - Nordamerika
-  projection: "ortho"
+  projection: ortho
 Zentralamerika:
   core:
   - Costa Rica
@@ -348,7 +348,7 @@ Zentralamerika:
   - Belize
   continent:
   - Nordamerika
-  projection: "ortho"
+  projection: ortho
 NAFTA / USMCA-Staaten:
   core:
   - Kanada
@@ -357,7 +357,7 @@ NAFTA / USMCA-Staaten:
   optional: []
   continent:
   - Nordamerika
-  projection: "ortho"
+  projection: ortho
 BRICS-Staaten:
   core:
   - Brasilien
@@ -376,7 +376,7 @@ BRICS-Staaten:
   - Asien
   - Europa
   - Südamerika
-  projection: "default"
+  projection: default
 G7-Staaten:
   core:
   - Deutschland
@@ -391,4 +391,4 @@ G7-Staaten:
   - Asien
   - Europa
   - Nordamerika
-  projection: "default"
+  projection: default
