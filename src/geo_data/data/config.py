@@ -69,10 +69,5 @@ class PathSettings(BaseSettings):
             raise ValueError("Anki collection could not be found.")
         return base / "collection.anki2"
 
-    @property
-    def anki_collection_copy_path(self) -> Path:
-        """File path to where the local Anki collection database is copied."""
-        return self.data_dir / "collection.anki2"
-
 
 path_settings = PathSettings()
