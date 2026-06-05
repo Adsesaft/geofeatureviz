@@ -5,7 +5,7 @@ from typing import TypedDict, cast
 import pandas as pd
 import yaml
 
-from geo_data.data.config import path_settings
+from geo_data.data import path_settings
 
 
 def get_country_translations() -> pd.DataFrame:
