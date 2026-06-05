@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from geo_data.data import path_settings
+from geo_data.data.config import path_settings
 
 
 @dataclass(frozen=True)

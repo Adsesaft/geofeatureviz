@@ -12,7 +12,8 @@ from anki.collection import Collection
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from geo_data.data import datasets, path_settings
+from geo_data.data import datasets
+from geo_data.data.config import path_settings
 
 
 def load(
