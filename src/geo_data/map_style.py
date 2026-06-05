@@ -10,10 +10,10 @@ from typing import Any
 
 import yaml
 
-from geo_data import helpers
+from geo_data.data import path_settings
 
 # read config
-CONFIG_PATH = helpers.get_top_directory() / "data" / "map_style.yaml"
+CONFIG_PATH = path_settings.data_dir / "map_style.yaml"
 with CONFIG_PATH.open() as f:
     config = yaml.safe_load(f)
 
