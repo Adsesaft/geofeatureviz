@@ -1,6 +1,7 @@
 """Load geographical data and make it ready for later usage."""
 
 import shutil
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator
@@ -179,40 +180,44 @@ def anki_to_df(deck_name: str) -> pd.DataFrame:
         A dataframe with the field names of the note types as columns.
     """
     # copy the original file to avoid any modifications or interference with anki
-    src = path_settings.anki_collection_path
-    copy = path_settings.anki_collection_copy_path
-    shutil.copy(src, copy)
+    src_col_path = path_settings.anki_collection_path
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        tmp_col_path = tmp_dir_path / src_col_path.name
+        shutil.copy2(src_col_path, tmp_col_path)
 
-    with open_collection(copy) as col:
-        # dict mapping note type names to the fields of the note type
-        note_type_to_fields = {}
-        for model in col.models.all():
-            note_type_name = model["name"]
-            fields = [field["name"] for field in model["flds"]]
-            note_type_to_fields[note_type_name] = fields
+        with open_collection(tmp_col_path) as col:
+            # dict mapping note type names to the fields of the note type
+            note_type_to_fields = {}
+            for model in col.models.all():
+                note_type_name = model["name"]
+                fields = [field["name"] for field in model["flds"]]
+                note_type_to_fields[note_type_name] = fields
 
-        # get the deck
-        deck_id = col.decks.id(deck_name)
-        if deck_id is None:
-            raise ValueError(
-                f"The deck '{deck_name}' could not be found in the Anki collection."
-            )
-        # get cards in the deck
-        card_ids = col.decks.cids(deck_id)
-        # get note of card ids
-        note_ids = set([col.get_card(cid).nid for cid in card_ids])
-        notes = [col.get_note(nid) for nid in note_ids]
-        assert notes != [], f"There are no notes in the deck '{deck_name}'."
+            # get the deck
+            deck_id = col.decks.id(deck_name)
+            if deck_id is None:
+                raise ValueError(
+                    f"The deck '{deck_name}' could not be found in the Anki collection."
+                )
+            # get cards in the deck
+            card_ids = col.decks.cids(deck_id)
+            # get note of card ids
+            note_ids = set([col.get_card(cid).nid for cid in card_ids])
+            notes = [col.get_note(nid) for nid in note_ids]
+            assert notes != [], f"There are no notes in the deck '{deck_name}'."
 
-        # create the pandas dataframe
-        notes_with_type = []
-        for note in notes:
-            note_type = note.note_type()
-            assert note_type is not None, f"The note {note} does not have a note type."
-            note_type_name = note_type["name"]
-            fields = note_type_to_fields[note_type_name]
-            values = note.values()
-            result = dict(zip(fields, values))
-            result["NoteType"] = note_type_name
-            notes_with_type.append(result)
+            # create the pandas dataframe
+            notes_with_type = []
+            for note in notes:
+                note_type = note.note_type()
+                assert note_type is not None, (
+                    f"The note {note} does not have a note type."
+                )
+                note_type_name = note_type["name"]
+                fields = note_type_to_fields[note_type_name]
+                values = note.values()
+                result = dict(zip(fields, values))
+                result["NoteType"] = note_type_name
+                notes_with_type.append(result)
     return pd.DataFrame(notes_with_type)
