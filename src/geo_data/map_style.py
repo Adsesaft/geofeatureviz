@@ -10,7 +10,7 @@ from typing import Any
 
 import yaml
 
-from geo_data.data import path_settings
+from geo_data.data.config import path_settings
 
 # read config
 CONFIG_PATH = path_settings.data_dir / "map_style.yaml"
