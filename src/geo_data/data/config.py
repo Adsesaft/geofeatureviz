@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from geo_data import helpers
 
 
-class Settings(BaseSettings):
+class PathSettings(BaseSettings):
     """Configuration settings managed with environment variables and defaults.
 
     This class centralizes runtime configuration, especially file paths. Values can be
@@ -75,4 +75,4 @@ class Settings(BaseSettings):
         return self.data_dir / "collection.anki2"
 
 
-settings = Settings()
+path_settings = PathSettings()

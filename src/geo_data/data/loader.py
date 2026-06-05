@@ -5,7 +5,7 @@ from typing import TypedDict, cast
 import pandas as pd
 import yaml
 
-from geo_data.data.config import settings
+from geo_data.data.config import path_settings
 
 
 def get_country_translations() -> pd.DataFrame:
@@ -18,7 +18,7 @@ def get_country_translations() -> pd.DataFrame:
                   Geography, which is consistent with German Wikipedia.)
         - english: The English name of the country (I didn't investigate further).
     """
-    df = pd.read_csv(settings.country_translation_path)
+    df = pd.read_csv(path_settings.country_translation_path)
     return df
 
 
@@ -41,6 +41,6 @@ def get_regional_groups() -> dict[str, Region]:
         - "optional": List of optional countries of the region.
         - "continent": List of continents on which the region is located.
     """
-    with open(settings.regional_groups_path, "r", encoding="utf-8") as f:
+    with open(path_settings.regional_groups_path, "r", encoding="utf-8") as f:
         regions = yaml.safe_load(f)
     return cast(dict[str, Region], regions)

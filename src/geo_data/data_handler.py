@@ -13,7 +13,7 @@ from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
 from geo_data.data import datasets
-from geo_data.data.config import settings
+from geo_data.data.config import path_settings
 
 
 def load(
@@ -147,7 +147,7 @@ def open_collection(path: Path | str) -> Generator[Collection, None, None]:
         An open Anki collection to access decks, notes, note types, etc.
     """
     path = str(path)
-    if path == str(settings.anki_collection_path):
+    if path == str(path_settings.anki_collection_path):
         raise ValueError(
             "The opened Anki collection should never be the original file! Please "
             "provide a copy."
@@ -179,8 +179,8 @@ def anki_to_df(deck_name: str) -> pd.DataFrame:
         A dataframe with the field names of the note types as columns.
     """
     # copy the original file to avoid any modifications or interference with anki
-    src = settings.anki_collection_path
-    copy = settings.anki_collection_copy_path
+    src = path_settings.anki_collection_path
+    copy = path_settings.anki_collection_copy_path
     shutil.copy(src, copy)
 
     with open_collection(copy) as col:

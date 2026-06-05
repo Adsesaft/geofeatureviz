@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from geo_data.data.config import settings
+from geo_data.data.config import path_settings
 
 
 @dataclass(frozen=True)
@@ -51,4 +51,4 @@ def get_dataset_path(key: DatasetKey) -> Path:
         raise ValueError(
             f"No data file found for {key}. Possible Values are:\n{DATA_FILES}"
         )
-    return settings.data_raw_dir / DATA_FILES[key]
+    return path_settings.data_raw_dir / DATA_FILES[key]
