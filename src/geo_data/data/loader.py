@@ -31,7 +31,7 @@ class Region(TypedDict):
     projection: str
 
 
-def get_regional_groups() -> dict[str, Region]:
+def load_regional_groups() -> dict[str, Region]:
     """Add function to read in regional groups.
 
     Returns:
