@@ -27,7 +27,7 @@ class Region(TypedDict):
 
 
 def load(
-    kind: str,
+    feature: str,
     source: str = "ne",
     resolution: int = 10,
     identifier: str = "name",
@@ -39,7 +39,7 @@ def load(
     unique identifier "id" is added to the DataFrame.
 
     Args:
-        kind: Kind of geographical feature, e.g. "country" or "river".
+        feature: Kind of geographical feature, e.g. "country" or "river".
         source: Data source, e.g. "ne" for NaturalEarth. Defaults to "ne".
         resolution: Resolution of the geographical data. Defaults to 10.
         identifier: There should be a unique identifier for each row in the
@@ -59,7 +59,7 @@ def load(
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
     """
-    dataset_key = datasets.DatasetKey(kind, source, resolution)
+    dataset_key = datasets.DatasetKey(feature, source, resolution)
     file_path = datasets.get_dataset_path(dataset_key)
 
     gdf = gpd.read_file(file_path)
