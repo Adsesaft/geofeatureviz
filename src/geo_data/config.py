@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     project_root: Path = helpers.get_top_directory()
 
     anki_dir: Path | None = None
+    anki_copy_dir: Path | None = None
 
     @property
     def data_dir(self) -> Path:
@@ -67,6 +68,11 @@ class Settings(BaseSettings):
         if base is None:
             raise ValueError("Anki collection could not be found.")
         return base / "collection.anki2"
+
+    @property
+    def anki_collection_copy_path(self) -> Path:
+        """File path to where the local Anki collection database is copied."""
+        return self.data_dir / "collection.anki2"
 
 
 settings = Settings()
