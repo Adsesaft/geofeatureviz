@@ -8,7 +8,7 @@ import yaml
 from geo_data.data.config import path_settings
 
 
-def get_country_translations() -> pd.DataFrame:
+def load_country_translations() -> pd.DataFrame:
     """Get a dataframe containing translations of countries.
 
     Returns:
