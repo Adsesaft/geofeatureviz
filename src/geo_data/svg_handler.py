@@ -12,6 +12,7 @@ from numpy.typing import NDArray
 from pyproj import Transformer
 from shapely import LineString, MultiPolygon, Polygon
 from shapely.affinity import translate
+from shapely.coords import CoordinateSequence
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 
@@ -277,15 +278,15 @@ class MapSVG(svg.SVG):
         if isinstance(first_geom, Polygon):
             svg_cls: type[svg.Polygon] | type[svg.Polyline] = svg.Polygon
 
-            def _get_coords(g: BaseGeometry) -> list[tuple[float, ...]]:
+            def _get_coords(g: BaseGeometry) -> CoordinateSequence:
                 g = cast(Polygon, g)
-                return list(g.exterior.coords)
+                return g.exterior.coords
 
         elif isinstance(first_geom, LineString):
             svg_cls = svg.Polyline
 
-            def _get_coords(g: BaseGeometry) -> list[tuple[float, ...]]:
-                return list(g.coords)
+            def _get_coords(g: BaseGeometry) -> CoordinateSequence:
+                return g.coords
 
         else:
             raise ValueError(f"Unsupported geometry type: '{geometry.geom_type}'")
