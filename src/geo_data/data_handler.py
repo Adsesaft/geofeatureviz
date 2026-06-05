@@ -13,8 +13,8 @@ from anki.collection import Collection
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from geo_data import datasets
-from geo_data.config import settings
+from geo_data.data import datasets
+from geo_data.data.config import settings
 
 
 class Region(TypedDict):
