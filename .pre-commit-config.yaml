@@ -20,6 +20,7 @@ repos:
     -   id: mypy
         additional_dependencies:
         -   svg-py
+        -   pydantic-settings
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.9.1
     hooks:
