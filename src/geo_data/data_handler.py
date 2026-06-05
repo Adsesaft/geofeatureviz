@@ -13,24 +13,8 @@ from anki.collection import Collection
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from geo_data import helpers
-
-DATA_FILES = {
-    ("country", "ne", 10): "ne_10m_admin_0_countries.zip",
-    ("country", "ne", 110): "ne_110m_admin_0_countries.zip",
-    ("state", "ne", 10): "ne_10m_admin_1_states_provinces.zip",
-    ("river", "ne", 10): "ne_10m_rivers_lake_centerlines.zip",
-    ("river_europe", "ne", 10): "ne_10m_rivers_europe.zip",
-    ("river_germany", "osm", 10): "osm_10m_rivers_germany.geojson",
-}
-REGIONAL_GROUP_PATH = helpers.get_top_directory() / "data" / "regional_groups.yaml"
-COUNTRY_TRANSLATION_PATH = (
-    helpers.get_top_directory() / "data" / "country_translations.csv"
-)
-
-ANKI_COLLECTION_PATH = Path.home() / ".local" / "share" / "Anki2" / "Adrian"
-ANKI_COLLECTION_PATH_COPY = helpers.get_top_directory() / "data"
-ANKI_COLLECTION_FILE_NAME = "collection.anki2"
+from geo_data import datasets
+from geo_data.config import settings
 
 
 class Region(TypedDict):
@@ -55,7 +39,7 @@ def load(
     unique identifier "id" is added to the DataFrame.
 
     Args:
-        kind: Kind of geographical information, e.g. "country" or "river".
+        kind: Kind of geographical feature, e.g. "country" or "river".
         source: Data source, e.g. "ne" for NaturalEarth. Defaults to "ne".
         resolution: Resolution of the geographical data. Defaults to 10.
         identifier: There should be a unique identifier for each row in the
@@ -75,7 +59,9 @@ def load(
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
     """
-    file_path = _get_file_path(kind=kind, source=source, resolution=resolution)
+    dataset_key = datasets.DatasetKey(kind, source, resolution)
+    file_path = datasets.get_dataset_path(dataset_key)
+
     gdf = gpd.read_file(file_path)
     gdf = clean_gdf(gdf)
     gdf = gdf.to_crs(epsg=projection)
@@ -115,29 +101,6 @@ def clean_gdf(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf.columns = gdf.columns.str.lower()
     gdf = gdf[~gdf["geometry"].is_empty]
     return gdf
-
-
-def _get_file_path(kind: str, source: str, resolution: int) -> Path:
-    """Get the file path to the data file from the kind, source, and resolution.
-
-    Args:
-        kind: Kind of geographical information, e.g. "country" or "river".
-        source: Data source, e.g. "ne" for NaturalEarth.
-        resolution: Resolution of the geographical data.
-
-    Raises:
-        ValueError: If no data file is found for the given parameters.
-
-    Returns:
-        A file path to the requested data file.
-    """
-    file_name = DATA_FILES.get((kind, source, resolution), None)
-    if file_name is None:
-        raise ValueError(
-            f"No data file found for {kind}, {source}, {resolution}. Possible Values "
-            f"are: {DATA_FILES}"
-        )
-    return helpers.get_top_directory() / "data" / file_name
 
 
 def polygon_is_all_inf(geometry: Polygon | MultiPolygon) -> bool:
@@ -194,7 +157,7 @@ def open_collection(path: Path | str) -> Generator[Collection, None, None]:
         An open Anki collection to access decks, notes, note types, etc.
     """
     path = str(path)
-    if path == str(ANKI_COLLECTION_PATH / ANKI_COLLECTION_FILE_NAME):
+    if path == str(settings.anki_collection_path):
         raise ValueError(
             "The opened Anki collection should never be the original file! Please "
             "provide a copy."
@@ -226,8 +189,8 @@ def anki_to_df(deck_name: str) -> pd.DataFrame:
         A dataframe with the field names of the note types as columns.
     """
     # copy the original file to avoid any modifications or interference with anki
-    src = ANKI_COLLECTION_PATH / ANKI_COLLECTION_FILE_NAME
-    copy = ANKI_COLLECTION_PATH_COPY / ANKI_COLLECTION_FILE_NAME
+    src = settings.anki_collection_path
+    copy = settings.anki_collection_copy_path
     shutil.copy(src, copy)
 
     with open_collection(copy) as col:
@@ -275,7 +238,7 @@ def get_regional_groups() -> dict[str, Region]:
         - "optional": List of optional countries of the region.
         - "continent": List of continents on which the region is located.
     """
-    with open(REGIONAL_GROUP_PATH, "r", encoding="utf-8") as f:
+    with open(settings.regional_groups_path, "r", encoding="utf-8") as f:
         regions = yaml.safe_load(f)
     return cast(dict[str, Region], regions)
 
@@ -290,5 +253,5 @@ def get_country_translations() -> pd.DataFrame:
                   Geography, which is consistent with German Wikipedia.)
         - english: The English name of the country (I didn't investigate further).
     """
-    df = pd.read_csv(COUNTRY_TRANSLATION_PATH)
+    df = pd.read_csv(settings.country_translation_path)
     return df
