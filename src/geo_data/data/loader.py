@@ -2,10 +2,35 @@
 
 from typing import TypedDict, cast
 
+import geopandas as gpd
 import pandas as pd
 import yaml
 
+from geo_data.data import datasets
 from geo_data.data.config import path_settings
+
+
+def load_dataset(
+    feature: str,
+    source: str = "ne",
+    resolution: int = 10,
+) -> gpd.GeoDataFrame:
+    """Load geographical data from a file as GeoPandas GeoDataFrame.
+
+    All available data sets can be found in the datasets module dictionary.
+
+    Args:
+        feature: Kind of geographical feature, e.g. "country" or "river".
+        source: Data source, e.g. "ne" for NaturalEarth. Defaults to "ne".
+        resolution: Resolution of the geographical data. Defaults to 10.
+
+    Returns:
+        A GeoPandas DataFrame with the requested geographical data.
+    """
+    dataset_key = datasets.DatasetKey(feature, source, resolution)
+    file_path = datasets.get_dataset_path(dataset_key)
+
+    return gpd.read_file(file_path)
 
 
 def load_country_translations() -> pd.DataFrame:

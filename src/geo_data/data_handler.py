@@ -5,7 +5,7 @@ import numpy as np
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from geo_data.data import datasets
+from geo_data.data import loader
 
 
 def load(
@@ -41,10 +41,7 @@ def load(
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
     """
-    dataset_key = datasets.DatasetKey(feature, source, resolution)
-    file_path = datasets.get_dataset_path(dataset_key)
-
-    gdf = gpd.read_file(file_path)
+    gdf = loader.load_dataset(feature, source, resolution)
     gdf = clean_gdf(gdf)
     gdf = gdf.to_crs(epsg=projection)
 
