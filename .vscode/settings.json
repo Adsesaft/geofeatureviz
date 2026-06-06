@@ -14,5 +14,10 @@
         "linejoin",
         "pysvg",
         "xoff"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
