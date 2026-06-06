@@ -195,7 +195,7 @@ def prep_member_gdf(member_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     Preprocessing includes:
     - Removing members that do not have a "waterway" tag.
     - Removing members that have the role "side_stream" or "distributary".
-    - Applying the cleaning config defined in `river_preprocessing.CONFIG` (removing
+    - Applying the cleaning config defined in `river_preprocessor.CONFIG` (removing
       nodes from the geometries of the members, sometimes even the complete member).
 
     Args:
