@@ -8,17 +8,16 @@ from shapely.geometry.polygon import Polygon
 from geo_data.data import loader
 
 
-def load(
+def prep_dataset(
     feature: str,
     source: str = "ne",
     resolution: int = 10,
     identifier: str = "name",
     projection: int = 4326,
 ) -> gpd.GeoDataFrame:
-    """Load geographical data from a file as GeoPandas GeoDataFrame.
+    """Preprocess a dataset of geographical features.
 
-    All available data sets can be found in the DATA_FILES dictionary. A column with a
-    unique identifier "id" is added to the DataFrame.
+    All available data sets can be found in the datasets module.
 
     Args:
         feature: Kind of geographical feature, e.g. "country" or "river".
