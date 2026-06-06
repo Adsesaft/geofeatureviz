@@ -2,13 +2,13 @@
 
 __version__ = "0.1.0"
 
-from . import data, data_handler, helpers, map_style, projections, svg_handler
+from . import data, helpers, map_style, preprocessor, projections, svg_handler
 
 __all__ = [
     "data",
-    "data_handler",
     "helpers",
     "map_style",
+    "preprocessor",
     "projections",
     "svg_handler",
 ]
