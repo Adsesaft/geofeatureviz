@@ -2,7 +2,8 @@
 
 __version__ = "0.1.0"
 
-from . import data, helpers, map_style, preprocessor, projections, svg_handler
+from . import data, helpers, map_style, projections, svg_handler
+from .data import preprocessor
 
 __all__ = [
     "data",
