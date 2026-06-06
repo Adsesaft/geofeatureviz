@@ -12,6 +12,24 @@ from anki.collection import Collection
 from geofeatureviz.data.config import path_settings
 
 
+class AnkiCollection:
+    """Light adapter over Anki's Collection API.
+
+    Anki's Collection API is not as straightforward; with this class, I want to have a
+    lightweight, easy to use class to access data from the anki collection. So
+    essentially, this class hides the Anki API.
+    """
+
+    def __init__(self, col: Collection) -> None:
+        """Initialize the adapter to Anki's Collection API.
+
+        Args:
+            col: Anki collection to which we want to have convenient access.
+        """
+        self._col = col
+        # TODO
+
+
 @contextmanager
 def open_collection(path: Path | str) -> Generator[Collection, None, None]:
     """Open an anki collection as a context manager to ensure it is properly closed.
