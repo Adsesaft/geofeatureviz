@@ -12,19 +12,13 @@
 # index is null, it is interpreted as the length of the array. That means,
 # a slice of [null, null] would delete all nodes of the member.
 Aller:
+  # all part of a small branch to a marked source in a city
   927227331:  [[null, null]]
   927227332:  [[null, null]]
   976963432:  [[null, null]]
   108340517:  [0]
-Altmühl:
-  166454757:  [[null, null]]
-  1245843108: [[null, null]]
-Ems:
-  677870924:  [[null, null]]
-  677816449:  [[null, null]]
-  894431639:  [[null, null]]
-Kocher:
-  1460089552:  [[null, null]]
+Havel:
+  122768753:  [[null, null]]
 La Moselle:
   1447943659: [[null, null]]
   731149181:  [[null, null]]
