@@ -3,8 +3,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from geo_data.data.config import path_settings
-
 
 @dataclass(frozen=True)
 class DatasetKey:
@@ -31,7 +29,7 @@ DATA_FILES: dict[DatasetKey, str] = {
 }
 
 
-def get_dataset_path(key: DatasetKey) -> Path:
+def get_dataset_filename(key: DatasetKey) -> Path:
     """Get the file path to the data file from the feature kind, source, and resolution.
 
     Args:
@@ -44,11 +42,11 @@ def get_dataset_path(key: DatasetKey) -> Path:
         ValueError: If no data file is found for the given parameters.
 
     Returns:
-        A file path to the requested data file.
+        The file name to the requested data.
     """
     file_name = DATA_FILES.get(key, None)
     if file_name is None:
         raise ValueError(
             f"No data file found for {key}. Possible Values are:\n{DATA_FILES}"
         )
-    return path_settings.data_raw_dir / DATA_FILES[key]
+    return Path(DATA_FILES[key])
