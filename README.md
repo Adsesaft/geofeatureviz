@@ -1,4 +1,4 @@
-# geo_data
+# geofeatureviz
 
 Author: [akuehn](mailto:adrian-kuehn@posteo.de)
 

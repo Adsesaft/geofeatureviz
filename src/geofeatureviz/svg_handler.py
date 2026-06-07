@@ -16,8 +16,8 @@ from shapely.coords import CoordinateSequence
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 
-from geo_data import map_style
-from geo_data.projections import Equirectangular, Orthographic, Projection
+from geofeatureviz import map_style
+from geofeatureviz.projections import Equirectangular, Orthographic, Projection
 
 
 class MapSVG(svg.SVG):

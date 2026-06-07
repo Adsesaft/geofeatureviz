@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 from shapely import LineString, MultiLineString
 from shapely.ops import linemerge
 
-from geo_data import helpers
+from geofeatureviz import helpers
 
 
 def _is_valid_member_gdf(member_gdf: gpd.GeoDataFrame) -> bool:

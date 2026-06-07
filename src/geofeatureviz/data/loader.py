@@ -11,8 +11,8 @@ import requests
 import yaml
 from shapely import LineString
 
-from geo_data.data import datasets
-from geo_data.data.config import path_settings
+from geofeatureviz.data import datasets
+from geofeatureviz.data.config import path_settings
 
 
 def load_dataset(

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from geo_data import helpers
+from geofeatureviz import helpers
 
 
 class PathSettings(BaseSettings):

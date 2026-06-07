@@ -1,5 +1,5 @@
 [project]
-name = "geo_data"
+name = "geofeatureviz"
 version = "0.1.0"
 description = "A template for Python projects created by Adrian Kühn."
 authors = [
