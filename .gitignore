@@ -5,9 +5,10 @@ data/**
 !data/**/*.yaml
 !data/**/*.csv
 
-# all files in the results directory
-results/
-
+# all files in the results directory except the examples
+results/*
+!results/examples/
+!results/examples/**
 # Mac File Management
 .DS_Store
 
