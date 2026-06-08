@@ -1,0 +1,7 @@
+"file","description","acquisition","feature","source","scale"
+"ne_10m_admin_0_countries.zip","Countries (detailed)","https://naturalearth.s3.amazonaws.com/10m_cultural/ne_10m_admin_0_countries.zip","country","ne",10
+"ne_110m_admin_0_countries.zip","Countries (simplified)","https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip","country","ne",110
+"ne_10m_admin_1_states_provinces.zip","States and Provinces","https://naturalearth.s3.amazonaws.com/10m_cultural/ne_10m_admin_1_states_provinces.zip","state","ne",10
+"ne_10m_rivers_lake_centerlines.zip","Global rivers and lake centerlines","https://naturalearth.s3.amazonaws.com/10m_physical/ne_10m_rivers_lake_centerlines.zip","river","ne",10
+"ne_10m_rivers_europe.zip","Europe-focused rivers","https://naturalearth.s3.amazonaws.com/10m_physical/ne_10m_rivers_europe.zip","river_europe","ne",10
+"osm_10m_rivers_germany.geojson","Germany rivers","scripts/data_creation/rivers_data_creation.ipynb","river_germany","osm",10
