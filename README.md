@@ -145,7 +145,7 @@ canvas.add_background(COLORS["lake"])
 canvas.add_gdf(countries, "Countries", fill=COLORS["land"], stroke=COLORS["border"])
 
 # save the svg file
-canvas.save(path_settings.results_dir / "examples" / "world_map.svg", optimize=True)
+canvas.save(path_settings.results_dir / "examples" / "world_map.svg")
 ```
 Output:
 
