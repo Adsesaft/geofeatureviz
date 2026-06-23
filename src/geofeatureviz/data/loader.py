@@ -116,11 +116,14 @@ class OverpassAPIHandler:
             saved to as JSON-file. If none is given, the response will not be saved.
     """
 
-    def __init__(self, query: str, file_path: Optional[str | Path] = None) -> None:
+    def __init__(self, query: str = "", file_path: Optional[str | Path] = None) -> None:
         """Set up a handler for doing requests on the Overpass API.
 
         Args:
-            query: The query which will be requested from the Overpass API.
+            query: The query which will be requested from the Overpass API. To create a
+                request, a query is mandatory, but it can also be set using the
+                `create_query` method and is therefore optional. Default is an empty
+                string.
             file_path: Optional path to a file location where the requested response is
                 saved to as JSON-file. If none is given, the response will not be saved.
                 Defaults to None.
@@ -150,6 +153,11 @@ class OverpassAPIHandler:
         Returns:
             A dictionary containing the JSON response from the Overpass API.
         """
+        if self.query == "":
+            raise ValueError(
+                "The query is empty. Set a query by either setting the class attribute "
+                "or using `create_query`."
+            )
         response = requests.post(
             self.overpass_url,
             data={"data": self.query},
@@ -230,4 +238,25 @@ class OverpassAPIHandler:
                 new_elem["geometry"] = geometry
 
             elements.append(new_elem)
-        return gpd.GeoDataFrame(elements)
+
+    def create_query(self, query: str, timeout: int = 150, output: str = "body") -> str:
+        """Create a query for the overpass API and set the class attribute.
+
+        This function just covers up some of the required syntax of the OSM query
+        language and sets the default beginning and end of a query.
+
+        Args:
+            query: The elements that should be requested from the API using the OSM
+                query syntax, e.g., 'relation(123456)' or 'relation["name"~"^A$|^B$"]'.
+            timeout: Maximum time to wait for the API response. Default is 150.
+            output: The output of the API response, e.g. "geom" for the geometries or
+                "body" for IDs, tags, and references. Default is "body".
+
+        Returns:
+            The created query, which is also set as class attribute.
+        """
+        query = f"""[out:json][timeout:{timeout}];
+        {query};
+        out {output};"""
+        self.query = query
+        return query
