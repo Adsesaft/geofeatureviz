@@ -1,0 +1,24 @@
+,name,id,osm_name,osm_type
+0,Alpen (nur Deutschland),2698607,Alps,relation
+1,Bayerischer Wald,611246,Bayerischer Wald,relation
+2,Eifel,1244806,Eifel,relation
+3,Erzgebirge,360359268,Erzgebirge,way
+4,Fichtelgebirge,6696626,Fichtelgebirge,relation
+5,Frankenwald,3575639,Frankenwald,relation
+6,Fränkische Alb,6696588,Fränkische Alb,relation
+7,Harz,3734731,Harz,relation
+8,Hunsrück,544102426,Hunsrück,way
+9,Oberpfälzer Wald,3658124,Naturpark Oberpfälzer Wald,relation
+10,Rothaargebirge,12888055,Naturpark Sauerland-Rothaargebirge,relation
+11,Odenwald,7579947,Odenwald,relation
+12,Pfälzerwald,14218399,Pfälzerwald,relation
+13,Rhön,571378856,Rhön,way
+14,Schwarzwald,3255371,Schwarzwald,relation
+15,Schwäbische Alb,14470285,Schwäbische Alb,relation
+16,Spessart,6308866,Spessart,relation
+17,Elbsandsteingebirge,15775245,Sächsische Schweiz,relation
+18,Taunus,3342122,Taunus,relation
+19,Teutoburger Wald,3255240,Teutoburger Wald,relation
+20,Thüringer Wald,2901217,Thüringer Wald,relation
+21,Vogelsberg,8743914,Vogelsberg,relation
+22,Westerwald,3273435,Westerwald,relation
