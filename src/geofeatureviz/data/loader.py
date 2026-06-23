@@ -3,13 +3,14 @@
 import json
 import warnings
 from pathlib import Path
-from typing import Optional, TypedDict, cast
+from typing import Literal, NotRequired, Optional, TypedDict, cast
 
 import geopandas as gpd
 import pandas as pd
 import requests
 import yaml
-from shapely import LineString
+from shapely import LineString, MultiLineString, Point
+from shapely.ops import linemerge
 
 from geofeatureviz.data import datasets
 from geofeatureviz.data.config import path_settings
@@ -92,11 +93,53 @@ def load_regional_groups() -> dict[str, Region]:
 JSONValue = dict[str, "JSONValue"] | list["JSONValue"] | str | int | float | bool | None
 
 
-class OverpassElement(TypedDict, total=False):
-    """Provide the structure for an element of a response from the Overpass API."""
+class OverpassNode(TypedDict):
+    """Structure of an OSM-node in the JSON response from the Overpass API."""
 
-    tags: dict[str, "JSONValue"]
-    geometry: list[dict[str, float]]
+    id: int
+    type: Literal["node"]
+    lat: float
+    lon: float
+
+
+class OverpassGeometry(TypedDict):
+    """Structure of a geometry in the JSON response from the Overpass API."""
+
+    lat: float
+    lon: float
+
+
+class OverpassWay(TypedDict):
+    """Structure of an OSM-way in the JSON response from the Overpass API."""
+
+    id: int
+    type: Literal["way"]
+    nodes: list[int]
+    tags: NotRequired[dict[str, "JSONValue"]]
+    bounds: NotRequired[dict[str, float]]
+    geometry: NotRequired[list[OverpassGeometry]]
+
+
+class RelationMember(TypedDict):
+    """Structure of a relation member in the JSON response from the Overpass API."""
+
+    type: Literal["node", "way", "relation"]
+    ref: int
+    role: str
+    geometry: NotRequired[list[OverpassGeometry]]
+
+
+class OverpassRelation(TypedDict):
+    """Structure of an OSM-relation in the JSON response from the Overpass API."""
+
+    id: int
+    type: Literal["relation"]
+    members: list[RelationMember]
+    tags: NotRequired[dict[str, "JSONValue"]]
+    bounds: NotRequired[dict[str, float]]
+
+
+OverpassElement = OverpassNode | OverpassWay | OverpassRelation
 
 
 class OverpassResponse(TypedDict, total=False):
@@ -210,36 +253,85 @@ class OverpassAPIHandler:
         self.response_json = response_json
         return response_json
 
-    def parse_json(self, response_json: OverpassResponse) -> gpd.GeoDataFrame:
+    def parse_json(
+        self, response_json: Optional[OverpassResponse] = None
+    ) -> gpd.GeoDataFrame:
         """Parse a dictionary containing an Overpass-API response to a (Geo)DataFrame.
 
         In general, the response contains a list of "elements" (can be nodes, ways, or
-        relations). Each element is represented as row in the DataFrame. The tags of
-        the element are "unpacked". If the element contains a "geometry" key, the
-        geometry is parsed to a shapely LineString and a geopandas GeoDataFrame is
-        returned. If no Geometry is present, a regular pandas DataFrame is returned.
+        relations). After parsing, each element is represented as a row in a DataFrame.
+        The tags of the element are "unpacked", and if the element contains geometric
+        information, the geometry is parsed to a shapely geometry:
+        - node:     Point
+        - way:      LineString
+        - relation: MultiLineString (or LineString if the member lines can be merged)
+
+        If there is a geometry, a geopandas.GeoDataFrame is returned, else a regular
+        pandas.DataFrame.
 
         Args:
-            response_json: A dictionary containing the JSON response from the Overpass API.
+            response_json: A dictionary containing the JSON response from the
+                Overpass API. If this is not given, the class attribute response_json
+                is used, which has to be not None (e.g., by calling
+                `OverpassAPIHandler.get()`).
 
         Returns:
-            A GeoPandas GeoDataFrame containing the parsed elements and geometries or a
-            regular Pandas DataFrame if no geometries are present.
+            A geopandas.GeoDataFrame containing the parsed elements and geometries or a
+            regular pandas.DataFrame if no geometries are present.
         """
+        if response_json is None:
+            response_json = self.response_json
+        if response_json is None:
+            raise ValueError(
+                "Either provide a response_json as input parameter or set the class "
+                "attribute response_json (e.g. with `get()`)."
+            )
         elements = []
         for elem in response_json.get("elements", []):
-            # "unpack" the tags
-            tags = elem.get("tags", {})
-            new_elem = {**elem, **tags}
-            new_elem.pop("tags")
+            new_elem = dict(elem)
+
             # parse geometry if necessary
-            if "geometry" in elem.keys():
-                geometry = LineString(
-                    [[g["lon"], g["lat"]] for g in elem.get("geometry", [])]
-                )
+            geometry: Point | LineString | MultiLineString | None = None
+            if elem["type"] == "node":
+                geometry = Point(elem["lon"], elem["lat"])
+                new_elem.pop("lon")
+                new_elem.pop("lat")
+            elif elem["type"] == "way" and "geometry" in elem.keys():
+                geometry = self._parse_geom(elem.pop("geometry"))
+                new_elem.pop("nodes")
+            elif elem["type"] == "relation":
+                geoms = []
+                for member in elem["members"]:
+                    if "geometry" in member.keys():
+                        geoms.append(self._parse_geom(member.get("geometry", [])))
+                if geoms:
+                    geometry = linemerge(geoms)
+                    new_elem.pop("members")
+
+            if geometry is not None:
                 new_elem["geometry"] = geometry
 
+            # "unpack" the tags
+            if elem["type"] == "way" or elem["type"] == "relation":
+                tags = elem.get("tags", {})
+                new_elem.pop("tags")
+                new_elem = new_elem | tags
+
             elements.append(new_elem)
+        return gpd.GeoDataFrame(elements, crs="EPSG:4326")
+
+    def _parse_geom(self, geom_list: list[OverpassGeometry]) -> LineString:
+        """Parse a list of lon/lat values to a LineString.
+
+        Args:
+            geom_list: A list of dictionaries, where each dictionary has the keys "lon"
+                and "lat", containing longitude and latitude of the point. All points
+                are parsed and a LineString is created from the points.
+
+        Returns:
+            A LineString geometry of all points.
+        """
+        return LineString([[g["lon"], g["lat"]] for g in geom_list])
 
     def create_query(self, query: str, timeout: int = 150, output: str = "body") -> str:
         """Create a query for the overpass API and set the class attribute.
