@@ -134,6 +134,7 @@ class OverpassAPIHandler:
             file_path = file_path.with_suffix(".json")
         self.file_path = file_path
         self.query = query
+        self.response_json: OverpassResponse | None = None
 
     def _strip_query(self) -> str:
         """Strip a query from trailing whitespaces and remove new lines.
@@ -164,8 +165,8 @@ class OverpassAPIHandler:
             headers={"User-Agent": "DataFetcher/1.0"},
         )
         response.raise_for_status()
-        data: OverpassResponse = response.json()
-        return data
+        response_json: OverpassResponse = response.json()
+        return response_json
 
     def _save_json(self, response_json: OverpassResponse) -> None:
         """Save a dictionary as JSON-file if a filepath was given in class args.
@@ -206,6 +207,7 @@ class OverpassAPIHandler:
                         "Consider deleting the existing file to get a new response:\n"
                         f"{self.file_path}."
                     )
+        self.response_json = response_json
         return response_json
 
     def parse_json(self, response_json: OverpassResponse) -> gpd.GeoDataFrame:
