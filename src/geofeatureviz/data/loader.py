@@ -142,8 +142,8 @@ class OverpassAPIHandler:
         Returns:
             The stripped query.
         """
-        stripped_query = self.query.strip()
-        stripped_query = stripped_query.replace("\n", "")
+        lines = self.query.split("\n")
+        stripped_query = "".join([line.strip() for line in lines])
         return stripped_query
 
     def _get_response_json(
