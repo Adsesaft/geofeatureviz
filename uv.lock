@@ -492,6 +492,7 @@ source = { editable = "." }
 dependencies = [
     { name = "anki" },
     { name = "beautifulsoup4" },
+    { name = "contourpy" },
     { name = "geopandas" },
     { name = "jupyter" },
     { name = "lxml" },
@@ -519,6 +520,7 @@ dev = [
 requires-dist = [
     { name = "anki", specifier = ">=25.9.4" },
     { name = "beautifulsoup4", specifier = ">=4.14.3" },
+    { name = "contourpy", specifier = ">=1.3.3" },
     { name = "geopandas", specifier = ">=1.1.3" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "lxml", specifier = ">=6.1.1" },
