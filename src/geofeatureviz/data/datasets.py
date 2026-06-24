@@ -26,6 +26,7 @@ DATA_FILES: dict[DatasetKey, str] = {
     DatasetKey("river", "ne", 10): "ne_10m_rivers_lake_centerlines.zip",
     DatasetKey("river_europe", "ne", 10): "ne_10m_rivers_europe.zip",
     DatasetKey("river_germany", "osm", 10): "osm_10m_rivers_germany.geojson",
+    DatasetKey("mountain_germany", "osm", 10): "osm_10m_mountains_germany.geojson",
 }
 
 
