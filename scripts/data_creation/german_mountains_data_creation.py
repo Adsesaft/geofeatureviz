@@ -30,7 +30,7 @@ def create_polygons(line: BaseGeometry) -> Polygon | MultiPolygon:
     Returns:
         A (Multi)Polygon with the same coordinates as the input (Multi)LineString.
     """
-    if not isinstance(line, ()):
+    if not isinstance(line, (LineString, MultiLineString)):
         raise TypeError(f"Expected LineString or MultiLineString, got {type(line)}.")
 
     if isinstance(line, MultiLineString):
@@ -45,22 +45,24 @@ def create_polygons(line: BaseGeometry) -> Polygon | MultiPolygon:
         raise ValueError(
             f"Expected Polygon or MultiPolygon as result, got {type(result)}"
         )
+    else:
+        raise ValueError(f"Expected LineString or MultiLineString, got {type(line)}")
 
 
 if __name__ == "__main__":
     osm_id_df = pd.read_csv(path_settings.german_mountain_osm_id_path, index_col=0)
 
-    river_ids_str = ";".join(
+    mountain_ids_str = ";".join(
         [f"{row.osm_type}({row.id})" for row in osm_id_df.itertuples()]
     )
-    river_ids_query = f"({river_ids_str};)"
+    mountain_ids_query = f"({mountain_ids_str};)"
 
     api_handler = OverpassAPIHandler(
         file_path=path_settings.data_raw_dir
         / "osm_mountains"
         / "german_mountains.json",
     )
-    api_handler.create_query(river_ids_query, output="geom")
+    api_handler.create_query(mountain_ids_query, output="geom")
     _ = api_handler.get()
 
     mountain_gdf = api_handler.parse_json().set_index("id")
