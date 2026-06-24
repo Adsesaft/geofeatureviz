@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Literal, NotRequired, Optional, TypedDict
 
 import geopandas as gpd
+import pandas as pd
 import requests
-from shapely import LineString, MultiLineString, Point
-from shapely.ops import linemerge
+from shapely import LineString, MultiLineString, MultiPolygon, Point, Polygon
 
 JSONValue = dict[str, "JSONValue"] | list["JSONValue"] | str | int | float | bool | None
 
@@ -173,7 +173,7 @@ class OverpassAPIHandler:
 
     def parse_json(
         self, response_json: Optional[OverpassResponse] = None
-    ) -> gpd.GeoDataFrame:
+    ) -> gpd.GeoDataFrame | pd.DataFrame:
         """Parse a dictionary containing an Overpass-API response to a (Geo)DataFrame.
 
         In general, the response contains a list of "elements" (can be nodes, ways, or
@@ -204,18 +204,21 @@ class OverpassAPIHandler:
                 "Either provide a response_json as input parameter or set the class "
                 "attribute response_json (e.g. with `get()`)."
             )
+        has_geometries = False
         elements = []
         for elem in response_json.get("elements", []):
             new_elem = dict(elem)
 
             # parse geometry if necessary
-            geometry: Point | LineString | MultiLineString | None = None
+            geometry: (
+                Point | LineString | MultiLineString | Polygon | MultiPolygon | None
+            ) = None
             if elem["type"] == "node":
                 geometry = Point(elem["lon"], elem["lat"])
                 new_elem.pop("lon")
                 new_elem.pop("lat")
             elif elem["type"] == "way" and "geometry" in elem.keys():
-                geometry = self._parse_geom(elem.pop("geometry"))
+                geometry = self._parse_geom(elem["geometry"])
                 new_elem.pop("nodes")
             elif elem["type"] == "relation":
                 geoms = []
@@ -223,10 +226,11 @@ class OverpassAPIHandler:
                     if "geometry" in member.keys():
                         geoms.append(self._parse_geom(member.get("geometry", [])))
                 if geoms:
-                    geometry = linemerge(geoms)
+                    geometry = MultiLineString(geoms)
                     new_elem.pop("members")
 
             if geometry is not None:
+                has_geometries = True
                 new_elem["geometry"] = geometry
 
             # "unpack" the tags
@@ -236,7 +240,10 @@ class OverpassAPIHandler:
                 new_elem = new_elem | tags
 
             elements.append(new_elem)
-        return gpd.GeoDataFrame(elements, crs="EPSG:4326")
+        if has_geometries:
+            return gpd.GeoDataFrame(elements, crs="EPSG:4326")
+        else:
+            return pd.DataFrame(elements)
 
     def _parse_geom(self, geom_list: list[OverpassGeometry]) -> LineString:
         """Parse a list of lon/lat values to a LineString.
