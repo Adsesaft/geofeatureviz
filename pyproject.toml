@@ -43,6 +43,10 @@ build-backend = "setuptools.build_meta"
 strict = true
 mypy_path = "src"
 
+[[tool.mypy.overrides]]
+module = "rasterio.*"
+ignore_missing_imports = true
+
 [tool.ruff.lint]
 extend-select = ["I", "D"]
 
