@@ -112,6 +112,21 @@ class ElevationColormap(mplc.ListedColormap):
         return np.reshape(hex_colors, values.shape)
 
 
+class ElevationNorm(mplc.TwoSlopeNorm):
+    """Normalize elevation values around zero for diverging colormaps."""
+
+    def __init__(self, thresholds: list[float]) -> None:
+        """Initialize normalization to center around zero.
+
+        Args:
+            thresholds: Threshold values used to determine the symmetric normalization
+                range. The maximum absolute threshold defines the distance from zero to
+                the lower and upper normalization bounds.
+        """
+        max_threshold = np.max(np.abs(thresholds))
+        super().__init__(vmin=-max_threshold, vmax=max_threshold, vcenter=0)
+
+
 def get_elevation_cmap(topo_type: str = "land") -> ElevationColormap:
     """Get the colormap for elevations from the defined style.
 
