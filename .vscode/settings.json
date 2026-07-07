@@ -5,6 +5,7 @@
         "argmin",
         "centerlines",
         "cids",
+        "colormaps",
         "cumcount",
         "equirectangular",
         "flds",
@@ -14,6 +15,7 @@
         "linecap",
         "linejoin",
         "pysvg",
+        "topo",
         "xoff"
     ],
     "python.testing.pytestArgs": [
