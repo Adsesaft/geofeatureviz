@@ -32,16 +32,21 @@ for style_name, kwargs in _styles.items():
 STYLES: MappingProxyType[str, MappingProxyType[str, Any]] = MappingProxyType(_styles)
 
 
-def get_topo_colors() -> dict[int, str]:
+def get_topo_colors() -> dict[str, dict[int, str]]:
     """Get all colors for topographical data.
 
     Returns:
-        A dictionary mapping elevation levels to colors. This is especially necessary
-        to mark which color is used as neutral.
+        Dictionaries mapping elevation levels to colors. This will return a dictionary
+        with the keys "land" and "water", each containing a dictionary mapping elevation
+        levels to colors. It is necessary to differentiate between land and water
+        because both can have negative and positive elevation levels, but the colors
+        used for them are different (e.g., negative land can be dark green, but negative
+        water can be dark blue).
     """
-    topo_colors = {}
+    topo_colors: dict[str, dict[int, str]] = {"land": {}, "water": {}}
     for color_name, color in COLORS.items():
         if "topo" in color_name:
-            topo_int = int(color_name.split(":")[-1])
-            topo_colors[topo_int] = color
+            topo_str_split = color_name.split(":")
+            topo_type, topo_level = topo_str_split[1], int(topo_str_split[2])
+            topo_colors[topo_type][topo_level] = color
     return topo_colors
