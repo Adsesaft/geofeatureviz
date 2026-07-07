@@ -298,7 +298,7 @@ class MapSVG(svg.SVG):
                 _create_svg_element(geom_part, f"{geometry_id}_part_{i}")
                 for i, geom_part in enumerate(geometry.geoms)
             ]
-            return svg.G(id=geometry_id, elements=svg_elements, **kwargs)
+            return Group(id=geometry_id, elements=svg_elements, **kwargs)
         # create a single element for single geometry
         else:
             return _create_svg_element(geometry, geometry_id, **kwargs)
