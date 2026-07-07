@@ -402,6 +402,12 @@ class MapSVG(svg.SVG):
                 ]
             )
 
+    def copy(self) -> MapSVG:
+        """Copy this MapSVG instance."""
+        from copy import deepcopy
+
+        return deepcopy(self)
+
 
 class OrthoMapSVG(MapSVG):
     """Provide an SVG canvas for maps with an orthographic projection.
