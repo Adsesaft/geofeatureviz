@@ -1,6 +1,7 @@
 """Create scalable vector graphics from geometrical data."""
 
 import subprocess
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal, Optional, cast
 from xml.dom.minidom import parseString
@@ -20,8 +21,21 @@ from geofeatureviz import map_style
 from geofeatureviz.projections import Equirectangular, Orthographic, Projection
 
 
+@dataclass
 class MapSVG(svg.SVG):
     """Provide an interface to create SVG files for maps.
+
+    Args:
+        bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in
+            the domain of the geographical data (longitude and latitude). If only
+            (lon_min, lon_max) are given, the same limits are used for lat as well.
+        projection: A callable class that projects coordinates from geographical
+            coordinates (longitude and latitude). Defaults to equirectangular
+            projection (EPSG 32662).
+        height: Height of the SVG-file in pixels. If None is given, the height is
+            automatically determined from the width and the bounds.
+        width: Width of the SVG-file in pixels. If None is given, the width is
+            automatically determined from the height and the bounds.
 
     Attributes:
         bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in the
@@ -32,39 +46,25 @@ class MapSVG(svg.SVG):
         range_proj: The range of x- and y-values in the space given by the projection.
     """
 
-    def __init__(
+    bounds: tuple[float, float] | tuple[float, float, float, float] = (
+        -180,
+        -90,
+        180,
+        90,
+    )
+    projection: Projection = field(default_factory=Equirectangular)
+
+    def __post_init__(
         self,
-        bounds: Optional[
-            tuple[float, float] | tuple[float, float, float, float]
-        ] = None,
-        height: Optional[int] = None,
-        width: Optional[int] = None,
-        projection: Optional[Projection] = None,
-        **kwargs: Any,
     ) -> None:
-        """Initialize an interface to create SVG files for maps.
+        """Precompute important values for the SVG canvas of a geographical map.
 
-        Args:
-            bounds: Bounds of the geometry as (lon_min, lat_min, lon_max, lat_max) in
-                the domain of the geographical data (longitude and latitude). If only
-                (lon_min, lon_max) are given, the same limits are used for lat as well.
-            height: Height of the SVG-file in pixels. If None is given, the height is
-                automatically determined from the width and the bounds.
-            width: Width of the SVG-file in pixels. If None is given, the width is
-                automatically determined from the height and the bounds.
-            projection: A callable class that projects coordinates from geographical
-                coordinates (longitude and latitude). Defaults to equirectangular
-                projection (EPSG 32662).
-            **kwargs: Keyword arguments passed to svg.SVG.
+        This includes bounds and ranges in the projection space, and width and height
+        of the SVG file.
         """
-        if projection is None:
-            projection = Equirectangular()
-        self.projection: Projection = projection
-
-        if bounds is None:
-            bounds = (-180, -90, 180, 90)
+        bounds = self.bounds
         if len(bounds) == 2:
-            lon_min, lon_max = bounds
+            lon_min, lon_max = bounds[0], bounds[1]
             lat_min, lat_max = lon_min, lon_max
         else:
             lon_min, lat_min, lon_max, lat_max = bounds
@@ -77,7 +77,7 @@ class MapSVG(svg.SVG):
 
         # pre compute bounds and range in projection
         # bounds
-        bounds_proj = projection(
+        bounds_proj = self.projection(
             np.array([lon_min, lon_max]), np.array([lat_min, lat_max])
         )
         (x_min, x_max), (y_min, y_max) = np.array(bounds_proj)
@@ -93,20 +93,14 @@ class MapSVG(svg.SVG):
         self.range_proj: NDArray[np.float64] = np.array([x_range, y_range])
 
         # compute the width and height depending on what is given
-        if height is None and width is None:
+        if self.height is None and self.width is None:
             raise ValueError("You have to either define the width or height.")
-        elif height is None:
-            height = round((y_range / x_range) * width)
-        elif width is None:
-            width = round((x_range / y_range) * height)
-        assert width is not None and height is not None
-        self.size = np.array([width, height])
-
-        init_kwargs = dict(kwargs)
-        init_kwargs["width"] = width
-        init_kwargs["height"] = height
-        init_kwargs["elements"] = []
-        super().__init__(**init_kwargs)
+        elif self.height is None:
+            self.height = int(round((y_range / x_range) * self.width))
+        elif self.width is None:
+            self.width = int(round((x_range / y_range) * self.height))
+        assert self.width is not None and self.height is not None
+        self.size = np.array([self.width, self.height])
 
     def as_str(self) -> str:
         """Get a string SVG representation of the canvas.
