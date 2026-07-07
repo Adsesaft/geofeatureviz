@@ -110,3 +110,32 @@ class ElevationColormap(mplc.ListedColormap):
         if values.ndim == 0:
             return hex_colors[0]
         return np.reshape(hex_colors, values.shape)
+
+
+def get_elevation_cmap(topo_type: str = "land") -> ElevationColormap:
+    """Get the colormap for elevations from the defined style.
+
+    Args:
+        topo_type: The topography type for which to get the colormap. Can be either
+            "land" or "water". Default is "land".
+
+    Returns:
+        The elevation colormap for the specified topography type.
+    """
+    topo_colors = get_topo_colors()[topo_type]
+    # sort and remove lower than sea level
+    colors_above = []
+    colors_below = []
+    color_sea_level = ""
+    for level, color in sorted(topo_colors.items()):
+        if level < 0:
+            colors_below.append(color)
+        elif level > 0:
+            colors_above.append(color)
+        else:
+            color_sea_level = color
+    return ElevationColormap(
+        colors_below=colors_below,
+        color_sea_level=color_sea_level,
+        colors_above=colors_above,
+    )
