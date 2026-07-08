@@ -740,6 +740,7 @@ class DiagonalStripedPattern(svg.Pattern):
             ]
 
 
+@dataclass
 class Group(svg.G):
     """Provide an SVG-element for groups with additional arguments.
 
@@ -748,30 +749,10 @@ class Group(svg.G):
     define these arguments in groups. Therefore, I created this class, with the only
     purpose to add additional arguments.
 
-    Attributes:
-        stroke_linejoin: How points of a line are joined.
-        stroke_linecap: How lines are ended.
+    Args:
+        stroke_linejoin: How points of a line are joined. Defaults to None.
+        stroke_linecap: How lines are ended. Defaults to None.
     """
 
-    def __init__(
-        self,
-        stroke_linejoin: Literal["butt", "round", "square", "inherit"] | None = None,
-        stroke_linecap: Literal["butt", "round", "square", "inherit"] | None = None,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize an SVG-group with some additional arguments.
-
-        Args:
-            stroke_linejoin: How points of a line are joined. Defaults to None.
-            stroke_linecap: How lines are ended. Defaults to None.
-            **kwargs: Keyword arguments passed to the constructor of the parent class.
-
-        """
-        # initialize the parent class with all args/kwargs
-        super().__init__(**kwargs)
-
-        # assign the new attribute
-        if stroke_linejoin is not None:
-            self.stroke_linejoin = stroke_linejoin
-        if stroke_linecap is not None:
-            self.stroke_linecap = stroke_linecap
+    stroke_linejoin: Literal["butt", "round", "square", "inherit"] | None = None
+    stroke_linecap: Literal["butt", "round", "square", "inherit"] | None = None
