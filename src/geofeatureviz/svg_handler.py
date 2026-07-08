@@ -101,7 +101,6 @@ class MapSVG(svg.SVG):
         elif self.width is None:
             self.width = int(round((x_range / y_range) * self.height))
         assert self.width is not None and self.height is not None
-        self.size = np.array([self.width, self.height])
 
     def as_str(self) -> str:
         """Get a string SVG representation of the canvas.
@@ -167,12 +166,11 @@ class MapSVG(svg.SVG):
         """
         if color is None:
             color = map_style.COLORS["background"]
-        width, height = self.size
         background = svg.Rect(
             x=0,
             y=0,
-            width=width,
-            height=height,
+            width=self.width,
+            height=self.height,
             fill=color,
             id="background",
         )
@@ -445,6 +443,13 @@ class OrthoMapSVG(MapSVG):
         elif self.height is not None:
             self.width = self.height
 
+        assert self.width is not None
+        if isinstance(self.width, Length):
+            diameter = self.width.value
+        else:
+            diameter = self.width
+        self.radius: float = float(diameter) / 2
+
         projection = Orthographic(center=self.center)
         self.projection = projection
         world_radius = projection.world_radius
@@ -616,7 +621,7 @@ class OrthoMapSVG(MapSVG):
 
     def add_sea(self) -> None:
         """Add a blue circle as background for the sea."""
-        radius = self.size[0] / 2
+        radius = self.radius
         self.add(
             svg.Circle(
                 id="sea",
@@ -636,7 +641,7 @@ class OrthoMapSVG(MapSVG):
         grad_id = f"{identifier}Grad"
         self.add_def(RadialShadowGrad(id=grad_id))
 
-        radius = self.size[0] / 2
+        radius = self.radius
         self.add(
             svg.Circle(
                 cx=radius,
