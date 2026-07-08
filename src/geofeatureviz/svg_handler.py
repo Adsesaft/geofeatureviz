@@ -691,54 +691,53 @@ class RadialShadowGrad(svg.RadialGradient):
             ]
 
 
+@dataclass
 class DiagonalStripedPattern(svg.Pattern):
     """Provide a diagonal striped pattern for SVG elements.
 
     This is mainly a wrapper for svg.Pattern that sets some default attributes
     of the parent class.
+
+    Args:
+        stripe_colors: The two colors that alternate in the striped pattern. Defaults to
+            black and white.
+        stripe_width: The width of the alternating stripes. Defaults to (1, 1).
+        stripe_height: The height of the alternating stripes. Defaults to 8.
+        patternTransform: Transformation of the pattern. Defaults to a 45° rotation.
+        patternUnits: Units of the pattern. Defaults to "userSpaceOnUse".
+        elements: Elements of the pattern. Defaults to two rectangles with the
+            given colors.
     """
 
-    def __init__(
-        self,
-        color: tuple[str, str] = ("black", "white"),
-        width: tuple[int, int] = (1, 1),
-        height: int = 8,
-        patternTransform: Optional[list[svg.Transform]] = None,
-        patternUnits: Optional[
-            Literal["userSpaceOnUse", "objectBoundingBox"]
-        ] = "userSpaceOnUse",
-        elements: Optional[list[svg.Element]] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize a diagonally striped pattern.
+    stripe_colors: tuple[str, str] = ("black", "white")
+    stripe_width: tuple[int, int] = (1, 1)
+    stripe_height: int = 8
+    patternTransform: Optional[list[svg.Transform]] = None
+    patternUnits: Optional[Literal["userSpaceOnUse", "objectBoundingBox"]] = (
+        "userSpaceOnUse"
+    )
+    elements: Optional[list[svg.Element]] = None
 
-        Args:
-            color: The two colors that alternate in the striped pattern. Defaults to
-                black and white.
-            width: The width of the alternating stripes. Defaults to (1, 1).
-            height: The width of the alternating stripes. Defaults to 8.
-            patternTransform: Transformation of the pattern. Defaults to a 45° rotation.
-            patternUnits: Units of the pattern. Defaults to "userSpaceOnUse".
-            elements: Elements of the pattern. Defaults to two rectangles with the
-                given colors.
-            **kwargs: Keyword arguments passed to the constructor of the parent class.
-        """
-        if patternTransform is None:
-            patternTransform = [svg.Rotate(45)]
-        max_width = sum(width)
-        if elements is None:
-            elements = [
-                svg.Rect(width=max_width, height=8, fill=color[1]),  # background
-                svg.Rect(width=width[0], height=8, fill=color[0]),
+    def __post_init__(self) -> None:
+        """Initialize a diagonally striped pattern."""
+        if self.patternTransform is None:
+            self.patternTransform = [svg.Rotate(45)]
+        max_width = sum(self.stripe_width)
+        self.width = max_width
+        self.height = self.stripe_height
+        if self.elements is None:
+            self.elements = [
+                svg.Rect(
+                    width=max_width,
+                    height=self.stripe_height,
+                    fill=self.stripe_colors[1],
+                ),  # background
+                svg.Rect(
+                    width=self.stripe_width[0],
+                    height=self.stripe_height,
+                    fill=self.stripe_colors[0],
+                ),
             ]
-        super().__init__(
-            width=max_width,
-            height=height,
-            patternTransform=patternTransform,
-            patternUnits=patternUnits,
-            elements=elements,
-            **kwargs,
-        )
 
 
 class Group(svg.G):
