@@ -16,6 +16,7 @@ from shapely.affinity import translate
 from shapely.coords import CoordinateSequence
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
+from svg._types import Length, Number
 
 from geofeatureviz import map_style
 from geofeatureviz.projections import Equirectangular, Orthographic, Projection
@@ -648,39 +649,41 @@ class OrthoMapSVG(MapSVG):
         )
 
 
+@dataclass
 class RadialShadowGrad(svg.RadialGradient):
     """Provide a radial shadow gradient for SVG.
 
     This is mainly a wrapper for svg.RadialGradient that sets some default attributes
-    of the parent class.
+    of the parent class, especially a black opaque radial gradient, with the opacity
+    becoming higher towards the edges following a Lambertian reflectance.
+
+    Args:
+        n_colors: Number of colors in the gradient. Default is 10.
     """
 
-    def __init__(
-        self,
-        n_colors: int = 10,
-        cx: float = 0.5,
-        cy: float = 0.5,
-        r: float = 0.5,
-        fx: float = 0.5,
-        fy: float = 0.5,
-        elements: Optional[list[svg.Element]] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Initialize a radial gradient for a globe shadow.
+    # set different defaults compared to parent class
+    element_name = "radialGradient"
+    cx: Length | Number | None = 0.5
+    cy: Length | Number | None = 0.5
+    r: Length | Number | None = 0.5
+    fr: Length | Number | None = None
+    fx: Length | Number | None = 0.5
+    fy: Length | Number | None = 0.5
 
-        This is a black opaque radial gradient, with the opacity becoming higher towards
-        the edges following a Lambertian reflectance.
-        """
-        if elements is None:
-            offsets = np.round(np.linspace(0, 1, n_colors), 3)
+    elements: list[svg.Element] | None = None
+
+    n_colors: int = 10
+
+    def __post_init__(self) -> None:
+        """Precompute the elements of the radial shadow gradient with the Lambertian."""
+        if self.elements is None:
+            offsets = np.round(np.linspace(0, 1, self.n_colors), 3)
             lambertian = 1 - np.sqrt(1 - offsets**2)
 
-            elements = [
+            self.elements = [
                 svg.Stop(offset=off, stop_opacity=op, stop_color="black")
                 for off, op in zip(offsets, lambertian)
             ]
-
-        super().__init__(cx=cx, cy=cy, r=r, fx=fx, fy=fy, elements=elements, **kwargs)
 
 
 class DiagonalStripedPattern(svg.Pattern):
