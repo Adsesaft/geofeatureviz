@@ -409,8 +409,18 @@ class MapSVG(svg.SVG):
         return deepcopy(self)
 
 
+@dataclass
 class OrthoMapSVG(MapSVG):
     """Provide an SVG canvas for maps with an orthographic projection.
+
+    Args:
+        center: Center of the orthographic projection as (longitude, latitude).
+            Default is (0, 0).
+        width: Width of the SVG-file in pixels. If None is given, the width is
+            equal to the height. Either width or height have to be given. If the
+            width is given, the height parameter is irrelevant.
+        height: Height of the SVG-file in pixels. If None is given, the height is
+            equal to the width. Either width or height have to be given.
 
     Attributes:
         center: Center of the orthographic projection as (longitude, latitude).
@@ -423,43 +433,26 @@ class OrthoMapSVG(MapSVG):
             longitude/latitude.
     """
 
-    def __init__(
-        self,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        center: tuple[float, float] = (0, 0),
-        **kwargs: Any,
-    ):
-        """Provide an interface to create SVG with an orthographically projected map.
+    center: tuple[float, float] = (0, 0)
 
-        Args:
-            width: Width of the SVG-file in pixels. If None is given, the width is
-                equal to the height. Either width or height have to be given. If the
-                width is given, the height parameter is irrelevant.
-            height: Height of the SVG-file in pixels. If None is given, the height is
-                equal to the width. Either width or height have to be given.
-            center: Center of the orthographic projection as (longitude, latitude).
-                Defaults to (0, 0).
-            **kwargs: Keyword arguments passed to the creation of MapSVG.
-        """
-        if width is not None:
-            height = width
-        elif height is not None:
-            width = height
-        self.center = center
-        projection = Orthographic(center=center)
+    def __post_init__(self) -> None:
+        """Provide an interface to create SVG with an orthographically projected map."""
+        if self.height is None and self.width is None:
+            raise ValueError("You have to either define the width or height.")
+        elif self.width is not None:
+            self.height = self.width
+        elif self.height is not None:
+            self.width = self.height
 
-        init_kwargs = dict(kwargs)
-        init_kwargs["bounds"] = (-180, -90, 180, 90)
-        init_kwargs["width"] = width
-        init_kwargs["height"] = height
-        init_kwargs["projection"] = projection
-        super().__init__(**init_kwargs)
+        projection = Orthographic(center=self.center)
+        self.projection = projection
+        world_radius = projection.world_radius
+        self.world_radius = world_radius
+
         # define the bounds manually; due to orthographic projection, the bounds are
         # infinite and defined for a round globe; however, we need them for a linear
         # scaling of the rectangular svg
-        world_radius = projection.world_radius
-        self.world_radius = world_radius
+        self.bounds = (-180, -90, 180, 90)
         self.clipped_scaling = 0.99
         self.bounds_proj = (-world_radius, -world_radius, world_radius, world_radius)
         self.range_proj = np.array([2 * world_radius, 2 * world_radius])
