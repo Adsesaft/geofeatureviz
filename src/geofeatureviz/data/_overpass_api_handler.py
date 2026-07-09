@@ -1,8 +1,8 @@
 import json
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Literal, NotRequired, Optional, TypedDict
+from typing import Any, Literal, NotRequired, Optional, TypedDict
 
 import geopandas as gpd
 import pandas as pd
@@ -65,7 +65,7 @@ class OverpassResponse(TypedDict, total=False):
     """Provide the structure for a response from the Overpass API."""
 
     elements: list[OverpassElement]
-    query: str
+    query: dict[str, Any]
 
 
 @dataclass
@@ -101,14 +101,17 @@ class OverpassAPIHandler:
             saved to as JSON-file. If none is given, the response will not be saved.
     """
 
-    def __init__(self, query: str = "", file_path: Optional[str | Path] = None) -> None:
+    def __init__(
+        self,
+        query: Optional[OverpassQuery] = None,
+        file_path: Optional[str | Path] = None,
+    ) -> None:
         """Set up a handler for doing requests on the Overpass API.
 
         Args:
             query: The query which will be requested from the Overpass API. To create a
                 request, a query is mandatory, but it can also be set using the
-                `create_query` method and is therefore optional. Default is an empty
-                string.
+                `create_query` method and is therefore optional.
             file_path: Optional path to a file location where the requested response is
                 saved to as JSON-file. If none is given, the response will not be saved.
                 Defaults to None.
@@ -121,16 +124,6 @@ class OverpassAPIHandler:
         self.query = query
         self.response_json: OverpassResponse | None = None
 
-    def _strip_query(self) -> str:
-        """Strip a query from trailing whitespaces and remove new lines.
-
-        Returns:
-            The stripped query.
-        """
-        lines = self.query.split("\n")
-        stripped_query = "".join([line.strip() for line in lines])
-        return stripped_query
-
     def _get_response_json(
         self,
     ) -> OverpassResponse:
@@ -139,14 +132,14 @@ class OverpassAPIHandler:
         Returns:
             A dictionary containing the JSON response from the Overpass API.
         """
-        if self.query == "":
+        if self.query is None:
             raise ValueError(
                 "The query is empty. Set a query by either setting the class attribute "
                 "or using `create_query`."
             )
         response = requests.post(
             self.overpass_url,
-            data={"data": self.query},
+            data={"data": str(self.query)},
             headers={"User-Agent": "DataFetcher/1.0"},
         )
         response.raise_for_status()
@@ -163,7 +156,8 @@ class OverpassAPIHandler:
             warnings.warn("No file path provided to save the JSON response.")
         else:
             with self.file_path.open("w", encoding="utf-8") as f:
-                response_json["query"] = self._strip_query()
+                assert self.query is not None
+                response_json["query"] = asdict(self.query)
                 json.dump(response_json, f, indent=2)
 
     def get(self, save: bool = True) -> OverpassResponse:
@@ -183,12 +177,13 @@ class OverpassAPIHandler:
         else:
             with self.file_path.open("r", encoding="utf-8") as f:
                 response_json = json.load(f)
-                if response_json.get("query", None) != self._strip_query():
+                response_query = OverpassQuery(**response_json.get("query", {}))
+                if response_query != self.query:
                     warnings.warn(
                         "The query in the existing file doesn't match the current "
                         "query.\n"
-                        f"{response_json.get('query', None)}\n"
-                        f"{self._strip_query()}\n"
+                        f"{str(response_query)}\n"
+                        f"{str(self.query)}\n"
                         "Consider deleting the existing file to get a new response:\n"
                         f"{self.file_path}."
                     )
@@ -282,10 +277,13 @@ class OverpassAPIHandler:
         """
         return LineString([[g["lon"], g["lat"]] for g in geom_list])
 
-    def create_query(self, query: str, timeout: int = 150, output: str = "body") -> str:
+    def create_query(
+        self, query: str, timeout: int = 150, output: str = "body"
+    ) -> OverpassQuery:
         """Create a query for the overpass API and set the class attribute.
 
-        This function just covers up some of the required syntax of the OSM query
+        This function just covers up the class that is internally used for queries,
+        which is used to simplify some of the required syntax of the OSM query
         language and sets the default beginning and end of a query.
 
         Args:
@@ -298,8 +296,5 @@ class OverpassAPIHandler:
         Returns:
             The created query, which is also set as class attribute.
         """
-        query = f"""[out:json][timeout:{timeout}];
-        {query};
-        out {output};"""
-        self.query = query
-        return query
+        self.query = OverpassQuery(query=query, timeout=timeout, output=output)
+        return self.query
