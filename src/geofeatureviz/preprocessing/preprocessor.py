@@ -5,7 +5,7 @@ import numpy as np
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from geofeatureviz.data import loader
+from geofeatureviz.io import loader
 
 
 def prep_dataset(

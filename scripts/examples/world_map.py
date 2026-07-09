@@ -1,7 +1,7 @@
 """Create a map of the world."""
 
 from geofeatureviz import preprocessor
-from geofeatureviz.data import path_settings
+from geofeatureviz.io import path_settings
 from geofeatureviz.map_style import COLORS
 from geofeatureviz.svg_handler import MapSVG
 

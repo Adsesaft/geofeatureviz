@@ -15,7 +15,7 @@ import yaml
 from matplotlib.typing import ColorType
 from numpy.typing import ArrayLike, NDArray
 
-from geofeatureviz.data.config import path_settings
+from geofeatureviz.io import path_settings
 
 # read config
 CONFIG_PATH = path_settings.data_dir / "map_style.yaml"
