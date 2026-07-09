@@ -45,6 +45,17 @@ python -c "from geofeatureviz import helpers; print(helpers.get_top_directory())
 pip install .
 ```
 
+### Additional Tools
+In addition to Python, external tools are used for specific tasks.
+
+#### SVGO
+With **GeoFeatureViz**, you can create SVG-files as output. These files can be optimized by removing redundant information, metadata, and other things that take up disk space, without an impact on the visual output. One tool to do so is the Node.js library [SVGO](https://github.com/svg/svgo), which can be used as command-line tool. **GeoFeatureViz** works without **SVGO**, but if you want to be able to save optimized SVG-files (with the flag `optimize=True` when saving a canvas), you have to install it by running
+```bash
+npm install -g svgo
+```
+Note: [Node.js](https://nodejs.org/) has to be installed for that, (e.g. with `sudo apt install nodejs npm`).
+
+
 ### Development Setup
 For developers, additional tools (e.g. for linting, testing, etc.) have to be installed. Instead of running `uv sync --no-dev` for installation, developers should run
 ```bash
@@ -145,7 +156,7 @@ canvas.add_background(COLORS["lake"])
 canvas.add_gdf(countries, "Countries", fill=COLORS["land"], stroke=COLORS["border"])
 
 # save the svg file
-canvas.save(path_settings.results_dir / "examples" / "world_map.svg")
+canvas.save(path_settings.results_dir / "examples" / "world_map.svg", optimize=True)
 ```
 Output:
 
