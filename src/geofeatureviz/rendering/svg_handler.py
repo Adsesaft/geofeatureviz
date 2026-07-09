@@ -18,8 +18,8 @@ from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from svg._types import Length, Number
 
+from ..projections import Equirectangular, Orthographic, Projection
 from .map_style import COLORS, STYLES
-from .projections import Equirectangular, Orthographic, Projection
 
 
 @dataclass
