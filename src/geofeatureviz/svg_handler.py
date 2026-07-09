@@ -401,6 +401,10 @@ class MapSVG(svg.SVG):
                     "svgo is not installed or not working. Try installing it, with:\n"
                     "npm install -g svgo"
                 ) from e
+            # add blank new line at file end
+            optimized_text = path.read_text(encoding="utf-8")
+            optimized_text = optimized_text.rstrip("\n") + "\n"
+            path.write_text(optimized_text, encoding="utf-8")
 
     def copy(self) -> MapSVG:
         """Copy this MapSVG instance."""
