@@ -53,6 +53,11 @@ class PathSettings(BaseSettings):
         return self.data_processed_dir / "osm_ids" / "german_mountains_osm_ids.csv"
 
     @property
+    def german_rivers_osm_id_path(self) -> Path:
+        """File path to a CSV-file with OSM-IDs of German rivers."""
+        return self.data_processed_dir / "osm_ids" / "german_rivers_osm_ids.csv"
+
+    @property
     def regional_groups_path(self) -> Path:
         """File path to YAML-file with information about regional groups."""
         return self.data_dir / "regional_groups.yaml"
