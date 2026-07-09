@@ -63,18 +63,12 @@ class MapSVG(svg.SVG):
         This includes bounds and ranges in the projection space, and width and height
         of the SVG file.
         """
-        bounds = self.bounds
-        if len(bounds) == 2:
-            lon_min, lon_max = bounds[0], bounds[1]
+        if len(self.bounds) == 2:
+            lon_min, lon_max = self.bounds[0], self.bounds[1]
             lat_min, lat_max = lon_min, lon_max
         else:
-            lon_min, lat_min, lon_max, lat_max = bounds
-        self.bounds: tuple[float, float, float, float] = (
-            lon_min,
-            lat_min,
-            lon_max,
-            lat_max,
-        )
+            lon_min, lat_min, lon_max, lat_max = self.bounds
+        self.bounds = lon_min, lat_min, lon_max, lat_max
 
         # pre compute bounds and range in projection
         # bounds
