@@ -1,5 +1,6 @@
 import json
 import warnings
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, NotRequired, Optional, TypedDict
 
@@ -65,6 +66,29 @@ class OverpassResponse(TypedDict, total=False):
 
     elements: list[OverpassElement]
     query: str
+
+
+@dataclass
+class OverpassQuery:
+    """Representation of an Overpass query.
+
+    Attributes:
+        query: The Overpass query string.
+        timeout: The timeout for the query in seconds. Default is 150.
+        output: The output format of the query. Default is "body".
+    """
+
+    query: str = ""
+    timeout: int = field(default=150, compare=False)
+    output: str = "body"
+
+    def __str__(self) -> str:
+        """Return the string representation of the Overpass query.
+
+        Returns:
+            The Overpass query string.
+        """
+        return f"[out:json][timeout:{self.timeout}];{self.query};out {self.output};"
 
 
 class OverpassAPIHandler:
