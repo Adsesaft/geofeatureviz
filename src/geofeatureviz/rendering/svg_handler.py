@@ -283,7 +283,7 @@ class MapSVG(svg.SVG):
         ) -> svg.Element:
             """Use determined class and get_coords function to create SVG-element."""
             points = self._transformation(np.array(_get_coords(geom)))
-            return svg_cls(points=list(points.flatten()), id=geom_id, **kwargs)
+            return svg_cls(points=list(points.flatten()), id=geom_id, **kwargs)  # pyright: ignore[reportArgumentType]
 
         # create a group for multipart geometry
         if isinstance(geometry, BaseMultipartGeometry):
