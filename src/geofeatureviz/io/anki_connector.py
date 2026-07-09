@@ -9,7 +9,7 @@ from typing import Generator
 import pandas as pd
 from anki.collection import Collection
 
-from geofeatureviz.io import path_settings
+from .config import path_settings
 
 
 @contextmanager
