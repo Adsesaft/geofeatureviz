@@ -385,15 +385,22 @@ class MapSVG(svg.SVG):
         path = Path(file_path)
         path.write_text(self_str, encoding="utf-8")
         if optimize:
-            # optimize saved svg
-            subprocess.run(
-                [
-                    "svgo",
-                    str(path),
-                    "-o",
-                    str(path),
-                ]
-            )
+            try:
+                # optimize saved svg
+                subprocess.run(
+                    [
+                        "svgo",
+                        str(path),
+                        "-o",
+                        str(path),
+                    ],
+                    check=True,
+                )
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                raise RuntimeError(
+                    "svgo is not installed or not working. Try installing it, with:\n"
+                    "npm install -g svgo"
+                ) from e
 
     def copy(self) -> MapSVG:
         """Copy this MapSVG instance."""
