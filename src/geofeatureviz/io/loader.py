@@ -6,7 +6,8 @@ import geopandas as gpd
 import pandas as pd
 import yaml
 
-from geofeatureviz.io import datasets, path_settings
+from . import datasets
+from .config import path_settings
 
 
 def load_dataset(

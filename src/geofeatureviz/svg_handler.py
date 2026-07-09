@@ -18,8 +18,8 @@ from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from svg._types import Length, Number
 
-from geofeatureviz import map_style
-from geofeatureviz.projections import Equirectangular, Orthographic, Projection
+from .map_style import COLORS, STYLES
+from .projections import Equirectangular, Orthographic, Projection
 
 
 @dataclass
@@ -159,7 +159,7 @@ class MapSVG(svg.SVG):
             color: Background color. Defaults to the background color defined in COLORS.
         """
         if color is None:
-            color = map_style.COLORS["background"]
+            color = COLORS["background"]
         background = svg.Rect(
             x=0,
             y=0,
@@ -633,7 +633,7 @@ class OrthoMapSVG(MapSVG):
                 cx=radius,
                 cy=radius,
                 r=radius * self.clipped_scaling,
-                **map_style.STYLES["sea"],
+                **STYLES["sea"],
             )
         )
 
