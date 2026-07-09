@@ -50,10 +50,10 @@ def create_polygons(line: BaseGeometry) -> Polygon | MultiPolygon:
 
 
 if __name__ == "__main__":
-    osm_id_df = pd.read_csv(path_settings.german_mountain_osm_id_path, index_col=0)
+    osm_id_df = pd.read_csv(path_settings.german_mountains_osm_id_path, index_col=0)
 
     mountain_ids_str = ";".join(
-        [f"{row.osm_type}({row.id})" for row in osm_id_df.itertuples()]
+        [f"{row.osm_type}({row.osm_id})" for row in osm_id_df.itertuples()]
     )
     mountain_ids_query = f"({mountain_ids_str};)"
 
