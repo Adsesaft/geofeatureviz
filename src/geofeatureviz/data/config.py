@@ -48,7 +48,7 @@ class PathSettings(BaseSettings):
         return self.project_root / "results"
 
     @property
-    def german_mountain_osm_id_path(self) -> Path:
+    def german_mountains_osm_id_path(self) -> Path:
         """File path to a CSV-file with OSM-IDs of German mountain ranges."""
         return self.data_processed_dir / "osm_ids" / "german_mountains_osm_ids.csv"
 
