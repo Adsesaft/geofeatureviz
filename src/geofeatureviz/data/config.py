@@ -27,6 +27,11 @@ class PathSettings(BaseSettings):
     anki_dir: Path | None = None
     anki_copy_dir: Path | None = None
 
+    anki_river_deck: str = ""
+    anki_river_note_type: str = ""
+    anki_mountain_deck: str = ""
+    anki_mountain_note_type: str = ""
+
     @property
     def data_dir(self) -> Path:
         """Base directory for all data files."""
