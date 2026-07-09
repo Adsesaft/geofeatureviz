@@ -3,7 +3,7 @@
 __version__ = "0.1.0"
 
 from . import data, helpers, map_style, projections, svg_handler
-from .data import preprocessor
+from .preprocessing import preprocessor, river_preprocessor
 
 __all__ = [
     "data",
@@ -11,5 +11,6 @@ __all__ = [
     "map_style",
     "preprocessor",
     "projections",
+    "river_preprocessor",
     "svg_handler",
 ]

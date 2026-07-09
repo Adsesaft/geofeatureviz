@@ -132,8 +132,8 @@ class RiverCleanConfig:
             geom = member_gdf.loc[member_id, "geometry"]
             assert isinstance(geom, LineString)
             coords = list(geom.coords)
-            idx = self._get_idx_to_delete(idx, len(coords))
-            new_coords = np.delete(coords, idx, axis=0)
+            del_idx = self._get_idx_to_delete(idx, len(coords))
+            new_coords = np.delete(coords, del_idx, axis=0)
             member_gdf.loc[member_id, "geometry"] = LineString(new_coords)
         member_gdf = member_gdf[~member_gdf["geometry"].is_empty]
 
