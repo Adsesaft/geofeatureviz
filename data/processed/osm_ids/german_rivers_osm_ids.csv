@@ -1,0 +1,31 @@
+,name,osm_id,osm_name,osm_type
+0,Aller,123707,Aller,relation
+1,Altmühl,387859,Altmühl,relation
+2,Donau,89652,Danube,relation
+3,Eger,1736630,Ohře,relation
+4,Elbe,123822,Elbe,relation
+5,Elde,408018,Elde,relation
+6,Ems,370068,Ems,relation
+7,Fulda,390374,Fulda,relation
+8,Havel,390306,Havel,relation
+9,Inn,406437,Inn,relation
+10,Isar,273028,Isar,relation
+11,Kocher,406494,Kocher,relation
+12,Lahn,412935,Lahn,relation
+13,Lech,406547,Lech,relation
+14,Leine,123688,Leine,relation
+15,Lippe,379691,Lippe,relation
+16,Main,412876,Main,relation
+17,Mosel,390416,La Moselle,relation
+18,Mulde,387651,Mulde,relation
+19,Neckar,123881,Neckar,relation
+20,Oder,387605,Odra,relation
+21,Rhein,123924,Rhein,relation
+22,Ruhr,364754,Ruhr,relation
+23,Saale,387502,Saale,relation
+24,Saar,390393,La Sarre,relation
+25,Salzach,408582,Salzach,relation
+26,Spree,390274,Spree,relation
+27,Weiße Elster,387339,Weiße Elster,relation
+28,Werra,390379,Werra,relation
+29,Weser,123751,Weser,relation
