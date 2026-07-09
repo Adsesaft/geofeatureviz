@@ -12,7 +12,7 @@ from shapely import LineString, MultiLineString, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, unary_union
 
-from geofeatureviz.data import OverpassAPIHandler, path_settings
+from geofeatureviz.io import OverpassAPIHandler, path_settings
 
 FILE_PATH = path_settings.data_processed_dir / "osm_10m_mountains_germany.geojson"
 
