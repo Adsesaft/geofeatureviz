@@ -135,8 +135,7 @@ A scalable vector graphic has many advantages over normal image files like JPG o
 ```python
 from geofeatureviz import preprocessor
 from geofeatureviz.io import path_settings
-from geofeatureviz.map_style import COLORS
-from geofeatureviz.svg_handler import MapSVG
+from geofeatureviz.rendering import COLORS, MapSVG
 
 # load preprocessed countries and simplify the geometries
 countries = preprocessor.prep_dataset(
