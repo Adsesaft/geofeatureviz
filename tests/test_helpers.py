@@ -1,6 +1,6 @@
 """Provide tests for helpers.py."""
 
-from geofeatureviz import helpers
+from geofeatureviz.io import helpers
 
 
 def test_get_top_directory() -> None:

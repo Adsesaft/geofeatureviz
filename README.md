@@ -31,13 +31,13 @@ uv sync --no-dev
 
 This installs the package and all dependencies (which are defined in [pyproject.toml](pyproject.toml)) into a new virtual environment (*.venv*). To use this environment and **GeoFeatureViz**, you can either conveniently use **uv**, e.g.:
 ```bash
-uv run python -c "from geofeatureviz import helpers; print(helpers.get_top_directory())"
+uv run python -c "from geofeatureviz.io import helpers; print(helpers.get_top_directory())"
 ```
 
 or first activate the environment and then run a command, e.g.:
 ```bash
 source .venv/bin/activate
-python -c "from geofeatureviz import helpers; print(helpers.get_top_directory())"
+python -c "from geofeatureviz.io import helpers; print(helpers.get_top_directory())"
 ```
 
 **Note:** Alternatively to **uv**, you can use **pip** for installation. Again, navigate into the project directory, make sure that you use the **pip** in the environment you want to use, and run:
@@ -105,7 +105,7 @@ Since datasets can become very large, they are generally not part of this reposi
 You can use **GeoFeatureViz** to conveniently load these dataset. They will be returned as a [GeoPandas](https://geopandas.org/en/stable/) `GeoDataFrame`, having a lot of functionality for geographical data (e.g. here a simple plot with Matplotlib).
 
 ```python
-from geofeatureviz.data import loader
+from geofeatureviz.io import loader
 
 countries_raw = loader.load_dataset(
     feature="country",
@@ -134,7 +134,7 @@ A scalable vector graphic has many advantages over normal image files like JPG o
 
 ```python
 from geofeatureviz import preprocessor
-from geofeatureviz.data import path_settings
+from geofeatureviz.io import path_settings
 from geofeatureviz.map_style import COLORS
 from geofeatureviz.svg_handler import MapSVG
 
