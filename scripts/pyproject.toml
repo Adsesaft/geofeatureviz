@@ -1,0 +1,18 @@
+[project]
+name = "geofeatureviz-scripts"
+version = "0.1.0"
+description = "Data- and user-specific utils to run scripts and notebooks using geofeatureviz."
+requires-python = ">=3.14"
+dependencies = [
+    "geofeatureviz",
+]
+
+[tool.uv.sources]
+geofeatureviz = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/geofeatureviz_scripts"]
