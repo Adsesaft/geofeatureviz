@@ -1,7 +1,7 @@
 [project]
 name = "geofeatureviz"
 version = "0.1.0"
-description = "A template for Python projects created by Adrian Kühn."
+description = "A Python library for visualizing geographical features such as countries, rivers, or mountains."
 authors = [
     {name = "akuehn",email = "adrian-kuehn@posteo.de"}
 ]
