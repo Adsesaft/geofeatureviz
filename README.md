@@ -12,7 +12,9 @@ Since I mainly use it to create Wikipedia-style geographical maps of features th
 - Connect to a local Anki collection
 
 ## Setup
-All source code is written in Python, the running scripts are either Python scripts or Jupyter notebooks. For usage, you have to install the package from source.
+All source code is written in Python. For usage, you have to install the package from source.
+
+Executable scripts are either Python scripts or Jupyter notebooks. For a better separation from the core library, I created a sub-package called **geofeatureviz-scripts** that provides utils that are only used for execution (e.g., loading data), which will be explained later.
 
 ### Installation
 First, clone the repository and navigating into the project:
@@ -44,6 +46,12 @@ python -c "from geofeatureviz.io import helpers; print(helpers.get_top_directory
 ```bash
 pip install .
 ```
+
+If you want to run the scripts for creating maps provided in this project, you additionally have to install **geofeatureviz-scripts**, which I recommend to do. The installation is managed using **uv**, defining it as a member of the main package and providing an additional *pyproject.toml* inside the scripts folder. For installation, from the project root, simply run:
+```bash
+uv sync --all-packages
+```
+This installs *geofeatureviz-scripts* into the same virtual environment, so that you can import it with `import geofeatureviz_scripts`.
 
 ### Additional Tools
 In addition to Python, external tools are used for specific tasks.
