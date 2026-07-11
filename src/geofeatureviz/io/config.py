@@ -53,6 +53,11 @@ class PathSettings(BaseSettings):
         return self.project_root / "results"
 
     @property
+    def resources_dir(self) -> Path:
+        """Directory for project runtime resources like configs."""
+        return self.project_root / "src" / "geofeatureviz" / "resources"
+
+    @property
     def german_mountains_osm_id_path(self) -> Path:
         """File path to a CSV-file with OSM-IDs of German mountain ranges."""
         return self.data_processed_dir / "osm_ids" / "german_mountains_osm_ids.csv"
