@@ -10,6 +10,12 @@ resolution-markers = [
     "python_full_version < '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
+[manifest]
+members = [
+    "geofeatureviz",
+    "geofeatureviz-scripts",
+]
+
 [[package]]
 name = "affine"
 version = "2.4.0"
@@ -578,6 +584,17 @@ dev = [
     { name = "types-pyyaml", specifier = ">=6.0.12.20260518" },
     { name = "types-shapely", specifier = ">=2.1.0.20260518" },
 ]
+
+[[package]]
+name = "geofeatureviz-scripts"
+version = "0.1.0"
+source = { editable = "scripts" }
+dependencies = [
+    { name = "geofeatureviz" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "geofeatureviz", editable = "." }]
 
 [[package]]
 name = "geopandas"
