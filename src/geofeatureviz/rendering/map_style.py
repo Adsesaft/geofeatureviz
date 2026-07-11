@@ -18,7 +18,7 @@ from numpy.typing import ArrayLike, NDArray
 from ..io.config import path_settings
 
 # read config
-CONFIG_PATH = path_settings.data_dir / "map_style.yaml"
+CONFIG_PATH = path_settings.resources_dir / "map_style.yaml"
 with CONFIG_PATH.open() as f:
     config = yaml.safe_load(f)
 
