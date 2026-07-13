@@ -4,7 +4,7 @@ import geopandas as gpd
 
 from geofeatureviz.preprocessing import preprocessor
 
-from . import datasets
+from . import _datasets
 
 
 def load_and_prep_data(
@@ -67,6 +67,6 @@ def load_dataset(
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
     """
-    dataset_key = datasets.DatasetKey(feature, source, resolution)
-    file_path = datasets.get_dataset_filepath(dataset_key)
+    dataset_key = _datasets.DatasetKey(feature, source, resolution)
+    file_path = _datasets.get_dataset_filepath(dataset_key)
     return gpd.read_file(file_path)
