@@ -5,24 +5,16 @@ import numpy as np
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 
-from ..io import loader
-
 
 def prep_dataset(
-    feature: str,
-    source: str = "ne",
-    resolution: int = 10,
+    gdf: gpd.GeoDataFrame,
     identifier: str = "name",
     projection: int = 4326,
 ) -> gpd.GeoDataFrame:
     """Preprocess a dataset of geographical features.
 
-    All available data sets can be found in the datasets module.
-
     Args:
-        feature: Kind of geographical feature, e.g. "country" or "river".
-        source: Data source, e.g. "ne" for NaturalEarth. Defaults to "ne".
-        resolution: Resolution of the geographical data. Defaults to 10.
+        gdf: The dataset to preprocess as a GeoPandas GeoDataFrame.
         identifier: There should be a unique identifier for each row in the
             GeoDataFrame. The identifier should be based on an existing column in the
             GeoDataFrame, e.g. the country name. The identifier-parameter determines
@@ -40,7 +32,6 @@ def prep_dataset(
     Returns:
         A GeoPandas DataFrame with the requested geographical data.
     """
-    gdf = loader.load_dataset(feature, source, resolution)
     gdf = clean_gdf(gdf)
     gdf = gdf.to_crs(epsg=projection)
 
