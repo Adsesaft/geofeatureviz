@@ -2,8 +2,10 @@
 
 import geopandas as gpd
 
-from geofeatureviz.io import datasets, path_settings
+from geofeatureviz.io import path_settings
 from geofeatureviz.preprocessing import preprocessor
+
+from . import datasets
 
 
 def load_and_prep_data(
