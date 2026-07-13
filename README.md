@@ -127,9 +127,9 @@ countries_raw.plot()
 **GeoFeatureViz** offers functions to preprocess the datasets, especially for later visualization and export as SVG file. For example, you can directly obtain a clean dataset that can later be used more conveniently in the visualization functions by running:
 
 ```python
-from geofeatureviz import preprocessor
+from geofeatureviz_scripts import loader
 
-countries = preprocessor.prep_dataset(
+countries = loader.load_and_prep_data(
     feature="country",
     source="ne",
     resolution=110
@@ -141,12 +141,12 @@ countries.plot()
 A scalable vector graphic has many advantages over normal image files like JPG or PNG when visualizing geographical maps. Instead of saving pixel color values, the location of shapes (vectors) on a canvas are saved, which can then be rendered to have a high quality image, which is resizable without any loss of quality. **GeoFeatureViz** offers the functionality to create maps as such scalable vector graphics, based on [svg.py](https://github.com/orsinium-labs/svg.py).
 
 ```python
-from geofeatureviz import preprocessor
+from geofeatureviz_scripts import loader
 from geofeatureviz.io import path_settings
 from geofeatureviz.rendering import COLORS, MapSVG
 
 # load preprocessed countries and simplify the geometries
-countries = preprocessor.prep_dataset(
+countries = loader.load_and_prep_data(
     feature="country",
     source="ne",
     resolution=110,
