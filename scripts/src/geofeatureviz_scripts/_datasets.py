@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from geofeatureviz.io import path_settings
+from .path_settings import path_settings
 
 
 @dataclass(frozen=True)
