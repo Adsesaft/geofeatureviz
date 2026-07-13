@@ -2,7 +2,6 @@
 
 import geopandas as gpd
 
-from geofeatureviz.io import path_settings
 from geofeatureviz.preprocessing import preprocessor
 
 from . import datasets
@@ -69,13 +68,5 @@ def load_dataset(
         A GeoPandas DataFrame with the requested geographical data.
     """
     dataset_key = datasets.DatasetKey(feature, source, resolution)
-    file_name = datasets.get_dataset_filename(dataset_key)
-    file_path = path_settings.data_processed_dir / file_name
-    if not file_path.exists():
-        file_path = path_settings.data_raw_dir / file_name
-    if not file_path.exists():
-        raise FileNotFoundError(
-            f"The dataset with key {dataset_key} is saved in the registry, but the "
-            "dataset file could not be found in the files."
-        )
+    file_path = datasets.get_dataset_filepath(dataset_key)
     return gpd.read_file(file_path)

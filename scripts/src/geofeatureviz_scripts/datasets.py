@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from geofeatureviz.io import path_settings
+
 
 @dataclass(frozen=True)
 class DatasetKey:
@@ -19,7 +21,7 @@ class DatasetKey:
     resolution: int
 
 
-DATA_FILES: dict[DatasetKey, str] = {
+DATASET_REGISTRY: dict[DatasetKey, str] = {
     DatasetKey("country", "ne", 10): "ne_10m_admin_0_countries.zip",
     DatasetKey("country", "ne", 110): "ne_110m_admin_0_countries.zip",
     DatasetKey("state", "ne", 10): "ne_10m_admin_1_states_provinces.zip",
@@ -30,7 +32,7 @@ DATA_FILES: dict[DatasetKey, str] = {
 }
 
 
-def get_dataset_filename(key: DatasetKey) -> Path:
+def get_dataset_filepath(key: DatasetKey) -> Path:
     """Get the file path to the data file from the feature kind, source, and resolution.
 
     Args:
@@ -43,11 +45,21 @@ def get_dataset_filename(key: DatasetKey) -> Path:
         ValueError: If no data file is found for the given parameters.
 
     Returns:
-        The file name to the requested data.
+        The file path to the requested data.
     """
-    file_name = DATA_FILES.get(key, None)
+    file_name = DATASET_REGISTRY.get(key, None)
     if file_name is None:
         raise ValueError(
-            f"No data file found for {key}. Possible Values are:\n{DATA_FILES}"
+            f"No data file found for {key}. Possible Values are:\n{DATASET_REGISTRY}"
         )
-    return Path(DATA_FILES[key])
+
+    # search for file first in processed then in raw data directory
+    file_path = path_settings.data_processed_dir / file_name
+    if not file_path.exists():
+        file_path = path_settings.data_raw_dir / file_name
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"The dataset with key {key} is saved in the registry, but the "
+            "dataset file could not be found in the files."
+        )
+    return file_path
