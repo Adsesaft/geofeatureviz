@@ -1,11 +1,11 @@
 """Create a map of the world."""
 
-from geofeatureviz import preprocessor
 from geofeatureviz.io import path_settings
 from geofeatureviz.rendering import COLORS, MapSVG
+from geofeatureviz_scripts import loader
 
 # load preprocessed countries and simplify the geometries
-countries = preprocessor.prep_dataset(
+countries = loader.load_and_prep_data(
     feature="country",
     source="ne",
     resolution=110,
