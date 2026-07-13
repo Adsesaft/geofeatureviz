@@ -55,6 +55,9 @@ ignore_missing_imports = true
 [tool.ruff.lint]
 extend-select = ["I", "D"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["geofeatureviz", "geofeatureviz_scripts"]
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
