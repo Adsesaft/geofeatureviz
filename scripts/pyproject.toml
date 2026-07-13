@@ -6,6 +6,7 @@ requires-python = ">=3.14"
 dependencies = [
     "geofeatureviz",
     "geopandas>=1.1.3",
+    "pydantic-settings>=2.14.1",
 ]
 
 [tool.uv.sources]
