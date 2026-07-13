@@ -5,6 +5,7 @@ description = "Data- and user-specific utils to run scripts and notebooks using 
 requires-python = ">=3.14"
 dependencies = [
     "geofeatureviz",
+    "geopandas>=1.1.3",
 ]
 
 [tool.uv.sources]
