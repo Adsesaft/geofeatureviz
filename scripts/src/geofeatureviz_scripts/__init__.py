@@ -6,3 +6,9 @@ not integrate things like loading data, using jupyter notebooks, or using data-s
 configurations. The idea of this sub-project is to provide these kind of things, to
 separate the core library from data- and user-specific script-utils.
 """
+
+from . import loader
+
+__all__ = ["loader"]
+# from .path_settings import path_settings
+# __all__ = ["loader", "path_settings"]
