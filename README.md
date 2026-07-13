@@ -113,7 +113,7 @@ Since datasets can become very large, they are generally not part of this reposi
 You can use **GeoFeatureViz** to conveniently load these dataset. They will be returned as a [GeoPandas](https://geopandas.org/en/stable/) `GeoDataFrame`, having a lot of functionality for geographical data (e.g. here a simple plot with Matplotlib).
 
 ```python
-from geofeatureviz.io import loader
+from geofeatureviz_scripts import loader
 
 countries_raw = loader.load_dataset(
     feature="country",
