@@ -55,5 +55,10 @@ class _PathSettings(BaseSettings):
         """Directory for results."""
         return self.project_root / "results"
 
+    @property
+    def country_translation(self) -> Path:
+        """File path to CSV-file containing country translations."""
+        return self.data_reference_dir / "country_translations.csv"
+
 
 path_settings = _PathSettings()

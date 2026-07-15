@@ -2,24 +2,9 @@
 
 from typing import TypedDict, cast
 
-import pandas as pd
 import yaml
 
 from .config import path_settings
-
-
-def load_country_translations() -> pd.DataFrame:
-    """Get a dataframe containing translations of countries.
-
-    Returns:
-        A DataFrame currently containing 3 columns:
-        - code: The ISO 3166 alpha 3 country code (3 letter unique country id)
-        - german: The German name of the country (consistent with Anki Ultimate
-                  Geography, which is consistent with German Wikipedia.)
-        - english: The English name of the country (I didn't investigate further).
-    """
-    df = pd.read_csv(path_settings.country_translation_path)
-    return df
 
 
 class Region(TypedDict):

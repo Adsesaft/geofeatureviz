@@ -78,11 +78,6 @@ class PathSettings(BaseSettings):
         return self.data_reference_dir / "regional_groups.yaml"
 
     @property
-    def country_translation_path(self) -> Path:
-        """File path to CSV-file containing country translations."""
-        return self.data_reference_dir / "country_translations.csv"
-
-    @property
     def anki_collection_path(self) -> Path:
         """File path to the local Anki collection database.
 
