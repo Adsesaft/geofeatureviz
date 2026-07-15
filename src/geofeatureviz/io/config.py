@@ -80,7 +80,7 @@ class PathSettings(BaseSettings):
     @property
     def country_translation_path(self) -> Path:
         """File path to CSV-file containing country translations."""
-        return self.resources_dir / "country_translations.csv"
+        return self.data_reference_dir / "country_translations.csv"
 
     @property
     def anki_collection_path(self) -> Path:
