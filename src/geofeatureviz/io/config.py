@@ -2,9 +2,23 @@
 
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from . import helpers
+
+def _get_project_root() -> Path:
+    """Find the path to the project's top-level directory.
+
+    Returns:
+        The path to the top-level directory.
+    """
+    # use the relative location of this file
+    top_path = Path(__file__).parents[3].resolve()
+    # check that we're in the top directory
+    if (top_path / "tests").exists() and (top_path / "src").exists():
+        return top_path
+    else:
+        raise ValueError(f"Couldn't find correct project directory; found {top_path}.")
 
 
 class PathSettings(BaseSettings):
@@ -22,7 +36,7 @@ class PathSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    project_root: Path = helpers.get_top_directory()
+    project_root: Path = Field(default_factory=_get_project_root)
 
     anki_dir: Path | None = None
     anki_copy_dir: Path | None = None
