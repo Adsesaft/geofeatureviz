@@ -12,48 +12,11 @@ Examples:
 
 from pathlib import Path
 
-from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from geofeatureviz.io import helpers
+from geofeatureviz.io.path_settings import _PathSettings as Base_PathSettings
 
 
-class _PathSettings(BaseSettings):
-    """Settings for geofeatureviz_scripts paths.
-
-    No .env file is expected for this sub-package, but values can still be overridden
-    via environment variables prefixed with GEOFEATUREVIZ_SCRIPTS_, e.g.:
-    GEOFEATUREVIZ_SCRIPTS_PROJECT_ROOT=/some/other/path.
-    """
-
-    model_config = SettingsConfigDict(env_prefix="GEOFEATUREVIZ_SCRIPTS_")
-
-    project_root: Path = Field(default_factory=helpers.get_top_directory)
-
-    @property
-    def data_dir(self) -> Path:
-        """Base directory for all data files."""
-        return self.project_root / "data"
-
-    @property
-    def data_raw_dir(self) -> Path:
-        """Directory for raw data."""
-        return self.data_dir / "raw"
-
-    @property
-    def data_processed_dir(self) -> Path:
-        """Directory for preprocessed data."""
-        return self.data_dir / "processed"
-
-    @property
-    def data_reference_dir(self) -> Path:
-        """Directory for reference data."""
-        return self.data_dir / "reference"
-
-    @property
-    def results_dir(self) -> Path:
-        """Directory for results."""
-        return self.project_root / "results"
+class _PathSettings(Base_PathSettings):
+    """Settings for geofeatureviz_scripts paths."""
 
     @property
     def country_translation(self) -> Path:
