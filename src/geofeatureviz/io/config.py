@@ -75,7 +75,7 @@ class PathSettings(BaseSettings):
     @property
     def regional_groups_path(self) -> Path:
         """File path to YAML-file with information about regional groups."""
-        return self.data_dir / "regional_groups.yaml"
+        return self.data_reference_dir / "regional_groups.yaml"
 
     @property
     def country_translation_path(self) -> Path:
