@@ -15,7 +15,7 @@ import yaml
 from matplotlib.typing import ColorType
 from numpy.typing import ArrayLike, NDArray
 
-from ..io.config import path_settings
+from ..io.path_settings import path_settings
 
 # read config
 CONFIG_PATH = path_settings.resources_dir / "map_style.yaml"

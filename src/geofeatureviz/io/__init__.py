@@ -2,7 +2,7 @@
 
 from . import anki_connector
 from ._overpass_api_handler import OverpassAPIHandler
-from .config import path_settings
+from .path_settings import path_settings
 
 __all__ = [
     "anki_connector",
