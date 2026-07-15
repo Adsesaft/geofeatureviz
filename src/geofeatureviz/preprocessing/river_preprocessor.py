@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 from shapely import LineString, MultiLineString
 from shapely.ops import linemerge
 
-from ..io import helpers
+from ..io.config import path_settings
 
 
 def _is_valid_member_gdf(member_gdf: gpd.GeoDataFrame) -> bool:
@@ -49,12 +49,7 @@ class RiverCleanConfig:
         CONFIG_PATH: File path to the config file for cleaning the river data.
     """
 
-    CONFIG_PATH = (
-        helpers.get_top_directory()
-        / "data"
-        / "reference"
-        / "river_clean_data_config.yaml"
-    )
+    CONFIG_PATH = path_settings.data_reference_dir / "river_clean_data_config.yaml"
 
     def __init__(self) -> None:
         """Initialize the config by loading the config file."""
