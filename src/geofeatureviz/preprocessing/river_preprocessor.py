@@ -50,7 +50,10 @@ class RiverCleanConfig:
     """
 
     CONFIG_PATH = (
-        helpers.get_top_directory() / "data" / "config" / "river_clean_data_config.yaml"
+        helpers.get_top_directory()
+        / "data"
+        / "reference"
+        / "river_clean_data_config.yaml"
     )
 
     def __init__(self) -> None:
