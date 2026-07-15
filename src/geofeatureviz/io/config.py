@@ -73,11 +73,6 @@ class PathSettings(BaseSettings):
         return self.data_processed_dir / "osm_ids" / "german_rivers_osm_ids.csv"
 
     @property
-    def regional_groups_path(self) -> Path:
-        """File path to YAML-file with information about regional groups."""
-        return self.data_reference_dir / "regional_groups.yaml"
-
-    @property
     def anki_collection_path(self) -> Path:
         """File path to the local Anki collection database.
 
