@@ -46,6 +46,11 @@ class _PathSettings(BaseSettings):
         return self.data_dir / "processed"
 
     @property
+    def data_reference_dir(self) -> Path:
+        """Directory for reference data."""
+        return self.data_dir / "reference"
+
+    @property
     def results_dir(self) -> Path:
         """Directory for results."""
         return self.project_root / "results"
