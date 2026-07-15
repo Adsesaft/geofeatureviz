@@ -21,7 +21,7 @@ def _get_project_root() -> Path:
         raise ValueError(f"Couldn't find correct project directory; found {top_path}.")
 
 
-class PathSettings(BaseSettings):
+class _PathSettings(BaseSettings):
     """Configuration settings managed with environment variables and defaults.
 
     This class centralizes runtime configuration, especially file paths. Values can be
@@ -99,4 +99,4 @@ class PathSettings(BaseSettings):
         return base / "collection.anki2"
 
 
-path_settings = PathSettings()
+path_settings = _PathSettings()
