@@ -12,7 +12,7 @@ Examples:
 
 from pathlib import Path
 
-from geofeatureviz.io.path_settings import _PathSettings as Base_PathSettings
+from geofeatureviz.io._path_settings import _PathSettings as Base_PathSettings
 
 
 class _PathSettings(Base_PathSettings):

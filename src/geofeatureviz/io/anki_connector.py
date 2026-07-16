@@ -9,7 +9,7 @@ from typing import Generator
 import pandas as pd
 from anki.collection import Collection
 
-from .path_settings import path_settings
+from ._path_settings import path_settings
 
 
 @contextmanager
