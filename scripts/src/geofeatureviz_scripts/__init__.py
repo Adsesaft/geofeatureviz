@@ -10,4 +10,6 @@ separate the core library from data- and user-specific script-utils.
 from . import loader
 from ._path_settings import path_settings
 
+__version__ = "0.1.0"
+
 __all__ = ["loader", "path_settings"]
