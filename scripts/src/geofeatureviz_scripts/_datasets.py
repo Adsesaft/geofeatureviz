@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from .path_settings import path_settings
+from ._path_settings import path_settings
 
 
 @dataclass(frozen=True)

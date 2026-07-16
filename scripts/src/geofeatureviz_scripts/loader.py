@@ -9,7 +9,7 @@ import yaml
 from geofeatureviz.preprocessing import preprocessor
 
 from . import _datasets
-from .path_settings import path_settings
+from ._path_settings import path_settings
 
 
 def load_and_prep_data(
