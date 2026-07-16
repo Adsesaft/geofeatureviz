@@ -33,13 +33,13 @@ uv sync --no-dev
 
 This installs the package and all dependencies (which are defined in [pyproject.toml](pyproject.toml)) into a new virtual environment (*.venv*). To use this environment and **GeoFeatureViz**, you can either conveniently use **uv**, e.g.:
 ```bash
-uv run python -c "from geofeatureviz.io import helpers; print(helpers.get_top_directory())"
+uv run python -c "import geofeatureviz; print(geofeatureviz.__version__)"
 ```
 
 or first activate the environment and then run a command, e.g.:
 ```bash
 source .venv/bin/activate
-python -c "from geofeatureviz.io import helpers; print(helpers.get_top_directory())"
+python -c "import geofeatureviz; print(geofeatureviz.__version__)"
 ```
 
 **Note:** Alternatively to **uv**, you can use **pip** for installation. Again, navigate into the project directory, make sure that you use the **pip** in the environment you want to use, and run:
