@@ -8,6 +8,6 @@ separate the core library from data- and user-specific script-utils.
 """
 
 from . import loader
-from .path_settings import path_settings
+from ._path_settings import path_settings
 
 __all__ = ["loader", "path_settings"]
