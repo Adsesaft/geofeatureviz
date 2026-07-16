@@ -51,7 +51,11 @@ If you want to run the scripts for creating maps provided in this project, you a
 ```bash
 uv sync --all-packages
 ```
-This installs *geofeatureviz-scripts* into the same virtual environment, so that you can import it with `import geofeatureviz_scripts`.
+This installs **geofeatureviz-scripts** into the same virtual environment, so that you can import it with `import geofeatureviz_scripts`, e.g.:
+
+```bash
+uv run python -c "import geofeatureviz; print(geofeatureviz_scripts.__version__)"
+```
 
 ### Additional Tools
 In addition to Python, external tools are used for specific tasks.
