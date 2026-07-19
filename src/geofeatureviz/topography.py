@@ -34,6 +34,8 @@ def _signed_area(ring: NDArray[np.float64]) -> float:
         The area of the polygon enclosed by the ring, with the sign of the area
         indicating the winding direction.
     """
+    # translate coordinates to be around 0
+    ring = ring - ring[0]
     x, y = ring[:, 0], ring[:, 1]
     return 0.5 * float(np.sum(x[:-1] * y[1:] - x[1:] * y[:-1]))
 
