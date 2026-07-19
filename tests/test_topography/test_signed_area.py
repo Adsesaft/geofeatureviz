@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy.typing import NDArray
 
-from geofeatureviz import topography
+from geofeatureviz.topography import _signed_area
 
 
 @dataclass(frozen=True)
@@ -71,42 +71,42 @@ RINGS = [
 class TestBasics:
     @pytest.mark.parametrize("ring", RINGS)
     def test_clockwise(self, ring: Ring) -> None:
-        area = topography._signed_area(ring.clockwise())
+        area = _signed_area(ring.clockwise())
         assert area == pytest.approx(-ring.area)
 
     @pytest.mark.parametrize("ring", RINGS)
     def test_counter_clockwise(self, ring: Ring) -> None:
-        area = topography._signed_area(ring.counter_clockwise())
+        area = _signed_area(ring.counter_clockwise())
         assert area == pytest.approx(ring.area)
 
     def test_zero_area(self) -> None:
-        assert topography._signed_area(line.clockwise()) == pytest.approx(0.0)
+        assert _signed_area(line.clockwise()) == pytest.approx(0.0)
 
 
 class TestInvariants:
     @pytest.mark.parametrize("ring", RINGS)
     def test_orientation_sign_flip(self, ring: Ring) -> None:
-        cw_area = topography._signed_area(ring.clockwise())
-        ccw_area = topography._signed_area(ring.counter_clockwise())
+        cw_area = _signed_area(ring.clockwise())
+        ccw_area = _signed_area(ring.counter_clockwise())
         assert cw_area == -ccw_area
 
     @pytest.mark.parametrize("ring", RINGS)
     def test_signed_area_shifted(self, ring: Ring) -> None:
         coords = ring.clockwise()
-        original_area = topography._signed_area(coords)
+        original_area = _signed_area(coords)
 
         shifted = coords + 12.34
-        shifted_area = topography._signed_area(shifted)
+        shifted_area = _signed_area(shifted)
         assert original_area == shifted_area
 
     @pytest.mark.parametrize("ring,", RINGS)
     def test_signed_area_scaled(self, ring: Ring) -> None:
         coords = ring.clockwise()
-        original_area = topography._signed_area(coords)
+        original_area = _signed_area(coords)
 
         scaling = 2.0
         scaled = coords * scaling
-        scaled_area = topography._signed_area(scaled)
+        scaled_area = _signed_area(scaled)
         assert scaled_area == pytest.approx(original_area * scaling**2)
 
 
@@ -114,9 +114,9 @@ class TestDimension:
     @pytest.mark.parametrize("ring", RINGS)
     def test_signed_area_large_coords(self, ring: Ring) -> None:
         coords = ring.counter_clockwise() * 1e9
-        assert topography._signed_area(coords) == pytest.approx(ring.area * 1e9**2)
+        assert _signed_area(coords) == pytest.approx(ring.area * 1e9**2)
 
     @pytest.mark.parametrize("ring", RINGS)
     def test_signed_area_small_coords(self, ring: Ring) -> None:
         coords = ring.counter_clockwise() * 1e-9
-        assert topography._signed_area(coords) == pytest.approx(ring.area * 1e-9**2)
+        assert _signed_area(coords) == pytest.approx(ring.area * 1e-9**2)
