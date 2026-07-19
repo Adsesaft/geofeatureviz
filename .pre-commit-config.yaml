@@ -21,6 +21,7 @@ repos:
         additional_dependencies:
         -   matplotlib
         -   pydantic-settings
+        -   pytest
         -   svg-py
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.9.1
