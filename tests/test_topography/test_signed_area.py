@@ -1,4 +1,4 @@
-"""Provide tests for topography module."""
+"""Tests for topography._signed_area."""
 
 from dataclasses import dataclass
 
