@@ -68,7 +68,7 @@ RINGS = [
 ]
 
 
-class TestSignedArea:
+class TestBasics:
     @pytest.mark.parametrize("ring", RINGS)
     def test_clockwise(self, ring: Ring) -> None:
         area = topography._signed_area(ring.clockwise())
@@ -82,6 +82,8 @@ class TestSignedArea:
     def test_zero_area(self) -> None:
         assert topography._signed_area(line.clockwise()) == pytest.approx(0.0)
 
+
+class TestInvariants:
     @pytest.mark.parametrize("ring", RINGS)
     def test_orientation_sign_flip(self, ring: Ring) -> None:
         cw_area = topography._signed_area(ring.clockwise())
@@ -107,6 +109,8 @@ class TestSignedArea:
         scaled_area = topography._signed_area(scaled)
         assert scaled_area == pytest.approx(original_area * scaling**2)
 
+
+class TestDimension:
     @pytest.mark.parametrize("ring", RINGS)
     def test_signed_area_large_coords(self, ring: Ring) -> None:
         coords = ring.counter_clockwise() * 1e9
