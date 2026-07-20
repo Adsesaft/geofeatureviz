@@ -102,7 +102,10 @@ def raster_to_polygons(
 
     if not polygons:
         return None
-    result = cast(Polygon | MultiPolygon, unary_union(polygons))
+    result = unary_union(polygons)
+    # removes redundant points, e.g. on several points defining a straight line
+    result = result.simplify(0, preserve_topology=True)
+    assert isinstance(result, (Polygon, MultiPolygon))
     return result
 
 
