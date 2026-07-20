@@ -45,13 +45,13 @@ def raster_to_polygons(
 ) -> Polygon | MultiPolygon | None:
     """Convert elevations in a raster that exceed a threshold into a (Multi)Polygon.
 
-    The (Multi)Polygon covers all areas with elevation >= threshold, using marching
+    The (Multi)Polygon covers all areas with elevation > threshold, using marching
     squares (contourpy) so edges are smooth / sub-pixel rather than following raster
     cell boundaries. Note that there is no kind of transformation to any space of the
     resulting polygon, i.e. the result is in the pixel-space of the given raster.
 
     Args:
-        raster: An array of shape (N, N) where each pixel describes an elevation.
+        raster: An array of shape (N, M) where each pixel describes an elevation.
         threshold: The resulting (Multi)Polygon covers all areas where the elevation is
             larger than this threshold.
 
