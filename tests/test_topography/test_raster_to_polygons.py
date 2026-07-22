@@ -1,7 +1,6 @@
 """Tests for topography.raster_to_polygons."""
 
 from itertools import combinations
-from typing import cast
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -78,17 +77,21 @@ def raster_peak_with_hole() -> NDArray[np.float64]:
 class TestNoDataAboveThreshold:
     """Cases where no pixel in the raster is larger than the threshold.
 
-    Expected to produce None.
+    Expected to produce an empty polygon.
     """
 
-    def test_all_zero_returns_none(self) -> None:
+    def test_all_zero_returns_empty_polygon(self) -> None:
         raster = _make_raster((10, 10), fill_value=0.0)
-        assert raster_to_polygons(raster, threshold=1.0) is None
+        result = raster_to_polygons(raster, threshold=1.0)
+        assert isinstance(result, Polygon)
+        assert result.is_empty
 
-    def test_random_below_threshold_returns_none(self) -> None:
+    def test_random_below_threshold_returns_empty_polygon(self) -> None:
         raster = np.random.default_rng(seed=0).uniform(0.0, 5.0, size=(10, 10))
         threshold = float(raster.max()) + 0.1
-        assert raster_to_polygons(raster, threshold=threshold) is None
+        result = raster_to_polygons(raster, threshold=threshold)
+        assert isinstance(result, Polygon)
+        assert result.is_empty
 
 
 class TestAllDataAboveThreshold:
@@ -196,10 +199,8 @@ class TestSingleConnectedRegion:
         polygons = [
             raster_to_polygons(r, threshold=t) for r, t in zip(rasters, thresholds)
         ]
-        # this is also for type checker, but the assert makes sure all are polygons
         for p in polygons:
             assert isinstance(p, Polygon)
-        polygons = cast(list[Polygon], polygons)
         # assert that polygons are not equal (because the different values should
         # change how polygons are drawn), but very similar
         max_diff = polygons[0].area * AREA_REL_TOL
@@ -212,7 +213,7 @@ class TestSingleConnectedRegion:
     ) -> None:
         # when equal to threshold, no polygon should be drawn
         result_equal = raster_to_polygons(raster_one_peak, threshold=PEAK_VAL)
-        assert result_equal is None
+        assert result_equal.is_empty
 
         # when slightly smaller, the polygon should be found
         result = raster_to_polygons(raster_one_peak, threshold=PEAK_VAL - 1e-10)
