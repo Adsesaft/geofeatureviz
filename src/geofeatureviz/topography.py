@@ -40,7 +40,7 @@ def _signed_area(ring: NDArray[np.float64]) -> float:
     return 0.5 * float(np.sum(x[:-1] * y[1:] - x[1:] * y[:-1]))
 
 
-def raster_to_polygons(
+def raster_to_polygon(
     raster: NDArray[np.float64], threshold: float
 ) -> Polygon | MultiPolygon:
     """Convert elevations in a raster that exceed a threshold into a (Multi)Polygon.
@@ -140,7 +140,7 @@ def raster_to_elevation_gdf(
 
     def _make_polygon(threshold: float) -> Polygon | MultiPolygon:
         """Create a transformed Multi(Polygon) from elevations and a threshold."""
-        polygon = raster_to_polygons(elevations, threshold)
+        polygon = raster_to_polygon(elevations, threshold)
         return shapely_transform(_pixel_to_space_transform, polygon)
 
     geometries = [_make_polygon(t) for t in thresholds]

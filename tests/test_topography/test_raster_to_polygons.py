@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 from shapely.geometry import MultiPolygon, Polygon
 from shapely.ops import unary_union
 
-from geofeatureviz.topography import _CLOSEPOLY, _MOVETO, raster_to_polygons
+from geofeatureviz.topography import _CLOSEPOLY, _MOVETO, raster_to_polygon
 
 # generous relative tolerance for areas of shapes
 AREA_REL_TOL = 0.2
@@ -82,14 +82,14 @@ class TestNoDataAboveThreshold:
 
     def test_all_zero_returns_empty_polygon(self) -> None:
         raster = _make_raster((10, 10), fill_value=0.0)
-        result = raster_to_polygons(raster, threshold=1.0)
+        result = raster_to_polygon(raster, threshold=1.0)
         assert isinstance(result, Polygon)
         assert result.is_empty
 
     def test_random_below_threshold_returns_empty_polygon(self) -> None:
         raster = np.random.default_rng(seed=0).uniform(0.0, 5.0, size=(10, 10))
         threshold = float(raster.max()) + 0.1
-        result = raster_to_polygons(raster, threshold=threshold)
+        result = raster_to_polygon(raster, threshold=threshold)
         assert isinstance(result, Polygon)
         assert result.is_empty
 
@@ -104,7 +104,7 @@ class TestAllDataAboveThreshold:
     def test_polygon_coords(self, n_pixel: int) -> None:
         raster = _make_raster((n_pixel, n_pixel), fill_value=1.0)
 
-        result = raster_to_polygons(raster, threshold=0.0)
+        result = raster_to_polygon(raster, threshold=0.0)
         assert isinstance(result, Polygon)
         assert result.is_valid
         assert len(result.interiors) == 0
@@ -124,7 +124,7 @@ class TestAllDataAboveThreshold:
     def test_bounds_in_pixel_space(self, n_pixel: int) -> None:
         raster = _make_raster((n_pixel, n_pixel), fill_value=3.14)
 
-        result = raster_to_polygons(raster, threshold=0.1)
+        result = raster_to_polygon(raster, threshold=0.1)
         assert result is not None
 
         assert result.bounds == pytest.approx((0.0, 0.0, n_pixel - 1, n_pixel - 1))
@@ -133,7 +133,7 @@ class TestAllDataAboveThreshold:
     def test_area_in_pixel_space(self, n_pixel: int) -> None:
         raster = _make_raster((n_pixel, n_pixel), fill_value=31.41)
 
-        result = raster_to_polygons(raster, threshold=10.1)
+        result = raster_to_polygon(raster, threshold=10.1)
         assert result is not None
         assert result.area == pytest.approx((n_pixel - 1) * (n_pixel - 1))
 
@@ -141,7 +141,7 @@ class TestAllDataAboveThreshold:
         raster = _make_raster((5, 5), fill_value=1.0)
 
         raster_copy = raster.copy()
-        _ = raster_to_polygons(raster, threshold=0.0)
+        _ = raster_to_polygon(raster, threshold=0.0)
 
         np.testing.assert_array_equal(raster, raster_copy)
 
@@ -155,7 +155,7 @@ class TestSingleConnectedRegion:
     def test_single_blob_returns_single_polygon(
         self, raster_one_peak: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_one_peak, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_one_peak, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
         assert result.is_valid
         assert len(result.interiors) == 0
@@ -163,7 +163,7 @@ class TestSingleConnectedRegion:
     def test_polygon_roughly_positioned_and_sized(
         self, raster_one_peak: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_one_peak, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_one_peak, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
 
         expected_area = (15 - 6) ** 2
@@ -197,7 +197,7 @@ class TestSingleConnectedRegion:
             rasters.append(raster)
 
         polygons = [
-            raster_to_polygons(r, threshold=t) for r, t in zip(rasters, thresholds)
+            raster_to_polygon(r, threshold=t) for r, t in zip(rasters, thresholds)
         ]
         for p in polygons:
             assert isinstance(p, Polygon)
@@ -212,11 +212,11 @@ class TestSingleConnectedRegion:
         self, raster_one_peak: NDArray[np.float64]
     ) -> None:
         # when equal to threshold, no polygon should be drawn
-        result_equal = raster_to_polygons(raster_one_peak, threshold=PEAK_VAL)
+        result_equal = raster_to_polygon(raster_one_peak, threshold=PEAK_VAL)
         assert result_equal.is_empty
 
         # when slightly smaller, the polygon should be found
-        result = raster_to_polygons(raster_one_peak, threshold=PEAK_VAL - 1e-10)
+        result = raster_to_polygon(raster_one_peak, threshold=PEAK_VAL - 1e-10)
         assert isinstance(result, Polygon)
 
 
@@ -229,7 +229,7 @@ class TestMultipleDisjointRegions:
     def test_two_disjoint_blobs_return_two_parts(
         self, raster_two_peaks: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_two_peaks, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_two_peaks, threshold=THRESHOLD)
 
         assert isinstance(result, MultiPolygon)
         assert len(result.geoms) == 2
@@ -240,7 +240,7 @@ class TestMultipleDisjointRegions:
     def test_two_disjoint_blobs_do_not_overlap(
         self, raster_two_peaks: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_two_peaks, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_two_peaks, threshold=THRESHOLD)
 
         assert isinstance(result, MultiPolygon)
         part_a, part_b = result.geoms
@@ -249,7 +249,7 @@ class TestMultipleDisjointRegions:
     def test_three_disjoint_blobs_return_three_parts(
         self, raster_three_peaks: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_three_peaks, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_three_peaks, threshold=THRESHOLD)
 
         assert isinstance(result, MultiPolygon)
         assert len(result.geoms) == 3
@@ -258,7 +258,7 @@ class TestMultipleDisjointRegions:
             assert len(part.interiors) == 0
 
     def test_parts_area(self, raster_two_peaks: NDArray[np.float64]) -> None:
-        result = raster_to_polygons(raster_two_peaks, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_two_peaks, threshold=THRESHOLD)
         assert isinstance(result, MultiPolygon)
 
         expected_area_per_blob = (5 - 2) ** 2
@@ -275,14 +275,14 @@ class TestHoles:
     def test_produce_polygon_with_hole(
         self, raster_peak_with_hole: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_peak_with_hole, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_peak_with_hole, threshold=THRESHOLD)
 
         assert isinstance(result, Polygon)
         assert result.is_valid
         assert len(result.interiors) == 1
 
     def test_hole_is_smaller(self, raster_peak_with_hole: NDArray[np.float64]) -> None:
-        result = raster_to_polygons(raster_peak_with_hole, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_peak_with_hole, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
 
         outer = Polygon(result.exterior)
@@ -291,7 +291,7 @@ class TestHoles:
         assert result.area == pytest.approx(outer.area - hole.area, rel=1e-6)
 
     def test_hole_position(self, raster_peak_with_hole: NDArray[np.float64]) -> None:
-        result = raster_to_polygons(raster_peak_with_hole, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_peak_with_hole, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
 
         hole = Polygon(result.interiors[0])
@@ -304,12 +304,12 @@ class TestHoles:
     def test_inverse_values_produce_inverse_polygons(
         self, raster_one_peak: NDArray[np.float64]
     ) -> None:
-        result = raster_to_polygons(raster_one_peak, threshold=THRESHOLD)
+        result = raster_to_polygon(raster_one_peak, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
         assert result.is_valid
         assert len(result.interiors) == 0
 
-        inv_result = raster_to_polygons(-raster_one_peak, threshold=-THRESHOLD)
+        inv_result = raster_to_polygon(-raster_one_peak, threshold=-THRESHOLD)
         assert isinstance(inv_result, Polygon)
         assert inv_result.is_valid
         assert len(inv_result.interiors) == 1
@@ -338,7 +338,7 @@ class TestEdgeCasesAndAmbiguities:
         raster = _make_raster((N_PIXELS, N_PIXELS), fill_value=FILL_VAL)
         raster[N_PIXELS // 2, N_PIXELS // 2] = PEAK_VAL
 
-        result = raster_to_polygons(raster, threshold=THRESHOLD)
+        result = raster_to_polygon(raster, threshold=THRESHOLD)
 
         assert isinstance(result, Polygon)
         assert result.is_valid
@@ -348,7 +348,7 @@ class TestEdgeCasesAndAmbiguities:
         raster = _make_raster((10, 20), fill_value=FILL_VAL)
         _elevate(raster, (2, 8), (2, 15), value=PEAK_VAL)
 
-        result = raster_to_polygons(raster, threshold=THRESHOLD)
+        result = raster_to_polygon(raster, threshold=THRESHOLD)
         assert isinstance(result, Polygon)
         assert result.is_valid
 
@@ -361,7 +361,7 @@ class TestEdgeCasesAndAmbiguities:
         _elevate(raster, (1, 3), (1, 3), value=PEAK_VAL)
         _elevate(raster, (3, 5), (3, 5), value=PEAK_VAL)  # touches at corner (2, 2)
 
-        result = raster_to_polygons(raster, threshold=THRESHOLD)
+        result = raster_to_polygon(raster, threshold=THRESHOLD)
 
         assert isinstance(result, MultiPolygon)
         assert len(result.geoms) == 2
@@ -378,7 +378,7 @@ class TestEdgeCasesAndAmbiguities:
         _elevate(raster, (1, 4), (5, 8), value=PEAK_VAL)
         raster[2, 4] = PEAK_VAL  # single-pixel bridge
 
-        result = raster_to_polygons(raster, threshold=THRESHOLD)
+        result = raster_to_polygon(raster, threshold=THRESHOLD)
 
         assert isinstance(result, Polygon)
         assert result.is_valid
@@ -424,4 +424,4 @@ class TestValueError:
         with patch(module_name, return_value=mock_contour_generator):
             raster = np.zeros((2, 2))  # content irrelevant, generator is mocked
             with pytest.raises(ValueError, match="Expected a single outer ring"):
-                raster_to_polygons(raster, threshold=THRESHOLD)
+                raster_to_polygon(raster, threshold=THRESHOLD)
