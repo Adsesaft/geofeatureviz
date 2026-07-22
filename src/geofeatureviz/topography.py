@@ -42,7 +42,7 @@ def _signed_area(ring: NDArray[np.float64]) -> float:
 
 def raster_to_polygons(
     raster: NDArray[np.float64], threshold: float
-) -> Polygon | MultiPolygon | None:
+) -> Polygon | MultiPolygon:
     """Convert elevations in a raster that exceed a threshold into a (Multi)Polygon.
 
     The (Multi)Polygon covers all areas with elevation > threshold, using marching
@@ -61,8 +61,8 @@ def raster_to_polygons(
             is always a single outer ring found when using contourpy's filled function.
 
     Returns:
-        A shapely Polygon or a MultiPolygon if the areas are not connected. None if
-        nothing is above the threshold.
+        A shapely Polygon or a MultiPolygon if the areas are not connected. When no
+        value is above the threshold, an empty Polygon is returned.
     """
     cg = contourpy.contour_generator(z=raster, fill_type=contourpy.FillType.OuterCode)
     cg_fill_result = cg.filled(threshold, np.inf)
@@ -101,7 +101,7 @@ def raster_to_polygons(
             polygons.append(polygon)
 
     if not polygons:
-        return None
+        return Polygon()
     result = unary_union(polygons)
     # removes redundant points, e.g. on several points defining a straight line
     result = result.simplify(0, preserve_topology=True)
