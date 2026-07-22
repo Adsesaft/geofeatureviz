@@ -138,14 +138,17 @@ def raster_to_elevation_gdf(
     if raster_src.nodata is not None:
         elevations = np.where(elevations == raster_src.nodata, np.nan, elevations)
 
-    # create a (Multi)Polygon for each threshold
-    polygon_dicts = []
-    for threshold in thresholds:
+    def _make_polygon(threshold: float) -> Polygon | MultiPolygon:
+        """Create a transformed Multi(Polygon) from elevations and a threshold."""
         polygon = raster_to_polygons(elevations, threshold)
-        if polygon is not None:
-            polygon = shapely_transform(_pixel_to_space_transform, polygon)
-        polygon_dicts.append({"elevation": threshold, "geometry": polygon})
-    return gpd.GeoDataFrame(polygon_dicts, crs=raster_src.crs)
+        return shapely_transform(_pixel_to_space_transform, polygon)
+
+    geometries = [_make_polygon(t) for t in thresholds]
+    return gpd.GeoDataFrame(
+        {"elevation": thresholds, "geometry": geometries},
+        geometry="geometry",
+        crs=raster_src.crs,
+    )
 
 
 def get_thresholds(
