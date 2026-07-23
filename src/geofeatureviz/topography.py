@@ -6,14 +6,11 @@ import contourpy
 import geopandas as gpd
 import numpy as np
 import rasterio
+from contourpy.types import CLOSEPOLY, MOVETO  # contourpy magic numbers
 from numpy.typing import NDArray
 from shapely import MultiPolygon, Polygon
 from shapely.ops import transform as shapely_transform
 from shapely.ops import unary_union
-
-# contourpy magic number codes describing the function of contour coordinates
-_MOVETO = 1  # when the coordinate is the start of a polygon ring
-_CLOSEPOLY = 79  # when the coordinate closes the polygon ring
 
 
 def _signed_area(ring: NDArray[np.float64]) -> float:
@@ -76,9 +73,9 @@ def raster_to_polygon(
         assert codes is not None
         for i, c in enumerate(codes):
             # the codes tells if coordinates are starters or closers
-            if c == _MOVETO:
+            if c == MOVETO:
                 start = i
-            elif c == _CLOSEPOLY:
+            elif c == CLOSEPOLY:
                 ring = points[start : i + 1]
                 # if the sign of the area is positive, it is the outer bound
                 if _signed_area(ring) > 0:

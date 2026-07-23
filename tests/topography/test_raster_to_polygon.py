@@ -5,11 +5,12 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
+from contourpy.types import CLOSEPOLY, LINETO, MOVETO
 from numpy.typing import NDArray
 from shapely.geometry import MultiPolygon, Polygon
 from shapely.ops import unary_union
 
-from geofeatureviz.topography import _CLOSEPOLY, _MOVETO, raster_to_polygon
+from geofeatureviz.topography import raster_to_polygon
 
 # generous relative tolerance for areas of shapes
 AREA_REL_TOL = 0.2
@@ -405,11 +406,22 @@ class TestValueError:
         [
             (  # 0 outer rings
                 np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]),
-                np.array([_MOVETO, 2, _CLOSEPOLY]),
+                np.array([MOVETO, LINETO, CLOSEPOLY]),
             ),
             (  # 2 outer rings
                 two_rings(),
-                np.array([_MOVETO, 2, 2, _CLOSEPOLY, _MOVETO, 2, 2, _CLOSEPOLY]),
+                np.array(
+                    [
+                        MOVETO,
+                        LINETO,
+                        LINETO,
+                        CLOSEPOLY,
+                        MOVETO,
+                        LINETO,
+                        LINETO,
+                        CLOSEPOLY,
+                    ]
+                ),
             ),
         ],
         ids=["zero_outer_rings", "two_outer_rings"],
