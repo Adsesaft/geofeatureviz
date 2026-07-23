@@ -188,13 +188,13 @@ def get_thresholds(
             f"({max_elev}) is zero."
         )
 
-    exponent = np.floor(np.log10(step_size))
-    mantissa = step_size / (10**exponent)
+    exponent = int(np.floor(np.log10(step_size)))
+    mantissa = step_size / (10.0**exponent)
 
     CANDIDATES = np.arange(0, 10.5, 0.5)
     # choose best candidate by relative error in log space
     best = min([c for c in CANDIDATES if c >= mantissa])
-    step_size = best * (10**exponent)
+    step_size = best * (10.0**exponent)
 
     start = (min_elev // step_size) * step_size
     end = start + (n_thresholds - 1) * step_size
