@@ -333,6 +333,42 @@ class TestHoles:
         assert unary_union([result, inv_result]).equals(whole_area)
 
 
+Points = NDArray[np.float64]
+Codes = NDArray[np.int_]
+
+
+@pytest.fixture
+def bow_tie_contour() -> tuple[Points, Codes]:
+    points = np.array(
+        [[0, 0], [2, 2], [4, 0], [4, 4], [2, 2], [0, 4], [0, 0]],
+        dtype=float,
+    )
+    codes = np.array([MOVETO, LINETO, LINETO, LINETO, LINETO, LINETO, CLOSEPOLY])
+    return points, codes
+
+
+MockFilledContoursFactory = Callable[[Points, Codes], ContextManager[MagicMock]]
+
+
+@pytest.fixture
+def mock_filled_contours_factory() -> MockFilledContoursFactory:
+    """Mock contourpy.contour_generator's return value with points and codes.
+
+    This returns a contextmanager factory, so that it can be used like:
+    with mock_filled_contours(points, codes):
+        result = raster_to_polygons(...)
+    """
+
+    def _create(points: Points, codes: Codes) -> ContextManager[MagicMock]:
+        mock_contour_generator = MagicMock()
+        mock_contour_generator.filled.return_value = ([points], [codes])
+
+        module_name = "geofeatureviz.topography.contourpy.contour_generator"
+        return patch(module_name, return_value=mock_contour_generator)
+
+    return _create
+
+
 class TestEdgeCasesAndAmbiguities:
     """Edge cases and ambiguous cases."""
 
@@ -386,30 +422,26 @@ class TestEdgeCasesAndAmbiguities:
         assert result.is_valid
         assert len(result.interiors) == 0
 
+    def test_invalid_polygon_is_repaired(
+        self,
+        mock_filled_contours_factory: MockFilledContoursFactory,
+        bow_tie_contour: tuple[Points, Codes],
+    ) -> None:
+        """Test if an invalid polygon is repaired when contourpy returns one.
 
-Points = NDArray[np.float64]
-Codes = NDArray[np.int_]
+        Actually, contourpy is written so that this case should not happen; but this
+        tests if raster_to_polygon still worked if it happens anyway, so this just tests
+        an "insurance" part of the code.
+        """
+        raster = np.zeros((2, 2))  # content irrelevant, generator is mocked
+        with mock_filled_contours_factory(*bow_tie_contour):
+            result = raster_to_polygon(raster, threshold=THRESHOLD)
 
-MockFilledContoursFactory = Callable[[Points, Codes], ContextManager[MagicMock]]
-
-
-@pytest.fixture
-def mock_filled_contours_factory() -> MockFilledContoursFactory:
-    """Mock contourpy.contour_generator's return value with points and codes.
-
-    This returns a contextmanager factory, so that it can be used like:
-    with mock_filled_contours(points, codes):
-        result = raster_to_polygons(...)
-    """
-
-    def _create(points: Points, codes: Codes) -> ContextManager[MagicMock]:
-        mock_contour_generator = MagicMock()
-        mock_contour_generator.filled.return_value = ([points], [codes])
-
-        module_name = "geofeatureviz.topography.contourpy.contour_generator"
-        return patch(module_name, return_value=mock_contour_generator)
-
-    return _create
+        assert isinstance(result, MultiPolygon)
+        assert result.is_valid
+        assert not result.is_empty
+        assert len(result.geoms) == 2, "Result should be two touching triangles."
+        assert result.area == pytest.approx(8.0, rel=AREA_REL_TOL)
 
 
 def zero_rings() -> tuple[Points, Codes]:
