@@ -62,6 +62,7 @@ def raster_factory() -> RasterFactory:
                 dtype=data.dtype,
                 crs=crs,
                 transform=transform,
+                nodata=np.nan,
             ) as dataset:
                 dataset.write(data, 1)
 
@@ -195,3 +196,14 @@ class TestGeometries:
         coords1 = np.array(list(geom1.exterior.coords))
         coords2 = np.array(list(geom2.exterior.coords))
         np.testing.assert_equal(2 * coords1, coords2)
+
+    def test_no_data_is_covered(self, raster_factory: RasterFactory) -> None:
+        sample_raster = np.ones((2, 2))
+        sample_raster[-1, -1] = np.nan
+        with raster_factory(sample_raster) as raster:
+            result = raster_to_elevation_gdf(raster, thresholds=[0])
+        assert len(result) == 1
+        geom = result.geometry.iloc[0]
+        assert isinstance(geom, Polygon)
+        # the geometry should be a triangle, since one pixel is missing
+        assert geom.area == pytest.approx(0.5)
