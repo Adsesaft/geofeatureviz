@@ -162,11 +162,19 @@ def get_thresholds(
 
     Args:
         raster: The raster for which the elevation steps should be computed.
-        n_thresholds: The number of thresholds of elevation steps.
+        n_thresholds: The number of thresholds of elevation steps. This has to be at
+            least three.
+
+    Raises:
+            ValueError: When the number of thresholds is smaller than three.
 
     Returns:
         An array containing the elevation steps.
     """
+    if n_thresholds < 3:
+        raise ValueError(
+            f"The number of thresholds has to be at least 3, not {n_thresholds}."
+        )
     min_elev = raster.min() if raster.min() <= 0 else 0
     max_elev = raster.max()
 
