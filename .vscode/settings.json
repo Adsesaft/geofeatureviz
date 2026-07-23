@@ -5,6 +5,7 @@
         "argmin",
         "centerlines",
         "cids",
+        "CLOSEPOLY",
         "colormaps",
         "cumcount",
         "equirectangular",
@@ -14,6 +15,7 @@
         "lambertian",
         "linecap",
         "linejoin",
+        "LINETO",
         "pysvg",
         "topo",
         "xoff"
