@@ -70,9 +70,7 @@ def raster_to_polygon(
 
     polygons = []
     for points, codes in zip(points_list, codes_list):
-        if points is None:
-            continue
-
+        assert points is not None
         outers, holes = [], []
         start = None
         assert codes is not None
