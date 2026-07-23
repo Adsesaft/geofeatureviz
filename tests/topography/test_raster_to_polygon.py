@@ -386,10 +386,24 @@ class TestEdgeCasesAndAmbiguities:
         assert len(result.interiors) == 0
 
 
-def two_rings() -> NDArray[np.float64]:
+Points = NDArray[np.float64]
+Codes = NDArray[np.int_]
+
+
+def zero_rings() -> tuple[Points, Codes]:
+    points = np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]])
+    codes = np.array([MOVETO, LINETO, CLOSEPOLY])
+    return points, codes
+
+
+def two_rings() -> tuple[Points, Codes]:
     ring_a = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
     ring_b = np.array([[5.0, 5.0], [6.0, 5.0], [6.0, 6.0], [5.0, 5.0]])
-    return np.concatenate([ring_a, ring_b])
+    points = np.concatenate([ring_a, ring_b])
+    codes = np.array(
+        [MOVETO, LINETO, LINETO, CLOSEPOLY, MOVETO, LINETO, LINETO, CLOSEPOLY]
+    )
+    return points, codes
 
 
 class TestValueError:
@@ -403,27 +417,7 @@ class TestValueError:
 
     @pytest.mark.parametrize(
         "points, codes",
-        [
-            (  # 0 outer rings
-                np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]),
-                np.array([MOVETO, LINETO, CLOSEPOLY]),
-            ),
-            (  # 2 outer rings
-                two_rings(),
-                np.array(
-                    [
-                        MOVETO,
-                        LINETO,
-                        LINETO,
-                        CLOSEPOLY,
-                        MOVETO,
-                        LINETO,
-                        LINETO,
-                        CLOSEPOLY,
-                    ]
-                ),
-            ),
-        ],
+        [zero_rings(), two_rings()],
         ids=["zero_outer_rings", "two_outer_rings"],
     )
     def test_raises_value_error(
