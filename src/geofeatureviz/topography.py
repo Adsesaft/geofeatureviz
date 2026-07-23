@@ -166,7 +166,9 @@ def get_thresholds(
             least three.
 
     Raises:
-            ValueError: When the number of thresholds is smaller than three.
+        ValueError: When the number of thresholds is smaller than three.
+        ValueError: When the step size would be 0, which happens when the minimum and
+            maximum value are equal (or extremely close).
 
     Returns:
         An array containing the elevation steps.
@@ -179,6 +181,12 @@ def get_thresholds(
     max_elev = raster.max()
 
     step_size = (max_elev - min_elev) / n_thresholds
+    if step_size <= 0:
+        raise ValueError(
+            f"The step size has to be larger than 0. The probable error is that the "
+            f"difference between the raster's min ({min_elev}) and the raster's max "
+            f"({max_elev}) is zero."
+        )
 
     exponent = np.floor(np.log10(step_size))
     mantissa = step_size / (10**exponent)
