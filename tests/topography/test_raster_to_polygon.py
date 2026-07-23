@@ -1,6 +1,7 @@
 """Tests for topography.raster_to_polygons."""
 
 from itertools import combinations
+from typing import Callable, ContextManager
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -389,6 +390,27 @@ class TestEdgeCasesAndAmbiguities:
 Points = NDArray[np.float64]
 Codes = NDArray[np.int_]
 
+MockFilledContoursFactory = Callable[[Points, Codes], ContextManager[MagicMock]]
+
+
+@pytest.fixture
+def mock_filled_contours_factory() -> MockFilledContoursFactory:
+    """Mock contourpy.contour_generator's return value with points and codes.
+
+    This returns a contextmanager factory, so that it can be used like:
+    with mock_filled_contours(points, codes):
+        result = raster_to_polygons(...)
+    """
+
+    def _create(points: Points, codes: Codes) -> ContextManager[MagicMock]:
+        mock_contour_generator = MagicMock()
+        mock_contour_generator.filled.return_value = ([points], [codes])
+
+        module_name = "geofeatureviz.topography.contourpy.contour_generator"
+        return patch(module_name, return_value=mock_contour_generator)
+
+    return _create
+
 
 def zero_rings() -> tuple[Points, Codes]:
     points = np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]])
@@ -421,13 +443,12 @@ class TestValueError:
         ids=["zero_outer_rings", "two_outer_rings"],
     )
     def test_raises_value_error(
-        self, points: NDArray[np.float64], codes: NDArray[np.int_]
+        self,
+        points: Points,
+        codes: Codes,
+        mock_filled_contours_factory: MockFilledContoursFactory,
     ) -> None:
-
-        mock_contour_generator = MagicMock()
-        mock_contour_generator.filled.return_value = ([points], [codes])
-        module_name = "geofeatureviz.topography.contourpy.contour_generator"
-        with patch(module_name, return_value=mock_contour_generator):
-            raster = np.zeros((2, 2))  # content irrelevant, generator is mocked
+        raster = np.zeros((2, 2))  # content irrelevant, generator is mocked
+        with mock_filled_contours_factory(points, codes):
             with pytest.raises(ValueError, match="Expected a single outer ring"):
                 raster_to_polygon(raster, threshold=THRESHOLD)
