@@ -156,12 +156,15 @@ def get_thresholds(
 ) -> NDArray[np.float64]:
     """Get thresholds for an elevation map.
 
-    The thresholds are determined by the number of thresholds and the minimum and
-    maximum value of the raster. The step size is "rounded" depending on the overall
-    data range. Zero is always part of the thresholds.
+    The thresholds are determined by the the minimum and maximum value of the raster
+    and the number of thresholds. The thresholds are "rounded" to nice values and are
+    shifted to be zero aligned (i.e., a continuation would always include 0).
 
     Args:
-        raster: The raster for which the elevation steps should be computed.
+        raster: The raster for which the elevation steps should be computed. The only
+            relevant values in the raster are its maximum and minimum; i.e, you can also
+            pass a raster of just two values if you do not have the whole raster but
+            just the max and min value.
         n_thresholds: The number of thresholds of elevation steps. This has to be at
             least three.
 
@@ -171,14 +174,15 @@ def get_thresholds(
             maximum value are equal (or extremely close).
 
     Returns:
-        An array containing the elevation steps.
+        An array containing thresholds as elevation steps, with an equal step size
+        between the thresholds and zero-aligned.
     """
     if n_thresholds < 3:
         raise ValueError(
             f"The number of thresholds has to be at least 3, not {n_thresholds}."
         )
-    min_elev = raster.min() if raster.min() <= 0 else 0
-    max_elev = raster.max()
+    min_elev = np.min(raster)
+    max_elev = np.max(raster)
 
     step_size = (max_elev - min_elev) / n_thresholds
     if step_size <= 0:
@@ -192,8 +196,13 @@ def get_thresholds(
     mantissa = step_size / (10.0**exponent)
 
     mantissa_rounded = np.ceil(mantissa * 2) / 2  # rounds up to nearest 0.5
-    step_size = mantissa_rounded * (10.0**exponent)
+    step_size = mantissa_rounded * (10**exponent)
 
-    start = (min_elev // step_size) * step_size
-    end = start + (n_thresholds - 1) * step_size
-    return np.linspace(start, end, n_thresholds)
+    # align with zero
+    offset = min_elev % step_size
+    if offset > step_size / 2:
+        offset -= step_size
+    start = min_elev - offset
+
+    thresholds: NDArray[np.float64] = start + step_size * np.arange(n_thresholds)
+    return thresholds
